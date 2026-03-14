@@ -1,0 +1,7 @@
+{
+  "name": "SuperBarbaro",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
