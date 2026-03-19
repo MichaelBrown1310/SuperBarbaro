@@ -11,6 +11,7 @@ import PerfilPage from '../views/perfil/PerfilPage.vue'
 
 import UsuariosPage from '../views/usuarios/UsuariosPage.vue'
 import RegistrarUsuarioPage from '../views/usuarios/RegistrarUsuarioPage.vue'
+import NuevaOrdenPage from '@/views/Ventas/NuevaOrdenPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
 
@@ -65,7 +66,13 @@ component: UsuariosPage
 {
 path: '/registrar-usuario',
 component: RegistrarUsuarioPage
+},
+
+{
+path: '/nueva-orden',
+component: NuevaOrdenPage
 }
+
 
 ]
 

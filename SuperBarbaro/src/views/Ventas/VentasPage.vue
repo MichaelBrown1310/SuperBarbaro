@@ -6,6 +6,15 @@
 
 <ion-content class="fondo">
 
+    <div class="contenedor-boton">
+
+    <button class="boton-general" @click="registrarUsuario" style="font-size: 90px;">
+    +
+    <p style="font-size: 20px;">Nueva orden</p>
+    </button>
+
+    </div>
+
 </ion-content>
 
 </ion-page>
@@ -14,8 +23,24 @@
 
 <script setup>
 
+
 import { IonPage, IonContent } from '@ionic/vue'
 import AppHeader from '../../components/AppHeader.vue'
+
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const usuarios = ref([])
+
+
+
+const registrarUsuario = () => {
+
+router.push('/nueva-orden')
+
+}
 
 </script>
 
@@ -23,6 +48,19 @@ import AppHeader from '../../components/AppHeader.vue'
 
 .fondo{
 --background:white;
+}
+
+.boton-general{
+width: 200px;
+height: 200px;
+border:2px solid black;
+border-radius:25px;
+
+
+background: transparent;
+color:black;
+
+font-weight: bold;
 }
 
 </style>
