@@ -19,8 +19,15 @@
 import {
 IonHeader,
 IonToolbar,
-IonTitle
+IonTitle,
+IonButtons,
+IonButton,
+IonIcon
 } from '@ionic/vue'
+
+import {
+useRoute
+} from 'vue-router'
 
 defineProps({
 titulo: String
@@ -42,5 +49,12 @@ font-weight:600;
 font-size:20px;
 color:black;
 }
+
+ion-icon{
+--background:white;
+
+}
+
+
 
 </style>

@@ -172,3 +172,163 @@ res.json({success:true})
 app.listen(3000, () => {
   console.log("Servidor corriendo en puerto 3000");
 });
+
+//INVENTARIOS
+app.get("/productos/:categoria", (req, res) => {
+
+  const { categoria } = req.params;
+
+  const sql = "SELECT * FROM productos WHERE categoria = ?";
+
+  db.query(sql, [categoria], (err, result) => {
+
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json(result);
+
+  });
+
+});
+
+
+app.get("/producto/:id", (req, res) => {
+
+  const { id } = req.params;
+
+  const sql = "SELECT * FROM productos WHERE id = ?";
+
+  db.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json(result[0]);
+  });
+
+});
+
+app.post("/productos", (req, res) => {
+
+  const { nombre, categoria, precio, cantidad, imagen } = req.body;
+
+  const sql = `
+  INSERT INTO productos (nombre, categoria, precio, cantidad, imagen)
+  VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(sql, [nombre, categoria, precio, cantidad, imagen], (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json({ success: true });
+  });
+
+});
+
+app.put("/productos/:id", (req, res) => {
+
+  const { id } = req.params;
+  const { nombre, precio, cantidad, imagen } = req.body;
+
+  const sql = `
+  UPDATE productos
+  SET nombre=?, precio=?, cantidad=?, imagen=?
+  WHERE id=?
+  `;
+
+  db.query(sql, [nombre, precio, cantidad, imagen, id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json({ success: true });
+  });
+
+});
+
+app.delete("/productos/:id", (req, res) => {
+
+  const { id } = req.params;
+
+  const sql = "DELETE FROM productos WHERE id=?";
+
+  db.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json({ success: true });
+  });
+
+});
+
+app.get("/categorias", (req, res) => {
+
+  const sql = "SELECT * FROM categorias";
+
+  db.query(sql, (err, result) => {
+
+    if (err) return res.status(500).json(err);
+
+    res.json(result);
+
+  });
+
+});
+
+app.post("/categorias", (req, res) => {
+
+  const { nombre, imagen } = req.body;
+
+  const sql = "INSERT INTO categorias (nombre, imagen) VALUES (?,?)";
+
+  db.query(sql, [nombre, imagen], (err, result) => {
+
+    if (err) return res.status(500).json(err);
+
+    res.json({ success: true });
+
+  });
+
+});
+
+app.get("/productos/:categoria", (req, res) => {
+
+  const categoria = req.params.categoria;
+
+  const sql = `
+    SELECT p.* FROM productos p
+    JOIN categorias c ON p.categoria_id = c.id
+    WHERE c.nombre = ?
+  `;
+
+  db.query(sql, [categoria], (err, result) => {
+
+    if (err) return res.status(500).json(err);
+
+    res.json(result);
+
+  });
+
+});
+
+app.post("/productos", (req, res) => {
+
+  const { nombre, precio, cantidad, imagen, categoria } = req.body;
+
+  if (!nombre || !precio || !cantidad || !categoria) {
+    return res.status(400).json({ error: "Faltan datos" });
+  }
+
+  const sql = `
+    INSERT INTO productos (nombre, precio, cantidad, imagen, categoria)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(sql, [nombre, precio, cantidad, imagen, categoria], (err, result) => {
+
+    if (err) {
+      console.log("Error SQL:", err);
+      return res.status(500).json(err);
+    }
+
+    res.json({ success: true });
+
+  });
+
+});
+
+
+
+//CIERRA INVENTARIOS
