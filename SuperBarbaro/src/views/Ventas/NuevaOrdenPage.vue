@@ -21,7 +21,7 @@
 
 <div class="contenedor-boton">
 
-    <button class="boton-registrar" @click="registrarUsuario">
+    <button class="boton-registrar" @click="Seleccion">
     CONTINUAR
     </button>
 
@@ -48,9 +48,9 @@ const usuarios = ref([])
 
 
 
-const registrarUsuario = () => {
+const seleccion = () => {
 
-router.push('/registrar-usuario')
+router.push('')
 
 }
 

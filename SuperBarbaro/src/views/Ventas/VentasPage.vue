@@ -8,7 +8,7 @@
 
     <div class="contenedor-boton">
 
-    <button class="boton-general" @click="registrarUsuario" style="font-size: 90px;">
+    <button class="boton-general" @click="NuevaOrden" style="font-size: 90px;">
     +
     <p style="font-size: 20px;">Nueva orden</p>
     </button>
@@ -36,7 +36,7 @@ const usuarios = ref([])
 
 
 
-const registrarUsuario = () => {
+const NuevaOrden = () => {
 
 router.push('/nueva-orden')
 
