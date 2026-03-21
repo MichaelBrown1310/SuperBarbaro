@@ -61,27 +61,32 @@ Aplicación web desarrollada para la gestión integral de ventas, inventario y a
    git clone https://github.com/MichaelBrown1310/SuperBarbaro
    cd superbarbaro
 
-2. Ejecuta el backend:
+2. Ingresa a la carpeta del backend:
     ```bash
     cd backend
-    npm install
 
-3. Instala las dependencias:
+3. Ejecuta el servidor:
     ```bash
     node server.js
 
-4. Instala dependencias del frontend:
+4. Abre una nueva terminal y ubícate en la carpeta del frontend:
     ```bash
-    cd ../SuperBarbaro
-    npm install
+    cd SuperBarbaro
 
 5. Ejecuta la aplicación:
     ```bash
-    npm run dev
+    ionic serve
 
 6. Credenciales de acceso:
     Usuario: admin
     Contraseña: 1234
+
+💡 Notas importantes
+- Asegúrate de tener instalado:
+  - Node.js
+  - Ionic CLI (npm install -g @ionic/cli)
+- El backend debe estar corriendo antes del frontend.
+- Verifica que los puertos no estén en uso.
 
 
 ## 📸 Capturas de pantalla
