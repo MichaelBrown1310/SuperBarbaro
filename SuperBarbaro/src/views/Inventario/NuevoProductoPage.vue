@@ -92,6 +92,7 @@ const guardar = async () => {
         cantidad: cantidad.value,
         imagen: imagenFinal,
         categoria: categoria
+        
       })
     })
 
@@ -100,6 +101,8 @@ const guardar = async () => {
     console.log(data)
 
     router.push('/tabs/productos/' + categoria)
+    
+    location.reload('/tabs/productos/' + categoria)
 
   } catch (error) {
     console.log("Error:", error)
