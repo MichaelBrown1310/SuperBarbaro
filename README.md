@@ -39,17 +39,12 @@ Aplicación web desarrollada para la gestión integral de ventas, inventario y a
 - Express.js
 
 🎨 Frontend
-- Ionic + Vite
+- Ionic 
 - HTML, CSS, TypeScript
 
 🗄️ Base de Datos
 - MySQL / SQL (archivo superbarbaro.sql)
 
-🧪 Otras herramientas
-- Cypress
- - Testing end-to-end
-- ESLint
- - Calidad de código
 
 ## 📂 Estructura del proyecto
 
@@ -86,10 +81,33 @@ Aplicación web desarrollada para la gestión integral de ventas, inventario y a
   - Node.js
   - Ionic CLI (npm install -g @ionic/cli)
 - El backend debe estar corriendo antes del frontend.
-- Verifica que los puertos no estén en uso.
+- Verificar que los puertos no estén en uso.
 
 
 ## 📸 Capturas de pantalla
+
+- Mockups de bajo nivel 
+  - Vistas de administrador 🧑‍💼
+ <p align="center">
+    <img src="mockups/Captura de pantalla 2026-03-20 200424.png" 
+
+<p align="center">
+    <img src="mockups/Captura de pantalla 2026-03-20 200502.png" 
+
+<p align="center">
+    <img src="mockups/Captura de pantalla 2026-03-20 200522.png"
+
+<p align="center">
+    <img src="mockups/Captura de pantalla 2026-03-20 200756.png" 
+  
+  - Vistas cajero💵
+<p align="center">
+    <img src="mockups/Captura de pantalla 2026-03-20 200816.png" 
+
+  - Vistas cocinero 👨‍🍳
+<p align="center">
+    <img src="mockups/Captura de pantalla 2026-03-20 200836.png" 
+
 
 
 ## 👨‍💻 Autores
