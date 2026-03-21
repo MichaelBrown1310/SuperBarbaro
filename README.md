@@ -89,24 +89,24 @@ Aplicación web desarrollada para la gestión integral de ventas, inventario y a
 - Mockups de bajo nivel 
   - Vistas de administrador 🧑‍💼
  <p align="center">
-    <img src="mockups/Captura de pantalla 2026-03-20 200424.png" 
+    <img src="../SuperBarbaro/SuperBarbaro/public/mockups/Captura de pantalla 2026-03-20 200424.png" 
 
 <p align="center">
-    <img src="mockups/Captura de pantalla 2026-03-20 200502.png" 
+    <img src="../SuperBarbaro/SuperBarbaro/public/mockups/Captura de pantalla 2026-03-20 200502.png" 
 
 <p align="center">
-    <img src="mockups/Captura de pantalla 2026-03-20 200522.png"
+    <img src="../SuperBarbaro/SuperBarbaro/public/mockups/Captura de pantalla 2026-03-20 200522.png"
 
 <p align="center">
-    <img src="mockups/Captura de pantalla 2026-03-20 200756.png" 
+    <img src="../SuperBarbaro/SuperBarbaro/public/mockups/Captura de pantalla 2026-03-20 200756.png" 
   
   - Vistas cajero💵
 <p align="center">
-    <img src="mockups/Captura de pantalla 2026-03-20 200816.png" 
+    <img src="../SuperBarbaro/SuperBarbaro/public/mockups/Captura de pantalla 2026-03-20 200816.png" 
 
   - Vistas cocinero 👨‍🍳
 <p align="center">
-    <img src="mockups/Captura de pantalla 2026-03-20 200836.png" 
+    <img src="../SuperBarbaro/SuperBarbaro/public/mockups/Captura de pantalla 2026-03-20 200836.png" 
 
 
 
