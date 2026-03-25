@@ -19,8 +19,12 @@
 <!-- 🌐 IMAGEN POR URL -->
 <input v-model="urlImagen" placeholder="Pegar URL de imagen" />
 
-<button class="btn-secundario" @click="usarUrl">Usar imagen de internet</button>
+<button class="btn-secundario" @click="usarUrl">
+  Usar imagen de internet
+</button>
+
 <p class="separador"></p>
+
 <!-- DATOS -->
 <input v-model="producto.nombre" placeholder="Nombre" />
 <input v-model="producto.precio" placeholder="Precio" />
@@ -54,10 +58,16 @@ const producto = ref(null)
 const preview = ref(null)
 const urlImagen = ref('')
 
+// 🔥 GUARDAR CANTIDAD ORIGINAL
+const cantidadOriginal = ref(0)
+
 // CARGAR PRODUCTO
 const cargar = async ()=>{
   const res = await fetch(`http://localhost:3000/producto/${route.params.id}`)
   producto.value = await res.json()
+
+  // 🔥 guardar cantidad inicial
+  cantidadOriginal.value = producto.value.cantidad
 }
 
 onMounted(cargar)
@@ -79,8 +89,32 @@ const usarUrl = ()=>{
   }
 }
 
-//  GUARDAR
+// 🔥 GUARDAR CON HISTORIAL
 const guardar = async ()=>{
+
+  const nuevaCantidad = parseInt(producto.value.cantidad)
+  const anterior = parseInt(cantidadOriginal.value)
+
+  const diferencia = nuevaCantidad - anterior
+
+  // 🔥 SOLO SI HUBO CAMBIO
+  if (diferencia !== 0) {
+
+    const tipo = diferencia > 0 ? "ENTRADA" : "SALIDA"
+
+    await fetch('http://localhost:3000/movimientos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        producto_id: producto.value.id,
+        tipo: tipo,
+        cantidad: Math.abs(diferencia),
+        motivo: 'Edición manual'
+      })
+    })
+  }
+
+  // 🔥 ACTUALIZA PRODUCTO
   await fetch(`http://localhost:3000/productos/${producto.value.id}`,{
     method:'PUT',
     headers:{'Content-Type':'application/json'},

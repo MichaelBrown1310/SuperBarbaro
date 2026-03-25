@@ -329,6 +329,41 @@ app.post("/productos", (req, res) => {
 
 });
 
+app.post('/movimientos', async (req, res) => {
+  const { producto_id, tipo, cantidad, motivo } = req.body
+
+  await db.query(
+    `INSERT INTO movimientos_productos 
+     (producto_id, tipo, cantidad, motivo) 
+     VALUES (?, ?, ?, ?)`,
+    [producto_id, tipo, cantidad, motivo]
+  )
+
+  res.json({ mensaje: "Movimiento guardado" })
+})
+
+app.get('/movimientos/:producto_id', (req, res) => {
+  const { producto_id } = req.params
+
+  db.query(
+    `SELECT * FROM movimientos_productos 
+     WHERE producto_id = ?
+     ORDER BY fecha DESC`,
+    [producto_id],
+    (err, results) => {
+      if (err) {
+        console.log(err)
+        return res.status(500).json({ error: err })
+      }
+
+      res.json(results)
+    }
+  )
+})
+
+
+
+
 
 
 //CIERRA INVENTARIOS
