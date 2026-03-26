@@ -1,84 +1,64 @@
 <template>
 
-<ion-page>
+    <ion-page>
 
-<ion-header>
-<ion-toolbar class="toolbar">
+        <AppHeader titulo="USUARIOS">
 
-<ion-buttons slot="start">
-<ion-button @click="volver">
-<ion-icon :icon="chevronBackOutline"></ion-icon>
-</ion-button>
-</ion-buttons>
+            <ion-buttons slot="start">
+                <ion-button @click="volver">
+                    <ion-icon :icon="chevronBackOutline"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </AppHeader>
+        <ion-content class="fondo">
 
-<ion-title class="titulo">
-USUARIOS
-</ion-title>
+            <div class="lista">
 
-</ion-toolbar>
-</ion-header>
+                <div class="usuario" v-for="u in usuarios" :key="u.codigo">
 
-<ion-content class="fondo">
+                    <div class="izquierda">
 
-<div class="lista">
+                        <div class="foto-usuario">
 
-<div
-class="usuario"
-v-for="u in usuarios"
-:key="u.codigo"
->
+                            <img v-if="u.foto" :src="'http://localhost:3000/' + u.foto" />
 
-<div class="izquierda">
+                            <ion-icon v-else :icon="person" class="icono" />
 
-<div class="foto-usuario">
+                        </div>
 
-<img v-if="u.foto" :src="'http://localhost:3000/' + u.foto"/>
+                        <div class="info">
 
-<ion-icon
-v-else
-:icon="person"
-class="icono"
-/>
+                            <p class="rol">
+                                {{ u.rol }}
+                            </p>
 
-</div>
+                            <p class="nombre">
+                                {{ u.nombre }} {{ u.apellido }}
+                            </p>
 
-<div class="info">
+                        </div>
 
-<p class="rol">
-{{ u.rol }}
-</p>
+                    </div>
 
-<p class="nombre">
-{{ u.nombre }} {{ u.apellido }}
-</p>
+                    <ion-button fill="clear" class="editar" @click="editarUsuario(u)">
+                        <ion-icon :icon="createOutline"></ion-icon>
+                    </ion-button>
 
-</div>
+                </div>
 
-</div>
+            </div>
 
-<ion-button
-fill="clear"
-class="editar"
-@click="editarUsuario(u)"
->
-<ion-icon :icon="createOutline"></ion-icon>
-</ion-button>
+            <div class="contenedor-boton">
 
-</div>
+                <button class="boton-registrar" @click="registrarUsuario">
+                    REGISTRAR USUARIO
+                </button>
 
-</div>
+            </div>
 
-<div class="contenedor-boton">
+        </ion-content>
 
-<button class="boton-registrar" @click="registrarUsuario">
-REGISTRAR USUARIO
-</button>
-
-</div>
-
-</ion-content>
-
-</ion-page>
+    </ion-page>
 
 </template>
 
@@ -87,62 +67,64 @@ REGISTRAR USUARIO
 <script setup>
 
 import {
-IonPage,
-IonHeader,
-IonToolbar,
-IonTitle,
-IonContent,
-IonIcon,
-IonButtons,
-IonButton
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonIcon,
+    IonButtons,
+    IonButton
 } from '@ionic/vue'
 
 import {
-person,
-createOutline,
-chevronBackOutline
+    person,
+    createOutline,
+    chevronBackOutline
 } from 'ionicons/icons'
 
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AppHeader from '@/components/AppHeader.vue'
+
 
 const router = useRouter()
 
 const usuarios = ref([])
 
-onMounted(async ()=>{
+onMounted(async () => {
 
-try{
+    try {
 
-const response = await fetch('http://localhost:3000/usuarios')
+        const response = await fetch('http://localhost:3000/usuarios')
 
-const data = await response.json()
+        const data = await response.json()
 
-usuarios.value = data
+        usuarios.value = data
 
-}catch(error){
+    } catch (error) {
 
-console.log("Error cargando usuarios")
+        console.log("Error cargando usuarios")
 
-}
+    }
 
 })
 
 const volver = () => {
 
-router.push('/tabs/perfil')
+    router.push('/tabs/perfil')
 
 }
 
 const editarUsuario = (usuario) => {
 
-console.log("editar", usuario)
+    console.log("editar", usuario)
 
 }
 
 const registrarUsuario = () => {
 
-router.push('/registrar-usuario')
+    router.push('/registrar-usuario')
 
 }
 
@@ -151,147 +133,145 @@ router.push('/registrar-usuario')
 
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+    --background: white;
 }
 
-.toolbar{
---background:white;
-border-bottom:2px solid black;
+.toolbar {
+    --background: white;
+    border-bottom: 2px solid black;
 }
 
-.lista{
+.lista {
 
-width:100%;
+    width: 100%;
 
-display:flex;
-flex-direction:column;
-align-items:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-margin-top:10px;
-
-}
-
-.usuario{
-
-width:90%;
-max-width:500px;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-border:2px solid black;
-border-radius:15px;
-
-padding:12px 15px;
-
-margin:10px 0;
+    margin-top: 10px;
 
 }
 
-.izquierda{
+.usuario {
 
-display:flex;
-align-items:center;
+    width: 90%;
+    max-width: 500px;
 
-}
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.foto-usuario{
+    border: 2px solid black;
+    border-radius: 15px;
 
-width:35px;
-height:35px;
+    padding: 12px 15px;
 
-min-width:35px;
-
-border-radius:50%;
-
-background:black;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-margin-right:12px;
-
-overflow:hidden;
+    margin: 10px 0;
 
 }
 
-.foto-usuario img{
+.izquierda {
 
-width:100%;
-height:100%;
-object-fit:cover;
-
-}
-
-.icono{
-
-font-size:16px;
-color:white;
+    display: flex;
+    align-items: center;
 
 }
 
-.info{
+.foto-usuario {
 
-display:flex;
-flex-direction:column;
+    width: 35px;
+    height: 35px;
 
-color:black;
+    min-width: 35px;
 
-}
+    border-radius: 50%;
 
-.rol{
+    background: black;
 
-font-weight:bold;
-text-transform:uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-font-size:12px;
+    margin-right: 12px;
 
-margin:0;
-
-}
-
-.nombre{
-
-font-size:13px;
-
-margin:0;
+    overflow: hidden;
 
 }
 
-.editar{
+.foto-usuario img {
 
-color:black;
-
-}
-
-.contenedor-boton{
-
-display:flex;
-justify-content:center;
-
-margin-top:25px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 
 }
 
-.boton-registrar{
+.icono {
 
-width:90%;
-max-width:500px;
-
-padding:12px;
-
-border:2px solid black;
-border-radius:25px;
-
-background:white;
-color:black;
-
-font-size:16px;
+    font-size: 16px;
+    color: white;
 
 }
 
+.info {
+
+    display: flex;
+    flex-direction: column;
+
+    color: black;
+
+}
+
+.rol {
+
+    font-weight: bold;
+    text-transform: uppercase;
+
+    font-size: 12px;
+
+    margin: 0;
+
+}
+
+.nombre {
+
+    font-size: 13px;
+
+    margin: 0;
+
+}
+
+.editar {
+
+    color: black;
+
+}
+
+.contenedor-boton {
+
+    display: flex;
+    justify-content: center;
+
+    margin-top: 25px;
+
+}
+
+.boton-registrar {
+
+    width: 90%;
+    max-width: 500px;
+
+    padding: 12px;
+
+    border: 2px solid black;
+    border-radius: 25px;
+
+    background: white;
+    color: black;
+
+    font-size: 16px;
+
+}
 </style>

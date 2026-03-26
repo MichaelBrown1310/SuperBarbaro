@@ -9,20 +9,17 @@ http://ionicframework.com/docs/theming/ */
   /* Color del texto */
   --ion-text-color: #000000;
 
-  ion-buttons ion-icon{
-  color:black;
+  ion-buttons ion-icon {
+    color: black;
   }
 
-  ion-toolbar {
-  position: relative;
-  }
 
-  ion-title{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  text-align:center;
+  ion-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
   }
 
 

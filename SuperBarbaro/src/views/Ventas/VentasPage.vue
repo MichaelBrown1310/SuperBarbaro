@@ -1,23 +1,23 @@
 <template>
 
-<ion-page>
+    <ion-page>
 
-<AppHeader titulo="VENTAS" />
+        <AppHeader titulo="VENTAS" />
 
-<ion-content class="fondo">
+        <ion-content class="fondo">
 
-    <div class="contenedor-boton">
+            <div class="contenedor-boton">
 
-    <button class="boton-general" @click="NuevaOrden" style="font-size: 90px;">
-    +
-    <p style="font-size: 20px;">Nueva orden</p>
-    </button>
+                <button class="boton-general" @click="NuevaOrden" style="font-size: 90px;">
+                    +
+                    <p style="font-size: 20px;">Nueva orden</p>
+                </button>
 
-    </div>
+            </div>
 
-</ion-content>
+        </ion-content>
 
-</ion-page>
+    </ion-page>
 
 </template>
 
@@ -38,29 +38,27 @@ const usuarios = ref([])
 
 const NuevaOrden = () => {
 
-router.push('/nueva-orden')
+    router.push('/nueva-orden')
 
 }
 
 </script>
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+    --background: white;
 }
 
-.boton-general{
-width: 200px;
-height: 200px;
-border:2px solid black;
-border-radius:25px;
+.boton-general {
+    width: 200px;
+    height: 200px;
+    border: 2px solid black;
+    border-radius: 25px;
 
 
-background: transparent;
-color:black;
+    background: transparent;
+    color: black;
 
-font-weight: bold;
+    font-weight: bold;
 }
-
 </style>

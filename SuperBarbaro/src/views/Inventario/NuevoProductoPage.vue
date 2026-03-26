@@ -1,35 +1,35 @@
 <template>
 
-<ion-page>
+  <ion-page>
 
-<AppHeader titulo="NUEVO PRODUCTO" />
+    <AppHeader titulo="NUEVO PRODUCTO" />
 
-<ion-content class="fondo">
+    <ion-content class="fondo">
 
-<div class="contenedor">
+      <div class="contenedor">
 
-<!-- IMAGEN -->
-<div class="foto" @click="abrirArchivos">
-<img v-if="imagenPreview" :src="imagenPreview" />
-<span v-else>Seleccionar</span>
-</div>
+        <!-- IMAGEN -->
+        <div class="foto" @click="abrirArchivos">
+          <img v-if="imagenPreview" :src="imagenPreview" />
+          <span v-else>Seleccionar</span>
+        </div>
 
-<input type="file" ref="inputFile" @change="cargarArchivo" hidden />
+        <input type="file" ref="inputFile" @change="cargarArchivo" hidden />
 
-<!-- URL OPCIONAL -->
-<input class="input" placeholder="URL de imagen (opcional)" v-model="imagenUrl" />
+        <!-- URL OPCIONAL -->
+        <input class="input" placeholder="URL de imagen (opcional)" v-model="imagenUrl" />
 
-<input class="input" placeholder="Nombre" v-model="nombre" />
-<input class="input" placeholder="Precio" v-model="precio" type="number" />
-<input class="input" placeholder="Cantidad" v-model="cantidad" type="number" />
+        <input class="input" placeholder="Nombre" v-model="nombre" />
+        <input class="input" placeholder="Precio" v-model="precio" type="number" />
+        <input class="input" placeholder="Cantidad" v-model="cantidad" type="number" />
 
-<button class="boton" @click="guardar">Guardar</button>
+        <button class="boton" @click="guardar">Guardar</button>
 
-</div>
+      </div>
 
-</ion-content>
+    </ion-content>
 
-</ion-page>
+  </ion-page>
 
 </template>
 
@@ -40,6 +40,8 @@ import AppHeader from '../../components/AppHeader.vue'
 
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+
+import { onIonViewWillEnter } from '@ionic/vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -104,58 +106,56 @@ const guardar = async () => {
   } catch (error) {
     console.log("Error:", error)
   }
-
+  onIonViewWillEnter(guardar)
 }
 
 </script>
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+  --background: white;
 }
 
-.contenedor{
-display:flex;
-flex-direction:column;
-align-items:center;
-margin-top:20px;
+.contenedor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 
-.foto{
-width:120px;
-height:120px;
-background:#ddd;
-display:flex;
-align-items:center;
-justify-content:center;
-border-radius:10px;
-margin-bottom:20px;
-overflow:hidden;
+.foto {
+  width: 120px;
+  height: 120px;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
-.foto img{
-width:100%;
-height:100%;
-object-fit:cover;
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.input{
-width:85%;
-padding:10px;
-border:none;
-border-bottom:2px solid black;
-margin-bottom:15px;
-background:white;
-color:black;
+.input {
+  width: 85%;
+  padding: 10px;
+  border: none;
+  border-bottom: 2px solid black;
+  margin-bottom: 15px;
+  background: white;
+  color: black;
 }
 
-.boton{
-width:85%;
-padding:12px;
-border:2px solid black;
-border-radius:20px;
-background:white;
+.boton {
+  width: 85%;
+  padding: 12px;
+  border: 2px solid black;
+  border-radius: 20px;
+  background: white;
 }
-
 </style>

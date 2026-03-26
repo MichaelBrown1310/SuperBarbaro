@@ -1,35 +1,35 @@
 <template>
 
-<ion-page>
+  <ion-page>
 
-<AppHeader titulo="NUEVA ORDEN" />
+    <AppHeader titulo="NUEVA ORDEN" />
 
-<ion-content class="fondo">
+    <ion-content class="fondo">
 
 
-    <div class="contenedor1">
-    <div>
-        <input class="input" placeholder="Nombre" v-model="nombre"/>
-        <select name="Domicilio" class="input">
+      <div class="contenedor1">
+        <div>
+          <input class="input" placeholder="Nombre" v-model="nombre" />
+          <select name="Domicilio" class="input">
             <option value="">Llevar</option>
             <option value="">Comer aqui</option>
-        </select>
-        <input class="input" placeholder="Teléfono" v-model="telefono"/>
+          </select>
+          <input class="input" placeholder="Teléfono" v-model="telefono" />
 
-    </div>
-</div>
+        </div>
+      </div>
 
-<div class="contenedor-boton">
+      <div class="contenedor-boton">
 
-    <button class="boton-registrar" @click="Seleccion">
-    CONTINUAR
-    </button>
+        <button class="boton-registrar" @click="Seleccion">
+          CONTINUAR
+        </button>
 
-</div>
+      </div>
 
-</ion-content>
+    </ion-content>
 
-</ion-page>
+  </ion-page>
 
 </template>
 
@@ -50,29 +50,28 @@ const usuarios = ref([])
 
 const seleccion = () => {
 
-router.push('')
+  router.push('')
 
 }
 
 </script>
 
 <style>
-
-.fondo{
-background:rgb(92, 37, 37);
+.fondo {
+  background: rgb(92, 37, 37);
 }
 
-.boton-general{
-width: 200px;
-height: 200px;
-border:2px solid black;
-border-radius:25px;
+.boton-general {
+  width: 200px;
+  height: 200px;
+  border: 2px solid black;
+  border-radius: 25px;
 
 
-background: transparent;
-color:black;
+  background: transparent;
+  color: black;
 
-font-weight: bold;
+  font-weight: bold;
 }
 
 /* Contenedor general del select */
@@ -85,7 +84,8 @@ select {
   font-size: 14px;
   color: #000;
   outline: none;
-  appearance: none; /* Quita estilo por defecto */
+  appearance: none;
+  /* Quita estilo por defecto */
   -webkit-appearance: none;
   -moz-appearance: none;
   cursor: pointer;
@@ -123,8 +123,11 @@ option:checked {
 
 .contenedor1 {
   display: flex;
-  justify-content: center; /* horizontal */
-  align-items: center;     /* vertical */
-  height: 50vh; /* importante si quieres centrar en toda la pantalla */
+  justify-content: center;
+  /* horizontal */
+  align-items: center;
+  /* vertical */
+  height: 50vh;
+  /* importante si quieres centrar en toda la pantalla */
 }
 </style>

@@ -173,7 +173,9 @@ app.listen(3000, () => {
   console.log("Servidor corriendo en puerto 3000");
 });
 
-//INVENTARIOS
+// ================= INVENTARIOS =================
+
+//  OBTENER PRODUCTOS POR CATEGORIA
 app.get("/productos/:id_categoria", (req, res) => {
 
   const { id_categoria } = req.params;
@@ -186,16 +188,17 @@ app.get("/productos/:id_categoria", (req, res) => {
   `;
 
   db.query(sql, [id_categoria], (err, result) => {
-
-    if (err) return res.status(500).json(err);
-
+    if (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
     res.json(result);
-
   });
 
 });
 
 
+//  OBTENER PRODUCTO POR ID
 app.get("/producto/:id", (req, res) => {
 
   const { id } = req.params;
@@ -209,79 +212,19 @@ app.get("/producto/:id", (req, res) => {
 
 });
 
-app.post("/productos", (req, res) => {
+//  OBTENER PRODUCTO EN GENERAL
 
-  const { nombre, precio, cantidad, imagen, categorias } = req.body;
+app.get("/buscar-productos", (req, res) => {
 
-  // categorias = [11, 12] (array)
-
-  const sqlProducto = `
-    INSERT INTO productos (nombre, precio, cantidad, imagen)
-    VALUES (?, ?, ?, ?)
-  `;
-
-  db.query(sqlProducto, [nombre, precio, cantidad, imagen], (err, result) => {
-
-    if (err) return res.status(500).json(err);
-
-    const producto_id = result.insertId;
-
-    // insertar relaciones
-    const valores = categorias.map(cat_id => [producto_id, cat_id]);
-
-    const sqlRelacion = `
-      INSERT INTO producto_categoria (producto_id, categoria_id)
-      VALUES ?
-    `;
-
-    db.query(sqlRelacion, [valores], (err2) => {
-
-      if (err2) return res.status(500).json(err2);
-
-      res.json({ success: true });
-
-    });
-
-  });
-
-});
-
-app.put("/productos/:id", (req, res) => {
-
-  const { id } = req.params;
-  const { nombre, precio, cantidad, imagen } = req.body;
+  const { q } = req.query;
 
   const sql = `
-  UPDATE productos
-  SET nombre=?, precio=?, cantidad=?, imagen=?
-  WHERE id=?
+    SELECT p.*
+    FROM productos p
+    WHERE p.nombre LIKE ?
   `;
 
-  db.query(sql, [nombre, precio, cantidad, imagen, id], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ success: true });
-  });
-
-});
-
-app.delete("/productos/:id", (req, res) => {
-
-  const { id } = req.params;
-
-  const sql = "DELETE FROM productos WHERE id=?";
-
-  db.query(sql, [id], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ success: true });
-  });
-
-});
-
-app.get("/categorias", (req, res) => {
-
-  const sql = "SELECT * FROM categorias";
-
-  db.query(sql, (err, result) => {
+  db.query(sql, [`%${q}%`], (err, result) => {
 
     if (err) return res.status(500).json(err);
 
@@ -291,22 +234,8 @@ app.get("/categorias", (req, res) => {
 
 });
 
-app.post("/categorias", (req, res) => {
 
-  const { nombre, imagen } = req.body;
-
-  const sql = "INSERT INTO categorias (nombre, imagen) VALUES (?,?)";
-
-  db.query(sql, [nombre, imagen], (err, result) => {
-
-    if (err) return res.status(500).json(err);
-
-    res.json({ success: true });
-
-  });
-
-});
-
+//  CREAR PRODUCTO (🔥 ESTE ES EL IMPORTANTE)
 app.post("/productos", (req, res) => {
 
   const { nombre, precio, cantidad, imagen, categoria } = req.body;
@@ -315,39 +244,140 @@ app.post("/productos", (req, res) => {
     return res.status(400).json({ error: "Faltan datos" });
   }
 
-  const sql = `
-    INSERT INTO productos (nombre, precio, cantidad, imagen, categoria)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+  // 1. Buscar id de categoria por nombre
+  const sqlCategoria = "SELECT id FROM categorias WHERE nombre = ?";
 
-  db.query(sql, [nombre, precio, cantidad, imagen, categoria], (err, result) => {
+  db.query(sqlCategoria, [categoria], (err, resultCat) => {
 
-    if (err) {
-      console.log("Error SQL:", err);
-      return res.status(500).json(err);
+    if (err) return res.status(500).json(err);
+
+    if (resultCat.length === 0) {
+      return res.status(400).json({ error: "Categoría no existe" });
     }
 
-    res.json({ success: true });
+    const categoria_id = resultCat[0].id;
+
+    // 2. Insertar producto
+    const sqlProducto = `
+      INSERT INTO productos (nombre, precio, cantidad, imagen)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(sqlProducto, [nombre, precio, cantidad, imagen], (err, result) => {
+
+      if (err) return res.status(500).json(err);
+
+      const productoId = result.insertId;
+
+      // 3. Relación
+      const sqlRelacion = `
+        INSERT INTO producto_categoria (producto_id, categoria_id)
+        VALUES (?, ?)
+      `;
+
+      db.query(sqlRelacion, [productoId, categoria_id], (err2) => {
+
+        if (err2) return res.status(500).json(err2);
+
+        res.json({ success: true });
+
+      });
+
+    });
 
   });
 
 });
 
-app.post('/movimientos', async (req, res) => {
-  const { producto_id, tipo, cantidad, motivo } = req.body
 
-  await db.query(
+//  ACTUALIZAR PRODUCTO
+app.put("/productos/:id", (req, res) => {
+
+  const { id } = req.params;
+  const { nombre, precio, cantidad, imagen } = req.body;
+
+  const sql = `
+    UPDATE productos
+    SET nombre=?, precio=?, cantidad=?, imagen=?
+    WHERE id=?
+  `;
+
+  db.query(sql, [nombre, precio, cantidad, imagen, id], (err) => {
+    if (err) return res.status(500).json(err);
+    res.json({ success: true });
+  });
+
+});
+
+
+//  ELIMINAR PRODUCTO
+app.delete("/productos/:id", (req, res) => {
+
+  const { id } = req.params;
+
+  // Primero borrar relación (BUENA PRÁCTICA)
+  db.query("DELETE FROM producto_categoria WHERE producto_id=?", [id]);
+
+  db.query("DELETE FROM productos WHERE id=?", [id], (err) => {
+    if (err) return res.status(500).json(err);
+    res.json({ success: true });
+  });
+
+});
+
+
+// ================= CATEGORIAS =================
+
+app.get("/categorias", (req, res) => {
+
+  db.query("SELECT * FROM categorias", (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json(result);
+  });
+
+});
+
+
+app.post("/categorias", (req, res) => {
+
+  const { nombre, imagen } = req.body;
+
+  db.query(
+    "INSERT INTO categorias (nombre, imagen) VALUES (?,?)",
+    [nombre, imagen],
+    (err) => {
+      if (err) return res.status(500).json(err);
+      res.json({ success: true });
+    }
+  );
+
+});
+
+
+
+// ================= MOVIMIENTOS =================
+
+app.post('/movimientos', (req, res) => {
+
+  const { producto_id, tipo, cantidad, motivo } = req.body;
+
+  db.query(
     `INSERT INTO movimientos_productos 
      (producto_id, tipo, cantidad, motivo) 
      VALUES (?, ?, ?, ?)`,
-    [producto_id, tipo, cantidad, motivo]
-  )
+    [producto_id, tipo, cantidad, motivo],
+    (err) => {
+      if (err) return res.status(500).json(err);
+      res.json({ mensaje: "Movimiento guardado" });
+    }
+  );
 
-  res.json({ mensaje: "Movimiento guardado" })
-})
+});
+
 
 app.get('/movimientos/:producto_id', (req, res) => {
-  const { producto_id } = req.params
+
+  const { producto_id } = req.params;
 
   db.query(
     `SELECT * FROM movimientos_productos 
@@ -355,19 +385,11 @@ app.get('/movimientos/:producto_id', (req, res) => {
      ORDER BY fecha DESC`,
     [producto_id],
     (err, results) => {
-      if (err) {
-        console.log(err)
-        return res.status(500).json({ error: err })
-      }
-
-      res.json(results)
+      if (err) return res.status(500).json(err);
+      res.json(results);
     }
-  )
-})
+  );
 
+});
 
-
-
-
-
-//CIERRA INVENTARIOS
+// ================= FIN INVENTARIO =================
