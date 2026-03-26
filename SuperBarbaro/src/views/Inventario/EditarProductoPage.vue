@@ -1,46 +1,46 @@
 <template>
 
-<ion-page>
+  <ion-page>
 
-<AppHeader titulo="EDITAR" />
+    <AppHeader titulo="EDITAR" />
 
-<ion-content class="fondo">
+    <ion-content class="fondo">
 
-<div v-if="producto" class="contenedor">
+      <div v-if="producto" class="contenedor">
 
-<!-- 👀 PREVIEW -->
-<img :src="preview || producto.imagen || 'https://via.placeholder.com/150'" class="img" />
+        <!-- 👀 PREVIEW -->
+        <img :src="preview || producto.imagen || 'https://via.placeholder.com/150'" class="img" />
 
-<!-- 📁 SUBIR DESDE PC -->
-<input type="file" @change="cargarImagen" />
+        <!-- 📁 SUBIR DESDE PC -->
+        <input type="file" @change="cargarImagen" />
 
-<p class="separador"></p>
+        <p class="separador"></p>
 
-<!-- 🌐 IMAGEN POR URL -->
-<input v-model="urlImagen" placeholder="Pegar URL de imagen" />
+        <!-- 🌐 IMAGEN POR URL -->
+        <input v-model="urlImagen" placeholder="Pegar URL de imagen" />
 
-<button class="btn-secundario" @click="usarUrl">
-  Usar imagen de internet
-</button>
+        <button class="btn-secundario" @click="usarUrl">
+          Usar imagen de internet
+        </button>
 
-<p class="separador"></p>
+        <p class="separador"></p>
 
-<!-- DATOS -->
-<input v-model="producto.nombre" placeholder="Nombre" />
-<input v-model="producto.precio" placeholder="Precio" />
-<input v-model="producto.cantidad" placeholder="Cantidad" />
+        <!-- DATOS -->
+        <input v-model="producto.nombre" placeholder="Nombre" />
+        <input v-model="producto.precio" placeholder="Precio" />
+        <input v-model="producto.cantidad" placeholder="Cantidad" />
 
-<!-- BOTON GUARDAR -->
-<button class="btn" @click="guardar">Confirmar</button>
+        <!-- BOTON GUARDAR -->
+        <button class="btn" @click="guardar">Confirmar</button>
 
-<!-- ELIMINAR -->
-<p class="eliminar" @click="eliminar">Eliminar producto</p>
+        <!-- ELIMINAR -->
+        <p class="eliminar" @click="eliminar">Eliminar producto</p>
 
-</div>
+      </div>
 
-</ion-content>
+    </ion-content>
 
-</ion-page>
+  </ion-page>
 
 </template>
 
@@ -50,6 +50,7 @@ import { IonPage, IonContent } from '@ionic/vue'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
+import { onIonViewWillEnter } from '@ionic/vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -58,46 +59,46 @@ const producto = ref(null)
 const preview = ref(null)
 const urlImagen = ref('')
 
-// 🔥 GUARDAR CANTIDAD ORIGINAL
+// GUARDAR CANTIDAD ORIGINAL
 const cantidadOriginal = ref(0)
 
 // CARGAR PRODUCTO
-const cargar = async ()=>{
+const cargar = async () => {
   const res = await fetch(`http://localhost:3000/producto/${route.params.id}`)
   producto.value = await res.json()
 
-  // 🔥 guardar cantidad inicial
+  // guardar cantidad inicial
   cantidadOriginal.value = producto.value.cantidad
 }
 
-onMounted(cargar)
+onIonViewWillEnter(cargar)
 
 // SUBIR DESDE PC
-const cargarImagen = (e)=>{
+const cargarImagen = (e) => {
   const file = e.target.files[0]
-  if(file){
+  if (file) {
     preview.value = URL.createObjectURL(file)
     producto.value.imagen = preview.value
   }
 }
 
 // USAR URL
-const usarUrl = ()=>{
-  if(urlImagen.value){
+const usarUrl = () => {
+  if (urlImagen.value) {
     producto.value.imagen = urlImagen.value
     preview.value = urlImagen.value
   }
 }
 
-// 🔥 GUARDAR CON HISTORIAL
-const guardar = async ()=>{
+// GUARDAR CON HISTORIAL
+const guardar = async () => {
 
   const nuevaCantidad = parseInt(producto.value.cantidad)
   const anterior = parseInt(cantidadOriginal.value)
 
   const diferencia = nuevaCantidad - anterior
 
-  // 🔥 SOLO SI HUBO CAMBIO
+  // SOLO SI HUBO CAMBIO
   if (diferencia !== 0) {
 
     const tipo = diferencia > 0 ? "ENTRADA" : "SALIDA"
@@ -114,10 +115,10 @@ const guardar = async ()=>{
     })
   }
 
-  // 🔥 ACTUALIZA PRODUCTO
-  await fetch(`http://localhost:3000/productos/${producto.value.id}`,{
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
+  // ACTUALIZA PRODUCTO
+  await fetch(`http://localhost:3000/productos/${producto.value.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(producto.value)
   })
 
@@ -125,9 +126,9 @@ const guardar = async ()=>{
 }
 
 // ELIMINAR
-const eliminar = async ()=>{
-  await fetch(`http://localhost:3000/productos/${producto.value.id}`,{
-    method:'DELETE'
+const eliminar = async () => {
+  await fetch(`http://localhost:3000/productos/${producto.value.id}`, {
+    method: 'DELETE'
   })
 
   router.push('/tabs/inventario')
@@ -136,59 +137,57 @@ const eliminar = async ()=>{
 </script>
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+  --background: white;
 }
 
-.contenedor{
-padding:20px;
+.contenedor {
+  padding: 20px;
 }
 
-.img{
-width:120px;
-border-radius:10px;
-margin-bottom:10px;
-display:block;
+.img {
+  width: 120px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: block;
 }
 
-input{
-width:100%;
-padding:10px;
-margin-bottom:10px;
-border-radius:10px;
-border:1px solid black;
-background:white;
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid black;
+  background: white;
 }
 
-.btn{
-width:100%;
-padding:12px;
-border-radius:10px;
-background:black;
-color:white;
-margin-top:10px;
+.btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: black;
+  color: white;
+  margin-top: 10px;
 }
 
-.btn-secundario{
-width:100%;
-padding:10px;
-border-radius:10px;
-background:#ddd;
-margin-bottom:10px;
-color:black;
+.btn-secundario {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: #ddd;
+  margin-bottom: 10px;
+  color: black;
 }
 
-.eliminar{
-margin-top:15px;
-color:red;
-text-align:center;
+.eliminar {
+  margin-top: 15px;
+  color: red;
+  text-align: center;
 }
 
-.separador{
-text-align:center;
-margin:5px 0;
-font-weight:bold;
+.separador {
+  text-align: center;
+  margin: 5px 0;
+  font-weight: bold;
 }
-
 </style>

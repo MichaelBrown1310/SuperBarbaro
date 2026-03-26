@@ -1,37 +1,27 @@
 <template>
 
-<ion-page>
+  <ion-page>
 
-<ion-content class="fondoo">
-<br><br>
-<div class="contenedorr">
+    <ion-content class="fondoo">
+      <br><br>
+      <div class="contenedorr">
 
-<img src="/logoSuperBarbaro3.png" class="logo"/>
+        <img src="/logoSuperBarbaro3.png" class="logo" />
 
-<input 
-type="text" 
-placeholder="Código"
-class="input-linea"
-v-model="codigo"
-/>
+        <input type="text" placeholder="Código" class="input-linea" v-model="codigo" />
 
-<input 
-type="password" 
-placeholder="Contraseña"
-class="input-linea"
-v-model="password"
-@keyup.enter="iniciarSesion($event)"
-/>
+        <input type="password" placeholder="Contraseña" class="input-linea" v-model="password"
+          @keyup.enter="iniciarSesion($event)" />
 
-<button class="boton" @click="iniciarSesion($event)">
-Iniciar Sesión
-</button>
+        <button class="boton" @click="iniciarSesion($event)">
+          Iniciar Sesión
+        </button>
 
-</div>
+      </div>
 
-</ion-content>
+    </ion-content>
 
-</ion-page>
+  </ion-page>
 
 </template>
 
@@ -49,38 +39,38 @@ const password = ref('')
 
 const iniciarSesion = async (event) => {
 
-event.target.blur()
+  event.target.blur()
 
-const response = await fetch('http://localhost:3000/login',{
+  const response = await fetch('http://localhost:3000/login', {
 
-method:'POST',
+    method: 'POST',
 
-headers:{
-'Content-Type':'application/json'
-},
+    headers: {
+      'Content-Type': 'application/json'
+    },
 
-body:JSON.stringify({
+    body: JSON.stringify({
 
-codigo:codigo.value,
-password:password.value
+      codigo: codigo.value,
+      password: password.value
 
-})
+    })
 
-})
+  })
 
-const data = await response.json()
+  const data = await response.json()
 
-if(data.success){
+  if (data.success) {
 
-localStorage.setItem("usuario",JSON.stringify(data.user))
+    localStorage.setItem("usuario", JSON.stringify(data.user))
 
-router.push('/tabs')
+    router.push('/tabs')
 
-}else{
+  } else {
 
-alert("Usuario o contraseña incorrectos")
+    alert("Usuario o contraseña incorrectos")
 
-}
+  }
 
 }
 
@@ -88,27 +78,26 @@ alert("Usuario o contraseña incorrectos")
 
 
 <style>
-
 /* FONDO CON IMAGEN */
-ion-content.fondo{
+ion-content.fondo {
   --background: white;
 }
 
 /* Fondo real con imagen */
-ion-content.fondo::part(background){
+ion-content.fondo::part(background) {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-ion-content.fondoo{
+ion-content.fondoo {
   --background: none;
 }
 
 /* Fondo real con imagen */
-ion-content.fondoo::part(background){
-  background-image: 
-    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)),
+ion-content.fondoo::part(background) {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)),
     url('/fondo-fuego-superbarbaro.jpg');
 
   background-size: cover;
@@ -117,19 +106,19 @@ ion-content.fondoo::part(background){
 }
 
 /* CONTENEDOR PRINCIPAL (tipo panel oscuro) */
-.contenedor{
+.contenedor {
 
-  width:100%;
-  max-width:350px;
-  margin:auto;
-  margin-top:80px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  width: 100%;
+  max-width: 350px;
+  margin: auto;
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   /* 🔥 estilo pro */
-  background: rgb(255, 255, 255); 
+  background: rgb(255, 255, 255);
   /* 0.6 = nivel de opacidad (entre 0 y 1) */
 
   padding: 5px;
@@ -137,19 +126,19 @@ ion-content.fondoo::part(background){
 
 }
 
-.contenedorr{
+.contenedorr {
 
-  width:100%;
-  max-width:350px;
-  margin:auto;
-  margin-top:80px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  width: 100%;
+  max-width: 350px;
+  margin: auto;
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   /* 🔥 estilo pro */
-  background: rgba(190, 171, 171, 0.463); 
+  background: rgba(190, 171, 171, 0.463);
   /* 0.6 = nivel de opacidad (entre 0 y 1) */
 
   padding: 25px;
@@ -163,48 +152,48 @@ ion-content.fondoo::part(background){
 }
 
 /* LOGO */
-.logo{
-  width:250px;
-  margin-bottom:30px;
+.logo {
+  width: 250px;
+  margin-bottom: 30px;
 }
 
 
 /* INPUTS */
-.input-linea{
+.input-linea {
 
-  width:100%;
-  padding:12px;
-  margin-bottom:20px;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
 
-  border-radius:10px;
+  border-radius: 10px;
 
-  border:1px solid rgba(63, 63, 63, 0.2);
+  border: 1px solid rgba(63, 63, 63, 0.2);
 
   background: rgba(255, 255, 255, 0.664);
-  color:#000000;
+  color: #000000;
 
-  font-size:14px;
+  font-size: 14px;
 }
 
 
 /* BOTÓN */
-.boton{
+.boton {
 
-  width:100%;
-  padding:12px;
+  width: 100%;
+  padding: 12px;
 
-  border:none;
-  border-radius:25px;
+  border: none;
+  border-radius: 25px;
 
-  font-size:16px;
-  font-weight:bold;
+  font-size: 16px;
+  font-weight: bold;
 
-  color:#000;
+  color: #000;
 
   background: linear-gradient(45deg, #ffe6e6, #ff0000);
 
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
 
-  cursor:pointer;
+  cursor: pointer;
 }
 </style>

@@ -1,41 +1,43 @@
 <template>
 
-<ion-page>
+  <ion-page>
 
-<AppHeader :titulo="nombreCategoria.toUpperCase()" />
+    <AppHeader :titulo="nombreCategoria.toUpperCase()" />
 
-<ion-content class="fondo">
+    <ion-content class="fondo">
 
-<div class="contenedor">
+      <div class="contenedor">
 
-<!-- BUSCADOR -->
-<input v-model="busqueda" placeholder="Buscar producto..." class="input" />
+        <!-- BOTON NUEVO -->
+        <button class="btn" @click="nuevo">+ Nuevo Producto</button>
 
-<div v-if="filtrados.length === 0">
-No hay productos
-</div>
+        <!-- BUSCADOR -->
+        <input v-model="busqueda" placeholder="Buscar producto..." class="input" />
 
-<div class="grid">
+        <div v-if="filtrados.length === 0">
+          No hay productos
+        </div>
 
-<div class="card" v-for="p in filtrados" :key="p.id" @click="verProducto(p)">
+        <div class="grid">
 
-<img :src="p.imagen || 'https://via.placeholder.com/100'" />
+          <div class="card" v-for="p in filtrados" :key="p.id" @click="verProducto(p)">
 
-<p>{{p.nombre}}</p>
-<p>Cantidad: {{p.cantidad}}</p>
+            <img :src="p.imagen || 'https://via.placeholder.com/100'" />
 
-</div>
-</div>
-<p>
+            <p>{{ p.nombre }}</p>
+            <p>Cantidad: {{ p.cantidad }}</p>
 
-</p>
-<!-- BOTON NUEVO -->
-<button class="btn" @click="nuevo">+ Nuevo Producto</button>
+          </div>
+        </div>
+        <p>
 
-</div>
-</ion-content>
+        </p>
 
-</ion-page>
+
+      </div>
+    </ion-content>
+
+  </ion-page>
 
 </template>
 
@@ -43,8 +45,9 @@ No hay productos
 
 import { IonPage, IonContent } from '@ionic/vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import AppHeader from '../../components/AppHeader.vue'
+import { onIonViewWillEnter } from '@ionic/vue'
 
 const categorias = ref([])
 const nombreCategoria = ref('')
@@ -63,7 +66,7 @@ const cargarCategorias = async () => {
   categorias.value = await res.json()
 }
 
-onMounted(() => {
+onIonViewWillEnter(() => {
   categoria.value = route.params.categoria
   cargar()
 })
@@ -87,13 +90,13 @@ const cargar = async () => {
   productos.value = await res.json()
 }
 
-const filtrados = computed(()=>{
+const filtrados = computed(() => {
   return productos.value.filter(p =>
     p.nombre.toLowerCase().includes(busqueda.value.toLowerCase())
   )
 })
 
-const verProducto = (p)=>{
+const verProducto = (p) => {
   router.push(`/tabs/producto/${p.id}`)
 }
 
@@ -105,56 +108,73 @@ const nuevo = () => {
 </script>
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+  --background: white;
 }
 
-.contenedor{
-padding:15px;
+.contenedor {
+  padding: 15px;
 }
 
-.grid{
-display:grid;
-grid-template-columns: repeat(2,1fr);
-gap:15px;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  width: 500px;
 }
 
-.card{
-background-color: rgba(255, 255, 255, 0.71);
-border:2px solid black;
-border-radius:15px;
-padding:10px;
-text-align:center;
+.card {
+  background-color: rgba(255, 255, 255, 0.71);
+  border: 2px solid black;
+  border-radius: 15px;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
 }
 
-.card img{
-width:100%;
-height:100px;
-object-fit:cover;
-border-radius:10px;
+.card img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
-.input{
-background-color: rgba(255, 252, 252, 0.548);
-width:100%;
-padding:10px;
-margin-bottom:10px;
-border-radius:10px;
-border:1px solid black;
+.input {
+  background-color: rgba(255, 252, 252, 0.548);
+  width: 160%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid black;
 }
 
-.btn{
-width:100%;
-padding:10px;
-margin-bottom:15px;
-border-radius:10px;
-background:black;
-color:white;
-padding:15px;
-display:grid;
-text-align:center;
-object-fit:cover;
+.btn {
+  width: 160%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  background: black;
+  color: white;
+  padding: 15px;
+  display: grid;
+  text-align: center;
+  object-fit: cover;
 }
 
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    width: 340px;
+  }
+
+  .input {
+    width: 105%;
+  }
+
+  .btn {
+    width: 105%;
+  }
+}
 </style>

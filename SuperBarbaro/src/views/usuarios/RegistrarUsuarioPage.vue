@@ -1,75 +1,59 @@
 <template>
 
-<ion-page>
+    <ion-page>
 
-<ion-header>
+        <AppHeader titulo="REGISTRAR">
 
-<ion-toolbar class="toolbar">
+            <ion-buttons slot="start">
+                <ion-button @click="volver">
+                    <ion-icon :icon="chevronBackOutline"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </AppHeader>
+        <ion-content class="fondo">
 
-<ion-buttons slot="start">
-<ion-button @click="volver">
-<ion-icon :icon="chevronBackOutline"></ion-icon>
-</ion-button>
-</ion-buttons>
+            <div class="contenedor">
 
-<ion-title class="titulo">
-REGISTRAR USUARIO
-</ion-title>
+                <input type="file" ref="inputFoto" accept="image/*" style="display:none" @change="cargarFoto" />
 
-</ion-toolbar>
+                <div class="foto" @click="abrirArchivos">
 
-</ion-header>
+                    <img v-if="foto" :src="foto">
 
-<ion-content class="fondo">
+                    <ion-icon v-else :icon="person" class="icono"></ion-icon>
 
-<div class="contenedor">
+                </div>
 
-<input
-type="file"
-ref="inputFoto"
-accept="image/*"
-style="display:none"
-@change="cargarFoto"
-/>
+                <input class="input" placeholder="Código" v-model="codigo" />
 
-<div class="foto" @click="abrirArchivos">
+                <input class="input" placeholder="Nombre" v-model="nombre" />
+                <input class="input" placeholder="Apellido" v-model="apellido" />
+                <input class="input" placeholder="Cédula" v-model="cedula" />
 
-<img v-if="foto" :src="foto">
+                <input class="input" placeholder="Correo" v-model="correo" />
+                <input class="input" placeholder="Teléfono" v-model="telefono" />
+                <input class="input" placeholder="Dirección" v-model="direccion" />
 
-<ion-icon v-else :icon="person" class="icono"></ion-icon>
+                <select v-model="rol" class="input">
 
-</div>
+                    <option disabled value="">Seleccionar rol</option>
 
-<input class="input" placeholder="Código" v-model="codigo"/>
+                    <option value="CAJERO">Cajero</option>
+                    <option value="COCINERO">Cocinero</option>
 
-<input class="input" placeholder="Nombre" v-model="nombre"/>
-<input class="input" placeholder="Apellido" v-model="apellido"/>
-<input class="input" placeholder="Cédula" v-model="cedula"/>
+                </select>
 
-<input class="input" placeholder="Correo" v-model="correo"/>
-<input class="input" placeholder="Teléfono" v-model="telefono"/>
-<input class="input" placeholder="Dirección" v-model="direccion"/>
+                <input class="input" type="password" placeholder="Contraseña" v-model="password" />
 
-<select v-model="rol" class="input">
+                <button class="boton" @click="registrar">
+                    REGISTRAR
+                </button>
 
-<option disabled value="">Seleccionar rol</option>
+            </div>
 
-<option value="CAJERO">Cajero</option>
-<option value="COCINERO">Cocinero</option>
+        </ion-content>
 
-</select>
-
-<input class="input" type="password" placeholder="Contraseña" v-model="password"/>
-
-<button class="boton" @click="registrar">
-REGISTRAR
-</button>
-
-</div>
-
-</ion-content>
-
-</ion-page>
+    </ion-page>
 
 </template>
 
@@ -77,21 +61,21 @@ REGISTRAR
 <script setup>
 
 import {
-IonPage,
-IonHeader,
-IonToolbar,
-IonTitle,
-IonContent,
-IonButtons,
-IonButton,
-IonIcon
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButtons,
+    IonButton,
+    IonIcon
 } from '@ionic/vue'
 
 import {
-person,
-chevronBackOutline
+    person,
+    chevronBackOutline
 } from 'ionicons/icons'
-
+import AppHeader from '@/components/AppHeader.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -111,91 +95,91 @@ const foto = ref(null)
 
 const inputFoto = ref(null)
 
-const abrirArchivos = ()=>{
+const abrirArchivos = () => {
 
-inputFoto.value.click()
-
-}
-
-const cargarFoto = (event)=>{
-
-const file = event.target.files[0]
-
-if(file){
-
-foto.value = URL.createObjectURL(file)
+    inputFoto.value.click()
 
 }
+
+const cargarFoto = (event) => {
+
+    const file = event.target.files[0]
+
+    if (file) {
+
+        foto.value = URL.createObjectURL(file)
+
+    }
 
 }
 
 const registrar = async () => {
 
-if(
-!codigo.value ||
-!nombre.value ||
-!apellido.value ||
-!password.value ||
-!rol.value
-){
+    if (
+        !codigo.value ||
+        !nombre.value ||
+        !apellido.value ||
+        !password.value ||
+        !rol.value
+    ) {
 
-alert("Debes llenar los campos obligatorios")
-return
+        alert("Debes llenar los campos obligatorios")
+        return
+
+    }
+
+    try {
+
+        const response = await fetch('http://localhost:3000/usuarios', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+
+                codigo: codigo.value,
+                password: password.value,
+                nombre: nombre.value,
+                apellido: apellido.value,
+                cedula: cedula.value,
+                direccion: direccion.value,
+                correo: correo.value,
+                telefono: telefono.value,
+                rol: rol.value,
+                foto: foto.value
+
+            })
+
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+
+            alert("Usuario registrado")
+
+            router.push('/usuarios')
+
+        } else {
+
+            alert("Error registrando usuario")
+
+        }
+
+    } catch (error) {
+
+        console.log(error)
+
+    }
 
 }
 
-try{
+const volver = () => {
 
-const response = await fetch('http://localhost:3000/usuarios',{
-
-method:'POST',
-
-headers:{
-'Content-Type':'application/json'
-},
-
-body:JSON.stringify({
-
-codigo:codigo.value,
-password:password.value,
-nombre:nombre.value,
-apellido:apellido.value,
-cedula:cedula.value,
-direccion:direccion.value,
-correo:correo.value,
-telefono:telefono.value,
-rol:rol.value,
-foto:foto.value
-
-})
-
-})
-
-const data = await response.json()
-
-if(data.success){
-
-alert("Usuario registrado")
-
-router.push('/usuarios')
-
-}else{
-
-alert("Error registrando usuario")
-
-}
-
-}catch(error){
-
-console.log(error)
-
-}
-
-}
-
-const volver = ()=>{
-
-router.push('/usuarios')
+    router.push('/usuarios')
 
 }
 
@@ -203,100 +187,98 @@ router.push('/usuarios')
 
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+    --background: white;
 }
 
-.toolbar{
---background:white;
-border-bottom:2px solid black;
+.toolbar {
+    --background: white;
+    border-bottom: 2px solid black;
 }
 
-.contenedor{
+.contenedor {
 
-display:flex;
-flex-direction:column;
-align-items:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-margin-top:20px;
-
-}
-
-.foto{
-
-width:100px;
-height:100px;
-
-border-radius:50%;
-
-background:black;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-margin-bottom:25px;
-
-overflow:hidden;
-
-cursor:pointer;
+    margin-top: 20px;
 
 }
 
-.foto img{
+.foto {
 
-width:100%;
-height:100%;
-object-fit:cover;
+    width: 100px;
+    height: 100px;
 
-}
+    border-radius: 50%;
 
-.icono{
+    background: black;
 
-font-size:50px;
-color:white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-}
+    margin-bottom: 25px;
 
-.input{
+    overflow: hidden;
 
-width:85%;
-
-padding:10px;
-
-border:none;
-
-border-bottom:2px solid black;
-
-margin-bottom:20px;
-
-font-size:16px;
-
-background:white;
-
-color:black;
+    cursor: pointer;
 
 }
 
-.boton{
+.foto img {
 
-width:85%;
-
-padding:12px;
-
-border:2px solid black;
-
-border-radius:25px;
-
-background:white;
-
-color:black;
-
-font-size:16px;
-
-cursor:pointer;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 
 }
 
+.icono {
+
+    font-size: 50px;
+    color: white;
+
+}
+
+.input {
+
+    width: 85%;
+
+    padding: 10px;
+
+    border: none;
+
+    border-bottom: 2px solid black;
+
+    margin-bottom: 20px;
+
+    font-size: 16px;
+
+    background: white;
+
+    color: black;
+
+}
+
+.boton {
+
+    width: 85%;
+
+    padding: 12px;
+
+    border: 2px solid black;
+
+    border-radius: 25px;
+
+    background: white;
+
+    color: black;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
 </style>

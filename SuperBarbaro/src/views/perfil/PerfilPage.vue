@@ -1,55 +1,48 @@
 <template>
 
-<ion-page>
+  <ion-page>
 
-<ion-header>
-<ion-toolbar class="toolbar">
+    <AppHeader titulo="PERFIL" />
 
-<ion-title class="titulo">
-PERFIL
-</ion-title>
+    <template #end>
+      <ion-button @click="editarPerfil">
+        <ion-icon :icon="createOutline"></ion-icon>
+      </ion-button>
+    </template>
 
-<ion-buttons slot="end">
-<ion-button @click="editarPerfil">
-<ion-icon :icon="createOutline"></ion-icon>
-</ion-button>
-</ion-buttons>
 
-</ion-toolbar>
-</ion-header>
+    <ion-content class="fondo">
 
-<ion-content class="fondo">
+      <div class="contenedor">
 
-<div class="contenedor">
+        <div class="foto-perfil">
+          <ion-icon :icon="person" class="icono"></ion-icon>
+        </div>
 
-<div class="foto-perfil">
-<ion-icon :icon="person" class="icono"></ion-icon>
-</div>
+        <p class="rol">{{ usuario.rol }}</p>
 
-<p class="rol">{{ usuario.rol }}</p>
+        <div class="datos">
 
-<div class="datos">
+          <p><b>Nombre:</b> {{ usuario.nombre }} {{ usuario.apellido }}</p>
+          <p><b>Correo:</b> {{ usuario.correo }}</p>
+          <p><b>Teléfono:</b> {{ usuario.telefono }}</p>
+          <p><b>Dirección:</b> {{ usuario.direccion }}</p>
 
-<p><b>Nombre:</b> {{ usuario.nombre }} {{ usuario.apellido }}</p>
-<p><b>Correo:</b> {{ usuario.correo }}</p>
-<p><b>Teléfono:</b> {{ usuario.telefono }}</p>
-<p><b>Dirección:</b> {{ usuario.direccion }}</p>
+        </div>
 
-</div>
+        <div class="boton-usuarios" @click="irUsuarios">
+          Usuarios
+        </div>
 
-<div class="boton-usuarios" @click="irUsuarios">
-Usuarios
-</div>
+        <p class="cerrar" @click="cerrarSesion">
+          Cerrar sesión
+        </p>
 
-<p class="cerrar" @click="cerrarSesion">
-Cerrar sesión
-</p>
+      </div>
 
-</div>
+    </ion-content>
 
-</ion-content>
-
-</ion-page>
+  </ion-page>
 
 </template>
 
@@ -57,18 +50,18 @@ Cerrar sesión
 <script setup>
 
 import {
-IonPage,
-IonHeader,
-IonToolbar,
-IonTitle,
-IonContent,
-IonButtons,
-IonButton,
-IonIcon
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButtons,
+  IonButton,
+  IonIcon
 } from '@ionic/vue'
 
 import { person, createOutline } from 'ionicons/icons'
-
+import AppHeader from '@/components/AppHeader.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -76,35 +69,35 @@ const router = useRouter()
 
 const usuario = ref({})
 
-onMounted(()=>{
+onMounted(() => {
 
-const data = localStorage.getItem("usuario")
+  const data = localStorage.getItem("usuario")
 
-if(data){
+  if (data) {
 
-usuario.value = JSON.parse(data)
+    usuario.value = JSON.parse(data)
 
-}
+  }
 
 })
 
-const irUsuarios = ()=>{
+const irUsuarios = () => {
 
-router.push('/usuarios')
-
-}
-
-const cerrarSesion = ()=>{
-
-localStorage.removeItem("usuario")
-
-router.push('/login')
+  router.push('/usuarios')
 
 }
 
-const editarPerfil = ()=>{
+const cerrarSesion = () => {
 
-console.log("editar perfil")
+  localStorage.removeItem("usuario")
+
+  router.push('/login')
+
+}
+
+const editarPerfil = () => {
+
+  console.log("editar perfil")
 
 }
 
@@ -112,93 +105,91 @@ console.log("editar perfil")
 
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+  --background: white;
 }
 
-.toolbar{
---background:white;
-border-bottom:2px solid black;
+.toolbar {
+  --background: white;
+  border-bottom: 2px solid black;
 }
 
 
-.contenedor{
+.contenedor {
 
-display:flex;
-flex-direction:column;
-align-items:center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-margin-top:30px;
+  margin-top: 30px;
 
-color:black;
-
-}
-
-.foto-perfil{
-
-width:120px;
-height:120px;
-
-border-radius:50%;
-
-background:black;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-margin-bottom:15px;
+  color: black;
 
 }
 
-.icono{
+.foto-perfil {
 
-font-size:70px;
-color:white;
+  width: 120px;
+  height: 120px;
 
-}
+  border-radius: 50%;
 
-.rol{
+  background: black;
 
-font-weight:bold;
-text-transform:uppercase;
-margin-bottom:20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-}
-
-.datos{
-
-width:60%;
-
-font-size:16px;
-
-margin-bottom:25px;
+  margin-bottom: 15px;
 
 }
 
-.boton-usuarios{
+.icono {
 
-border:2px solid black;
-
-border-radius:20px;
-
-padding:8px 30px;
-
-font-weight:bold;
-
-cursor:pointer;
-
-margin-bottom:15px;
+  font-size: 70px;
+  color: white;
 
 }
 
-.cerrar{
+.rol {
 
-color:red;
-
-cursor:pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 20px;
 
 }
 
+.datos {
+
+  width: 60%;
+
+  font-size: 16px;
+
+  margin-bottom: 25px;
+
+}
+
+.boton-usuarios {
+
+  border: 2px solid black;
+
+  border-radius: 20px;
+
+  padding: 8px 30px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  margin-bottom: 15px;
+
+}
+
+.cerrar {
+
+  color: red;
+
+  cursor: pointer;
+
+}
 </style>

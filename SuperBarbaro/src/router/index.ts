@@ -16,97 +16,97 @@ import NuevaOrdenPage from '@/views/Ventas/NuevaOrdenPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
 
-{
-path: '/',
-redirect: '/login'
-},
+  {
+    path: '/',
+    redirect: '/login'
+  },
 
-{
-path: '/login',
-component: LoginPage
-},
+  {
+    path: '/login',
+    component: LoginPage
+  },
 
-{
-path: '/tabs',
-component: TabsPage,
-children: [
+  {
+    path: '/tabs',
+    component: TabsPage,
+    children: [
 
-{
-path: '',
-redirect: '/tabs/ventas'
-},
+      {
+        path: '',
+        redirect: '/tabs/ventas'
+      },
 
-{
-path: 'ventas',
-component: VentasPage
-},
+      {
+        path: 'ventas',
+        component: VentasPage
+      },
 
-// INVENTARIO VISTAS
+      // INVENTARIO VISTAS
 
-{
-path: 'inventario',
-      component: () => import('@/views/inventario/InventarioPage.vue')
-},
-{
-path: 'productos/:categoria',
-component: () => import('@/views/inventario/ProductosPage.vue')
-},
-{
-path: 'producto/:id',
-component: () => import('@/views/inventario/ProductoDetallePage.vue')
-},
-{
-path: 'nuevo-producto',
-component: () => import('@/views/inventario/NuevoProductoPage.vue')
-},
-{
-path: 'editar-producto/:id',
-component: () => import('@/views/inventario/EditarProductoPage.vue')
-},
-{
-  path: 'nueva-categoria',
-  component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
-},
-{
-  path: 'nuevo-producto/:categoria',
-  component: () => import('@/views/inventario/NuevoProductoPage.vue')
-},
+      {
+        path: 'inventario',
+        component: () => import('@/views/inventario/InventarioPage.vue')
+      },
+      {
+        path: 'productos/:categoria',
+        component: () => import('@/views/inventario/ProductosPage.vue')
+      },
+      {
+        path: 'producto/:id',
+        component: () => import('@/views/inventario/ProductoDetallePage.vue')
+      },
+      {
+        path: 'nuevo-producto',
+        component: () => import('@/views/inventario/NuevoProductoPage.vue')
+      },
+      {
+        path: 'editar-producto/:id',
+        component: () => import('@/views/inventario/EditarProductoPage.vue')
+      },
+      {
+        path: 'nueva-categoria',
+        component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
+      },
+      {
+        path: 'nuevo-producto/:categoria',
+        component: () => import('@/views/inventario/NuevoProductoPage.vue')
+      },
 
-//REPORTES
-{
-path: 'reportes',
-component: ReportesPage
-},
+      //REPORTES
+      {
+        path: 'reportes',
+        component: ReportesPage
+      },
 
-{
-path: 'perfil',
-component: PerfilPage
-}
+      {
+        path: 'perfil',
+        component: PerfilPage
+      }
 
-]
-},
+    ]
+  },
 
-{
-path: '/usuarios',
-component: UsuariosPage
-},
+  {
+    path: '/usuarios',
+    component: UsuariosPage
+  },
 
-{
-path: '/registrar-usuario',
-component: RegistrarUsuarioPage
-},
+  {
+    path: '/registrar-usuario',
+    component: RegistrarUsuarioPage
+  },
 
-{
-path: '/nueva-orden',
-component: NuevaOrdenPage
-}
+  {
+    path: '/nueva-orden',
+    component: NuevaOrdenPage
+  }
 
 
 ]
 
 const router = createRouter({
-history: createWebHistory(import.meta.env.BASE_URL),
-routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes
 })
 
 export default router

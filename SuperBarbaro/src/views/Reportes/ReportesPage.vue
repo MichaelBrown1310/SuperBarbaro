@@ -1,14 +1,14 @@
 <template>
 
-<ion-page>
+    <ion-page>
 
-<AppHeader titulo="REPORTES" />
+        <AppHeader titulo="REPORTES" />
 
-<ion-content class="fondo">
+        <ion-content class="fondo">
 
-</ion-content>
+        </ion-content>
 
-</ion-page>
+    </ion-page>
 
 </template>
 
@@ -20,9 +20,7 @@ import AppHeader from '../../components/AppHeader.vue'
 </script>
 
 <style>
-
-.fondo{
---background:white;
+.fondo {
+    --background: white;
 }
-
 </style>
