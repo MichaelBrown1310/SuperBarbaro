@@ -7,17 +7,19 @@
 <ion-content class="fondo">
 
     <div class="contenedor-boton">
-        <button class="boton-general" @click="nuevaOrden" style="font-size: 90px;">
-        +
-            <p style="font-size: 20px;">Nueva orden</p>
-        </button>
-    </div>
-    
-    <div class="contenedor-boton">
+
+    <button class="boton-general" @click="NuevaOrden" style="font-size: 90px;">
+    +
+    <p style="font-size: 20px;">Nueva orden</p>
+    </button>
+
+     <div class="contenedor-boton">
         <button class="boton-general" @click="listaPedidos" style="font-size: 90px;">
         =
             <p style="font-size: 20px;">Lista de pedidos</p>
         </button>
+    </div>
+
     </div>
 
 </ion-content>
@@ -41,7 +43,8 @@ const usuarios = ref([])
 
 
 
-const nuevaOrden = () => {
+const NuevaOrden = () => {
+
 router.push('/nueva-orden')
 }
 const listaPedidos = () => {

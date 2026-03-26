@@ -174,17 +174,20 @@ app.listen(3000, () => {
 });
 
 //INVENTARIOS
-app.get("/productos/:categoria", (req, res) => {
+app.get("/productos/:id_categoria", (req, res) => {
 
-  const { categoria } = req.params;
+  const { id_categoria } = req.params;
 
-  const sql = "SELECT * FROM productos WHERE categoria = ?";
+  const sql = `
+    SELECT p.*
+    FROM productos p
+    JOIN producto_categoria pc ON p.id = pc.producto_id
+    WHERE pc.categoria_id = ?
+  `;
 
-  db.query(sql, [categoria], (err, result) => {
+  db.query(sql, [id_categoria], (err, result) => {
 
-    if (err) {
-      return res.status(500).json(err);
-    }
+    if (err) return res.status(500).json(err);
 
     res.json(result);
 
@@ -208,16 +211,37 @@ app.get("/producto/:id", (req, res) => {
 
 app.post("/productos", (req, res) => {
 
-  const { nombre, categoria, precio, cantidad, imagen } = req.body;
+  const { nombre, precio, cantidad, imagen, categorias } = req.body;
 
-  const sql = `
-  INSERT INTO productos (nombre, categoria, precio, cantidad, imagen)
-  VALUES (?, ?, ?, ?, ?)
+  // categorias = [11, 12] (array)
+
+  const sqlProducto = `
+    INSERT INTO productos (nombre, precio, cantidad, imagen)
+    VALUES (?, ?, ?, ?)
   `;
 
-  db.query(sql, [nombre, categoria, precio, cantidad, imagen], (err, result) => {
+  db.query(sqlProducto, [nombre, precio, cantidad, imagen], (err, result) => {
+
     if (err) return res.status(500).json(err);
-    res.json({ success: true });
+
+    const producto_id = result.insertId;
+
+    // insertar relaciones
+    const valores = categorias.map(cat_id => [producto_id, cat_id]);
+
+    const sqlRelacion = `
+      INSERT INTO producto_categoria (producto_id, categoria_id)
+      VALUES ?
+    `;
+
+    db.query(sqlRelacion, [valores], (err2) => {
+
+      if (err2) return res.status(500).json(err2);
+
+      res.json({ success: true });
+
+    });
+
   });
 
 });
@@ -283,26 +307,6 @@ app.post("/categorias", (req, res) => {
 
 });
 
-app.get("/productos/:categoria", (req, res) => {
-
-  const categoria = req.params.categoria;
-
-  const sql = `
-    SELECT p.* FROM productos p
-    JOIN categorias c ON p.categoria_id = c.id
-    WHERE c.nombre = ?
-  `;
-
-  db.query(sql, [categoria], (err, result) => {
-
-    if (err) return res.status(500).json(err);
-
-    res.json(result);
-
-  });
-
-});
-
 app.post("/productos", (req, res) => {
 
   const { nombre, precio, cantidad, imagen, categoria } = req.body;
@@ -328,6 +332,41 @@ app.post("/productos", (req, res) => {
   });
 
 });
+
+app.post('/movimientos', async (req, res) => {
+  const { producto_id, tipo, cantidad, motivo } = req.body
+
+  await db.query(
+    `INSERT INTO movimientos_productos 
+     (producto_id, tipo, cantidad, motivo) 
+     VALUES (?, ?, ?, ?)`,
+    [producto_id, tipo, cantidad, motivo]
+  )
+
+  res.json({ mensaje: "Movimiento guardado" })
+})
+
+app.get('/movimientos/:producto_id', (req, res) => {
+  const { producto_id } = req.params
+
+  db.query(
+    `SELECT * FROM movimientos_productos 
+     WHERE producto_id = ?
+     ORDER BY fecha DESC`,
+    [producto_id],
+    (err, results) => {
+      if (err) {
+        console.log(err)
+        return res.status(500).json({ error: err })
+      }
+
+      res.json(results)
+    }
+  )
+})
+
+
+
 
 
 
