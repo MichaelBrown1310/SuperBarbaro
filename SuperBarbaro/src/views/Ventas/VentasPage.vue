@@ -41,6 +41,10 @@ const NuevaOrden = () => {
     router.push('/nueva-orden')
 
 }
+const listaPedidos = () => {
+router.push('/nueva-orden')
+}
+
 
 </script>
 
