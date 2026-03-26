@@ -2,7 +2,7 @@
 
 <ion-page>
 
-<AppHeader :titulo="categoria.toUpperCase()" />
+<AppHeader :titulo="nombreCategoria.toUpperCase()" />
 
 <ion-content class="fondo">
 
@@ -46,6 +46,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, onMounted, computed } from 'vue'
 import AppHeader from '../../components/AppHeader.vue'
 
+const categorias = ref([])
+const nombreCategoria = ref('')
+
 const route = useRoute()
 const router = useRouter()
 
@@ -55,7 +58,10 @@ const categoria = ref('')
 const productos = ref([])
 const busqueda = ref('')
 
-
+const cargarCategorias = async () => {
+  const res = await fetch('http://localhost:3000/categorias')
+  categorias.value = await res.json()
+}
 
 onMounted(() => {
   categoria.value = route.params.categoria
@@ -63,7 +69,21 @@ onMounted(() => {
 })
 
 const cargar = async () => {
-  const res = await fetch('http://localhost:3000/productos/' + categoria.value)
+
+  await cargarCategorias()
+
+  const categoriaNombre = route.params.categoria
+
+  const cat = categorias.value.find(c => c.nombre === categoriaNombre)
+
+  if (!cat) {
+    console.log("Categoría no encontrada")
+    return
+  }
+
+  nombreCategoria.value = cat.nombre
+
+  const res = await fetch(`http://localhost:3000/productos/${cat.id}`)
   productos.value = await res.json()
 }
 
