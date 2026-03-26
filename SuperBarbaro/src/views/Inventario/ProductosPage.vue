@@ -101,6 +101,7 @@ gap:15px;
 }
 
 .card{
+background-color: rgba(255, 255, 255, 0.71);
 border:2px solid black;
 border-radius:15px;
 padding:10px;
@@ -115,6 +116,7 @@ border-radius:10px;
 }
 
 .input{
+background-color: rgba(255, 252, 252, 0.548);
 width:100%;
 padding:10px;
 margin-bottom:10px;
