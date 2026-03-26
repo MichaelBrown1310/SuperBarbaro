@@ -291,6 +291,27 @@ app.get("/categorias", (req, res) => {
 
 });
 
+app.get("/menu/:categoria_id", (req, res) => {
+
+  const { categoria_id } = req.params;
+
+  const sql = `
+    SELECT *
+    FROM menu
+    WHERE categoria_id = ?
+    ORDER BY nombre ASC
+  `;
+
+  db.query(sql, [categoria_id], (err, result) => {
+
+    if (err) return res.status(500).json(err);
+
+    res.json(result);
+
+  });
+
+});
+
 app.post("/categorias", (req, res) => {
 
   const { nombre, imagen } = req.body;
