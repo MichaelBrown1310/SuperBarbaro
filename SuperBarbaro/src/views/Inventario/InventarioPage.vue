@@ -44,11 +44,16 @@
 
             </div>
 
+            <button class="btn-menu" @click="irMenu">
+              <img src="https://cdn-icons-png.flaticon.com/128/1046/1046747.png" />
+            </button>
+            <br><br><br><br>
           </div>
 
         </div>
 
       </div>
+
 
     </ion-content>
 
@@ -77,7 +82,9 @@ const cargar = async () => {
   categorias.value = await res.json()
 }
 
-onIonViewWillEnter(cargar)
+onIonViewWillEnter(() => {
+  cargar()
+})
 
 // IR A PRODUCTOS
 const ir = (cat) => {
@@ -87,6 +94,11 @@ const ir = (cat) => {
 // NUEVA CATEGORIA
 const nuevaCategoria = () => {
   router.push('/tabs/nueva-categoria')
+}
+
+// MENU
+const irMenu = () => {
+  router.push('/tabs/menu')
 }
 
 let timeout = null
@@ -139,6 +151,7 @@ const buscar = () => {
   text-align: center;
   width: auto;
   height: 250px;
+  cursor: pointer;
 }
 
 .card img {
@@ -163,6 +176,13 @@ const buscar = () => {
   margin-bottom: 15px;
   border-radius: 10px;
   border: 1px solid #b0b0b0;
+}
+
+.btn-menu {
+  background: white;
+  border-radius: 15px;
+  border: 2px solid black;
+  color: black;
 }
 
 @media (max-width: 600px) {

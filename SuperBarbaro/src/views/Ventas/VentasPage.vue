@@ -61,7 +61,7 @@ const listaPedidos = () => {
 }
 
 .boton-general {
-    width: 100px;
+    width: 170px;
     height: 200px;
     border: 2px solid black;
     border-radius: 25px;

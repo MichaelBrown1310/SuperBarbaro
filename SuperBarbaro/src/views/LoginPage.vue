@@ -117,7 +117,7 @@ ion-content.fondoo::part(background) {
   align-items: center;
   justify-content: center;
 
-  /* 🔥 estilo pro */
+  
   background: rgb(255, 255, 255);
   /* 0.6 = nivel de opacidad (entre 0 y 1) */
 
@@ -137,7 +137,7 @@ ion-content.fondoo::part(background) {
   align-items: center;
   justify-content: center;
 
-  /* 🔥 estilo pro */
+  
   background: rgba(190, 171, 171, 0.463);
   /* 0.6 = nivel de opacidad (entre 0 y 1) */
 

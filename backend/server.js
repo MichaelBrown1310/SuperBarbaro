@@ -271,7 +271,7 @@ app.post("/categorias", (req, res) => {
 
 });
 
-//  CREAR PRODUCTO (🔥 ESTE ES EL IMPORTANTE)
+//  CREAR PRODUCTO
 app.post("/productos", (req, res) => {
 
   const { nombre, precio, cantidad, imagen, categoria } = req.body;
@@ -427,5 +427,27 @@ app.get('/movimientos/:producto_id', (req, res) => {
   );
 
 });
+
+// ================= MENU =================
+
+app.get('/menu', (req, res) => {
+  const sql = `
+    SELECT 
+      menu.*, 
+      categorias.nombre AS categoria_nombre
+    FROM menu
+    LEFT JOIN categorias 
+      ON menu.categoria_id = categorias.id
+  `
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err)
+      return res.status(500).json({ error: 'Error en el servidor' })
+    }
+
+    res.json(results)
+  })
+})
 
 // ================= FIN INVENTARIO =================

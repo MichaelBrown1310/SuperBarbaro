@@ -71,6 +71,10 @@ const routes: Array<RouteRecordRaw> = [
         path: 'nuevo-producto/:categoria',
         component: () => import('@/views/inventario/NuevoProductoPage.vue')
       },
+      {
+        path: 'menu',
+        component: () => import('@/views/inventario/MenuPage.vue')
+      },
 
       //REPORTES
       {
@@ -86,7 +90,8 @@ const routes: Array<RouteRecordRaw> = [
         path: 'reportes/estimaciones',
         component: () => import('@/views/Reportes/EstimacionesPage.vue')
       },
-
+      
+      //PERFIL
       {
         path: 'perfil',
         component: PerfilPage

@@ -94,7 +94,7 @@ import { addIcons } from 'ionicons'
 import {
   chevronDownOutline, chevronUpOutline, receiptOutline
 } from 'ionicons/icons'
-import AppHeader from '../../../components/AppHeader.vue'
+import AppHeader from '../../components/AppHeader.vue'
 import { ref, computed, onMounted } from 'vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 
