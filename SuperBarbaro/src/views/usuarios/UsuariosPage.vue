@@ -1,67 +1,46 @@
 <template>
+  <ion-page>
 
-    <ion-page>
+    <AppHeader titulo="USUARIOS" :mostrarVolver="true" @volver="volver" />
 
-        <AppHeader titulo="USUARIOS">
+    <ion-content class="fondo">
 
-            <ion-buttons slot="start">
-                <ion-button @click="volver">
-                    <ion-icon :icon="chevronBackOutline"></ion-icon>
-                </ion-button>
-            </ion-buttons>
-        </AppHeader>
-        <ion-content class="fondo">
+      <div class="lista">
 
-            <div class="lista">
+        <div class="usuario" v-for="u in usuarios" :key="u.codigo">
 
-                <div class="usuario" v-for="u in usuarios" :key="u.codigo">
+          <div class="izquierda">
 
-                    <div class="izquierda">
-
-                        <div class="foto-usuario">
-
-                            <img v-if="u.foto" :src="'http://localhost:3000/' + u.foto" />
-
-                            <ion-icon v-else :icon="person" class="icono" />
-
-                        </div>
-
-                        <div class="info">
-
-                            <p class="rol">
-                                {{ u.rol }}
-                            </p>
-
-                            <p class="nombre">
-                                {{ u.nombre }} {{ u.apellido }}
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <ion-button fill="clear" class="editar" @click="editarUsuario(u)">
-                        <ion-icon :icon="createOutline"></ion-icon>
-                    </ion-button>
-
-                </div>
-
+            <div class="foto-usuario">
+              <img v-if="u.foto" :src="'http://localhost:3000/' + u.foto" />
+              <ion-icon v-else :icon="person" class="icono" />
             </div>
 
-            <div class="contenedor-boton">
-
-                <button class="boton-registrar" @click="registrarUsuario">
-                    REGISTRAR USUARIO
-                </button>
-
+            <div class="info">
+              <p class="rol">{{ u.rol }}</p>
+              <p class="nombre">{{ u.nombre }} {{ u.apellido }}</p>
             </div>
 
-        </ion-content>
+          </div>
 
-    </ion-page>
+          <ion-button fill="clear" class="editar" @click="editarUsuario(u)">
+            <ion-icon :icon="createOutline" />
+          </ion-button>
 
+        </div>
+
+      </div>
+
+      <div class="contenedor-boton">
+        <button class="boton-registrar" @click="registrarUsuario">
+          Registrar Usuario
+        </button>
+      </div>
+
+    </ion-content>
+
+  </ion-page>
 </template>
-
 
 
 <script setup>
@@ -86,29 +65,25 @@ import {
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
+import { onIonViewWillEnter } from '@ionic/vue'
 
 
 const router = useRouter()
 
 const usuarios = ref([])
 
-onMounted(async () => {
+const cargar = async () => {
+  try {
+    const res = await fetch('http://localhost:3000/usuarios')
+    usuarios.value = await res.json()
+  } catch {
+    console.log('Error cargando usuarios')
+  }
+}
 
-    try {
+onIonViewWillEnter(cargar)
+onMounted(cargar)
 
-        const response = await fetch('http://localhost:3000/usuarios')
-
-        const data = await response.json()
-
-        usuarios.value = data
-
-    } catch (error) {
-
-        console.log("Error cargando usuarios")
-
-    }
-
-})
 
 const volver = () => {
 
@@ -240,6 +215,7 @@ const registrarUsuario = () => {
     font-size: 13px;
 
     margin: 0;
+    color: #333;
 
 }
 
@@ -255,6 +231,7 @@ const registrarUsuario = () => {
     justify-content: center;
 
     margin-top: 25px;
+    margin-bottom: 30px;
 
 }
 
@@ -273,5 +250,7 @@ const registrarUsuario = () => {
 
     font-size: 16px;
 
+    font-weight: bold;
+    cursor: pointer;
 }
 </style>
