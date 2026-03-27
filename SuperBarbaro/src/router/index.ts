@@ -79,6 +79,15 @@ const routes: Array<RouteRecordRaw> = [
       },
 
       {
+        path: 'reportes/ventas-diarias',
+        component: () => import('@/views/Reportes/VentasDiariasPage.vue')
+      },
+      {
+        path: 'reportes/estimaciones',
+        component: () => import('@/views/Reportes/EstimacionesPage.vue')
+      },
+
+      {
         path: 'perfil',
         component: PerfilPage
       }
