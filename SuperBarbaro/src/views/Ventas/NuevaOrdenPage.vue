@@ -79,33 +79,57 @@
           </div>
 
           <div v-else class="lista-pedido">
-            <div class="item-pedido" v-for="item in pedido" :key="item.lineaId">
+            <div
+              class="item-pedido"
+              :class="{ 'item-pedido-personalizado': item.adiciones.length > 0 || item.remociones.length > 0 }"
+              v-for="item in pedido"
+              :key="item.lineaId"
+            >
               <div class="info-pedido">
                 <p class="nombre-producto">{{ item.nombre }}</p>
                 <p>${{ formatearPrecio(item.precio) }} c/u</p>
                 <p>Subtotal base: ${{ formatearPrecio(item.precio * item.cantidad) }}</p>
+
                 <div v-if="item.adiciones.length > 0" class="resumen-adiciones">
                   <p class="titulo-resumen-adiciones">Adiciones:</p>
-                  <p v-for="adicion in item.adiciones" :key="`${item.lineaId}-res-${adicion.id}`">
-                    {{ adicion.nombre }} x{{ adicion.cantidad }} - ${{ formatearPrecio(adicion.precio * adicion.cantidad) }}
+                  <p v-for="adicion in item.adiciones" :key="`${item.lineaId}-ad-${adicion.id}`">
+                    {{ adicion.nombre }} x{{ cantidadTotalAdicion(item, adicion) }} - ${{ formatearPrecio(totalAdicionLinea(item, adicion)) }}
                   </p>
                 </div>
+
+                <div v-if="item.remociones.length > 0" class="resumen-adiciones">
+                  <p class="titulo-resumen-adiciones">Sin:</p>
+                  <p v-for="ingrediente in item.remociones" :key="`${item.lineaId}-rm-${ingrediente.id}`">
+                    {{ ingrediente.nombre }}
+                  </p>
+                </div>
+
                 <p>Subtotal final: ${{ formatearPrecio(totalLinea(item)) }}</p>
               </div>
 
               <div class="controles-pedido">
                 <div class="contador">
-                  <button class="btn-cantidad" @click="disminuirPedido(item.lineaId)">-</button>
+                  <button
+                    class="btn-cantidad"
+                    :class="{ 'btn-cantidad-eliminar': item.cantidad === 1 }"
+                    @click="disminuirPedido(item.lineaId)"
+                  >
+                    -
+                  </button>
                   <span>{{ item.cantidad }}</span>
                   <button class="btn-cantidad" @click="aumentarPedido(item.lineaId)">+</button>
                 </div>
 
                 <button class="btn-secundario" @click="toggleAdiciones(item.lineaId)">
-                  {{ item.mostrarAdiciones ? 'Ocultar adiciones' : 'Agregar adiciones' }}
+                  {{ item.mostrarAdiciones ? 'Ocultar personalizacion' : 'Personalizar' }}
                 </button>
 
-                <button class="btn-eliminar" @click="eliminarDelPedido(item.lineaId)">
-                  Quitar
+                <button class="btn-eliminar" @click="toggleRemociones(item.lineaId)">
+                  {{ item.mostrarRemociones ? 'Ocultar quitar' : 'Quitar' }}
+                </button>
+
+                <button class="btn-borrar-linea" @click="eliminarDelPedido(item.lineaId)">
+                  Eliminar
                 </button>
               </div>
 
@@ -118,7 +142,7 @@
                   <div class="adicion-seleccionada" v-for="adicion in item.adiciones" :key="`${item.lineaId}-sel-${adicion.id}`">
                     <div>
                       <p class="nombre-producto">{{ adicion.nombre }}</p>
-                      <p>${{ formatearPrecio(adicion.precio) }} c/u</p>
+                      <p>${{ formatearPrecio(adicion.precio) }} por unidad del elemento</p>
                     </div>
 
                     <div class="controles-pedido">
@@ -148,7 +172,7 @@
                   <div
                     class="adicion-disponible"
                     v-for="adicion in adicionesNoSeleccionadas(item)"
-                    :key="`${item.lineaId}-${adicion.id}`"
+                    :key="`${item.lineaId}-disp-${adicion.id}`"
                   >
                     <div>
                       <p class="nombre-producto">{{ adicion.nombre }}</p>
@@ -161,20 +185,63 @@
                   </div>
                 </div>
               </div>
+
+              <div v-if="item.mostrarRemociones" class="bloque-adiciones">
+                <p class="subtitulo-adiciones">Ingredientes que puedes quitar</p>
+
+                <div class="lista-adiciones-seleccionadas bloque-remociones">
+                  <p class="etiqueta-adiciones"></p>
+
+                  <div
+                    v-if="ingredientesNoRemovidos(item).length === 0"
+                    class="estado-vacio estado-adiciones"
+                  >
+                    No hay mas ingredientes para quitar en este elemento
+                  </div>
+
+                  <div
+                    class="adicion-disponible"
+                    v-for="ingrediente in ingredientesNoRemovidos(item)"
+                    :key="`${item.lineaId}-ing-${ingrediente.id}`"
+                  >
+                    <div>
+                      <p class="nombre-producto">{{ ingrediente.nombre }}</p>
+                      <p>Ingrediente base del menu</p>
+                    </div>
+
+                    <button class="btn-eliminar btn-quitar-ingrediente" @click="quitarIngrediente(item.lineaId, ingrediente)">
+                      Quitar
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="item.remociones.length > 0" class="lista-adiciones-seleccionadas">
+                  <p class="etiqueta-adiciones">Ingredientes quitados</p>
+
+                  <div class="adicion-seleccionada" v-for="ingrediente in item.remociones" :key="`${item.lineaId}-rest-${ingrediente.id}`">
+                    <div>
+                      <p class="nombre-producto">{{ ingrediente.nombre }}</p>
+                      <p>Retirado del elemento</p>
+                    </div>
+
+                    <button class="btn-secundario" @click="restaurarIngrediente(item.lineaId, ingrediente.id)">
+                      Restaurar
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="resumen-total">
             <p>Items: {{ totalItems }}</p>
             <p class="total-final">Total: ${{ formatearPrecio(totalPedido) }}</p>
+
+            <button class="boton-registrar" @click="seleccion">
+              CONTINUAR
+            </button>
           </div>
         </section>
-      </div>
-
-      <div class="contenedor-boton">
-        <button class="boton-registrar" @click="seleccion">
-          CONTINUAR
-        </button>
       </div>
     </ion-content>
   </ion-page>
@@ -199,6 +266,7 @@ const busqueda = ref('')
 const cantidadesTemporales = ref({})
 const pedido = ref([])
 const adicionesDisponibles = ref({})
+const ingredientesBaseDisponibles = ref({})
 const siguienteLineaId = ref(1)
 
 const cargarCategorias = async () => {
@@ -256,6 +324,7 @@ const disminuirTemporal = (item) => {
 const agregarAlPedido = (item) => {
   const cantidadSeleccionada = cantidadesTemporales.value[item.id] || 1
   cargarAdicionesCategoria(item.categoria_id)
+  cargarIngredientesMenu(item.id)
 
   pedido.value.push({
     ...item,
@@ -263,20 +332,23 @@ const agregarAlPedido = (item) => {
     precio: Number(item.precio),
     cantidad: cantidadSeleccionada,
     adiciones: [],
-    mostrarAdiciones: false
+    remociones: [],
+    mostrarAdiciones: false,
+    mostrarRemociones: false
   })
 
   siguienteLineaId.value += 1
-
   cantidadesTemporales.value[item.id] = 1
 }
 
 const aumentarPedido = (lineaId) => {
   const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
 
-  if (item) {
-    item.cantidad += 1
+  if (!item) {
+    return
   }
+
+  item.cantidad += 1
 }
 
 const disminuirPedido = (lineaId) => {
@@ -303,17 +375,50 @@ const cargarAdicionesCategoria = async (categoriaId) => {
     return
   }
 
-  const res = await fetch(`http://localhost:3000/productos/${categoriaId}`)
-  const productosCategoria = await res.json()
+  try {
+    const res = await fetch(`http://localhost:3000/productos/${categoriaId}`)
+    const productosCategoria = await res.json()
 
-  adicionesDisponibles.value = {
-    ...adicionesDisponibles.value,
-    [categoriaId]: productosCategoria
-      .filter((producto) => !esPan(producto.nombre))
-      .map((producto) => ({
-        ...producto,
-        precio: Number(producto.precio)
+    adicionesDisponibles.value = {
+      ...adicionesDisponibles.value,
+      [categoriaId]: productosCategoria
+        .filter((producto) => !esPan(producto.nombre))
+        .map((producto) => ({
+          ...producto,
+          precio: Number(producto.precio)
+        }))
+    }
+  } catch (error) {
+    console.error('Error cargando adiciones por categoria', error)
+    adicionesDisponibles.value = {
+      ...adicionesDisponibles.value,
+      [categoriaId]: []
+    }
+  }
+}
+
+const cargarIngredientesMenu = async (menuId) => {
+  if (ingredientesBaseDisponibles.value[menuId]) {
+    return
+  }
+
+  try {
+    const res = await fetch(`http://localhost:3000/menu-item/${menuId}/ingredientes`)
+    const ingredientes = await res.json()
+
+    ingredientesBaseDisponibles.value = {
+      ...ingredientesBaseDisponibles.value,
+      [menuId]: ingredientes.map((ingrediente) => ({
+        ...ingrediente,
+        precio: Number(ingrediente.precio)
       }))
+    }
+  } catch (error) {
+    console.error('Error cargando ingredientes del menu', error)
+    ingredientesBaseDisponibles.value = {
+      ...ingredientesBaseDisponibles.value,
+      [menuId]: []
+    }
   }
 }
 
@@ -324,17 +429,38 @@ const toggleAdiciones = async (lineaId) => {
     return
   }
 
-  const itemEditable = obtenerLineaEditable(lineaId)
-  if (!itemEditable) {
+  if (item.mostrarAdiciones) {
+    item.mostrarAdiciones = false
     return
   }
 
-  await cargarAdicionesCategoria(itemEditable.categoria_id)
-  itemEditable.mostrarAdiciones = !itemEditable.mostrarAdiciones
+  item.mostrarRemociones = false
+  item.mostrarAdiciones = true
+
+  cargarAdicionesCategoria(item.categoria_id)
+  cargarIngredientesMenu(item.id)
+}
+
+const toggleRemociones = async (lineaId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+
+  if (!item) {
+    return
+  }
+
+  if (item.mostrarRemociones) {
+    item.mostrarRemociones = false
+    return
+  }
+
+  item.mostrarAdiciones = false
+  item.mostrarRemociones = true
+
+  cargarIngredientesMenu(item.id)
 }
 
 const agregarAdicion = (lineaId, adicion) => {
-  const item = obtenerLineaEditable(lineaId)
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
 
   if (!item) {
     return
@@ -388,12 +514,46 @@ const eliminarAdicion = (lineaId, adicionId) => {
   item.adiciones = item.adiciones.filter((itemAdicion) => itemAdicion.id !== adicionId)
 }
 
+const quitarIngrediente = (lineaId, ingrediente) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+
+  if (!item) {
+    return
+  }
+
+  const yaRemovido = item.remociones.find((itemIngrediente) => itemIngrediente.id === ingrediente.id)
+
+  if (yaRemovido) {
+    return
+  }
+
+  item.remociones.push(ingrediente)
+}
+
+const restaurarIngrediente = (lineaId, ingredienteId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+
+  if (!item) {
+    return
+  }
+
+  item.remociones = item.remociones.filter((ingrediente) => ingrediente.id !== ingredienteId)
+}
+
 const totalAdicionesItem = (item) => {
-  return item.adiciones.reduce((acumulado, adicion) => acumulado + (Number(adicion.precio) * adicion.cantidad), 0)
+  return item.adiciones.reduce((acumulado, adicion) => acumulado + totalAdicionLinea(item, adicion), 0)
 }
 
 const totalLinea = (item) => {
   return (Number(item.precio) * item.cantidad) + totalAdicionesItem(item)
+}
+
+const cantidadTotalAdicion = (item, adicion) => {
+  return item.cantidad * adicion.cantidad
+}
+
+const totalAdicionLinea = (item, adicion) => {
+  return Number(adicion.precio) * cantidadTotalAdicion(item, adicion)
 }
 
 const adicionesNoSeleccionadas = (item) => {
@@ -403,31 +563,11 @@ const adicionesNoSeleccionadas = (item) => {
   return disponibles.filter((adicion) => !idsSeleccionados.includes(adicion.id))
 }
 
-const obtenerLineaEditable = (lineaId) => {
-  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+const ingredientesNoRemovidos = (item) => {
+  const ingredientesBase = ingredientesBaseDisponibles.value[item.id] || []
+  const idsRemovidos = item.remociones.map((ingrediente) => ingrediente.id)
 
-  if (!item) {
-    return null
-  }
-
-  if (item.cantidad === 1) {
-    return item
-  }
-
-  item.cantidad -= 1
-
-  const nuevaLinea = {
-    ...item,
-    lineaId: siguienteLineaId.value,
-    cantidad: 1,
-    adiciones: item.adiciones.map((adicion) => ({ ...adicion })),
-    mostrarAdiciones: true
-  }
-
-  siguienteLineaId.value += 1
-  pedido.value.push(nuevaLinea)
-
-  return nuevaLinea
+  return ingredientesBase.filter((ingrediente) => !idsRemovidos.includes(ingrediente.id))
 }
 
 const nombreCategoriaPorId = (categoriaId) => {
@@ -624,6 +764,10 @@ select.input {
   color: white;
 }
 
+.btn-cantidad-eliminar {
+  background: #c62828;
+}
+
 .btn-agregar {
   padding: 10px 14px;
   background: #d96c06;
@@ -642,6 +786,15 @@ select.input {
   color: #1f1f1f;
 }
 
+.btn-borrar-linea {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  background: #6b7280;
+  color: white;
+}
+
 .lista-pedido {
   display: grid;
   gap: 12px;
@@ -654,6 +807,10 @@ select.input {
   background: white;
   color: #1f1f1f;
   min-width: 0;
+}
+
+.item-pedido-personalizado {
+  background: #dff5df;
 }
 
 .info-pedido p {
@@ -696,6 +853,10 @@ select.input {
   margin-top: 12px;
 }
 
+.bloque-remociones {
+  margin-top: 16px;
+}
+
 .adicion-disponible,
 .adicion-seleccionada {
   display: flex;
@@ -716,10 +877,14 @@ select.input {
   min-width: 0;
 }
 
-.btn-agregar-adicion {
-  padding: 8px 12px;
+.btn-agregar-adicion,
+.btn-quitar-ingrediente {
   margin-left: auto;
   flex-shrink: 0;
+}
+
+.btn-agregar-adicion {
+  padding: 8px 12px;
 }
 
 .estado-adiciones {
@@ -731,6 +896,10 @@ select.input {
   padding-top: 16px;
   border-top: 2px solid #1f1f1f;
   color: #1f1f1f;
+  position: sticky;
+  bottom: 0;
+  background: #fffdf7;
+  z-index: 5;
 }
 
 .resumen-total p {
@@ -755,6 +924,7 @@ select.input {
   background: black;
   color: white;
   font-weight: bold;
+  margin-top: 12px;
 }
 
 @media (max-width: 1100px) {

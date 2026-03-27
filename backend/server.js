@@ -255,6 +255,35 @@ app.get("/menu/:categoria_id", (req, res) => {
 
 });
 
+app.get("/menu-item/:menu_id/ingredientes", (req, res) => {
+
+  const { menu_id } = req.params;
+
+  const sql = `
+    SELECT
+      p.id,
+      p.nombre,
+      p.precio,
+      p.imagen,
+      mp.cantidad AS cantidad_base
+    FROM menu_productos mp
+    JOIN productos p ON p.id = mp.producto_id
+    WHERE mp.menu_id = ?
+    ORDER BY p.nombre ASC
+  `;
+
+  db.query(sql, [menu_id], (err, result) => {
+
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json(result);
+
+  });
+
+});
+
 app.post("/categorias", (req, res) => {
 
   const { nombre, imagen } = req.body;
