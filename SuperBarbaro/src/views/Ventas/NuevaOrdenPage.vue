@@ -79,23 +79,87 @@
           </div>
 
           <div v-else class="lista-pedido">
-            <div class="item-pedido" v-for="item in pedido" :key="item.id">
+            <div class="item-pedido" v-for="item in pedido" :key="item.lineaId">
               <div class="info-pedido">
                 <p class="nombre-producto">{{ item.nombre }}</p>
                 <p>${{ formatearPrecio(item.precio) }} c/u</p>
-                <p>Subtotal: ${{ formatearPrecio(item.precio * item.cantidad) }}</p>
+                <p>Subtotal base: ${{ formatearPrecio(item.precio * item.cantidad) }}</p>
+                <div v-if="item.adiciones.length > 0" class="resumen-adiciones">
+                  <p class="titulo-resumen-adiciones">Adiciones:</p>
+                  <p v-for="adicion in item.adiciones" :key="`${item.lineaId}-res-${adicion.id}`">
+                    {{ adicion.nombre }} x{{ adicion.cantidad }} - ${{ formatearPrecio(adicion.precio * adicion.cantidad) }}
+                  </p>
+                </div>
+                <p>Subtotal final: ${{ formatearPrecio(totalLinea(item)) }}</p>
               </div>
 
               <div class="controles-pedido">
                 <div class="contador">
-                  <button class="btn-cantidad" @click="disminuirPedido(item.id)">-</button>
+                  <button class="btn-cantidad" @click="disminuirPedido(item.lineaId)">-</button>
                   <span>{{ item.cantidad }}</span>
-                  <button class="btn-cantidad" @click="aumentarPedido(item.id)">+</button>
+                  <button class="btn-cantidad" @click="aumentarPedido(item.lineaId)">+</button>
                 </div>
 
-                <button class="btn-eliminar" @click="eliminarDelPedido(item.id)">
+                <button class="btn-secundario" @click="toggleAdiciones(item.lineaId)">
+                  {{ item.mostrarAdiciones ? 'Ocultar adiciones' : 'Agregar adiciones' }}
+                </button>
+
+                <button class="btn-eliminar" @click="eliminarDelPedido(item.lineaId)">
                   Quitar
                 </button>
+              </div>
+
+              <div v-if="item.mostrarAdiciones" class="bloque-adiciones">
+                <p class="subtitulo-adiciones">Adiciones permitidas de {{ nombreCategoriaPorId(item.categoria_id) }}</p>
+
+                <div v-if="item.adiciones.length > 0" class="lista-adiciones-seleccionadas">
+                  <p class="etiqueta-adiciones">Ya seleccionadas</p>
+
+                  <div class="adicion-seleccionada" v-for="adicion in item.adiciones" :key="`${item.lineaId}-sel-${adicion.id}`">
+                    <div>
+                      <p class="nombre-producto">{{ adicion.nombre }}</p>
+                      <p>${{ formatearPrecio(adicion.precio) }} c/u</p>
+                    </div>
+
+                    <div class="controles-pedido">
+                      <div class="contador">
+                        <button class="btn-cantidad" @click="disminuirAdicion(item.lineaId, adicion.id)">-</button>
+                        <span>{{ adicion.cantidad }}</span>
+                        <button class="btn-cantidad" @click="aumentarAdicion(item.lineaId, adicion.id)">+</button>
+                      </div>
+
+                      <button class="btn-eliminar" @click="eliminarAdicion(item.lineaId, adicion.id)">
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="lista-adiciones-disponibles">
+                  <p class="etiqueta-adiciones">Disponibles</p>
+
+                  <div
+                    v-if="adicionesNoSeleccionadas(item).length === 0"
+                    class="estado-vacio estado-adiciones"
+                  >
+                    No hay mas adiciones disponibles para esta categoria
+                  </div>
+
+                  <div
+                    class="adicion-disponible"
+                    v-for="adicion in adicionesNoSeleccionadas(item)"
+                    :key="`${item.lineaId}-${adicion.id}`"
+                  >
+                    <div>
+                      <p class="nombre-producto">{{ adicion.nombre }}</p>
+                      <p>${{ formatearPrecio(adicion.precio) }}</p>
+                    </div>
+
+                    <button class="btn-agregar btn-agregar-adicion" @click="agregarAdicion(item.lineaId, adicion)">
+                      Agregar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -134,6 +198,8 @@ const menu = ref([])
 const busqueda = ref('')
 const cantidadesTemporales = ref({})
 const pedido = ref([])
+const adicionesDisponibles = ref({})
+const siguienteLineaId = ref(1)
 
 const cargarCategorias = async () => {
   const res = await fetch('http://localhost:3000/categorias')
@@ -164,7 +230,7 @@ const totalItems = computed(() => {
 })
 
 const totalPedido = computed(() => {
-  return pedido.value.reduce((acumulado, item) => acumulado + (Number(item.precio) * item.cantidad), 0)
+  return pedido.value.reduce((acumulado, item) => acumulado + totalLinea(item), 0)
 })
 
 const inicializarCantidades = () => {
@@ -189,31 +255,32 @@ const disminuirTemporal = (item) => {
 
 const agregarAlPedido = (item) => {
   const cantidadSeleccionada = cantidadesTemporales.value[item.id] || 1
-  const existente = pedido.value.find((pedidoItem) => pedidoItem.id === item.id)
+  cargarAdicionesCategoria(item.categoria_id)
 
-  if (existente) {
-    existente.cantidad += cantidadSeleccionada
-  } else {
-    pedido.value.push({
-      ...item,
-      precio: Number(item.precio),
-      cantidad: cantidadSeleccionada
-    })
-  }
+  pedido.value.push({
+    ...item,
+    lineaId: siguienteLineaId.value,
+    precio: Number(item.precio),
+    cantidad: cantidadSeleccionada,
+    adiciones: [],
+    mostrarAdiciones: false
+  })
+
+  siguienteLineaId.value += 1
 
   cantidadesTemporales.value[item.id] = 1
 }
 
-const aumentarPedido = (id) => {
-  const item = pedido.value.find((pedidoItem) => pedidoItem.id === id)
+const aumentarPedido = (lineaId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
 
   if (item) {
     item.cantidad += 1
   }
 }
 
-const disminuirPedido = (id) => {
-  const item = pedido.value.find((pedidoItem) => pedidoItem.id === id)
+const disminuirPedido = (lineaId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
 
   if (!item) {
     return
@@ -224,11 +291,151 @@ const disminuirPedido = (id) => {
     return
   }
 
-  pedido.value = pedido.value.filter((pedidoItem) => pedidoItem.id !== id)
+  pedido.value = pedido.value.filter((pedidoItem) => pedidoItem.lineaId !== lineaId)
 }
 
-const eliminarDelPedido = (id) => {
-  pedido.value = pedido.value.filter((pedidoItem) => pedidoItem.id !== id)
+const eliminarDelPedido = (lineaId) => {
+  pedido.value = pedido.value.filter((pedidoItem) => pedidoItem.lineaId !== lineaId)
+}
+
+const cargarAdicionesCategoria = async (categoriaId) => {
+  if (adicionesDisponibles.value[categoriaId]) {
+    return
+  }
+
+  const res = await fetch(`http://localhost:3000/productos/${categoriaId}`)
+  const productosCategoria = await res.json()
+
+  adicionesDisponibles.value = {
+    ...adicionesDisponibles.value,
+    [categoriaId]: productosCategoria
+      .filter((producto) => !esPan(producto.nombre))
+      .map((producto) => ({
+        ...producto,
+        precio: Number(producto.precio)
+      }))
+  }
+}
+
+const toggleAdiciones = async (lineaId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+
+  if (!item) {
+    return
+  }
+
+  const itemEditable = obtenerLineaEditable(lineaId)
+  if (!itemEditable) {
+    return
+  }
+
+  await cargarAdicionesCategoria(itemEditable.categoria_id)
+  itemEditable.mostrarAdiciones = !itemEditable.mostrarAdiciones
+}
+
+const agregarAdicion = (lineaId, adicion) => {
+  const item = obtenerLineaEditable(lineaId)
+
+  if (!item) {
+    return
+  }
+
+  const existente = item.adiciones.find((itemAdicion) => itemAdicion.id === adicion.id)
+
+  if (existente) {
+    existente.cantidad += 1
+    return
+  }
+
+  item.adiciones.push({
+    ...adicion,
+    cantidad: 1
+  })
+}
+
+const aumentarAdicion = (lineaId, adicionId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+  const adicion = item?.adiciones.find((itemAdicion) => itemAdicion.id === adicionId)
+
+  if (adicion) {
+    adicion.cantidad += 1
+  }
+}
+
+const disminuirAdicion = (lineaId, adicionId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+  const adicion = item?.adiciones.find((itemAdicion) => itemAdicion.id === adicionId)
+
+  if (!item || !adicion) {
+    return
+  }
+
+  if (adicion.cantidad > 1) {
+    adicion.cantidad -= 1
+    return
+  }
+
+  item.adiciones = item.adiciones.filter((itemAdicion) => itemAdicion.id !== adicionId)
+}
+
+const eliminarAdicion = (lineaId, adicionId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+
+  if (!item) {
+    return
+  }
+
+  item.adiciones = item.adiciones.filter((itemAdicion) => itemAdicion.id !== adicionId)
+}
+
+const totalAdicionesItem = (item) => {
+  return item.adiciones.reduce((acumulado, adicion) => acumulado + (Number(adicion.precio) * adicion.cantidad), 0)
+}
+
+const totalLinea = (item) => {
+  return (Number(item.precio) * item.cantidad) + totalAdicionesItem(item)
+}
+
+const adicionesNoSeleccionadas = (item) => {
+  const disponibles = adicionesDisponibles.value[item.categoria_id] || []
+  const idsSeleccionados = item.adiciones.map((adicion) => adicion.id)
+
+  return disponibles.filter((adicion) => !idsSeleccionados.includes(adicion.id))
+}
+
+const obtenerLineaEditable = (lineaId) => {
+  const item = pedido.value.find((pedidoItem) => pedidoItem.lineaId === lineaId)
+
+  if (!item) {
+    return null
+  }
+
+  if (item.cantidad === 1) {
+    return item
+  }
+
+  item.cantidad -= 1
+
+  const nuevaLinea = {
+    ...item,
+    lineaId: siguienteLineaId.value,
+    cantidad: 1,
+    adiciones: item.adiciones.map((adicion) => ({ ...adicion })),
+    mostrarAdiciones: true
+  }
+
+  siguienteLineaId.value += 1
+  pedido.value.push(nuevaLinea)
+
+  return nuevaLinea
+}
+
+const nombreCategoriaPorId = (categoriaId) => {
+  return categorias.value.find((categoria) => categoria.id === categoriaId)?.nombre || 'esta categoria'
+}
+
+const esPan = (nombreProducto) => {
+  return nombreProducto?.toLowerCase().includes('pan')
 }
 
 const formatearPrecio = (valor) => {
@@ -243,6 +450,10 @@ onMounted(cargarCategorias)
 </script>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 .fondo {
   --background: #f5f1e8;
 }
@@ -256,6 +467,7 @@ onMounted(cargarCategorias)
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  align-items: start;
 }
 
 .layout-ventas {
@@ -272,6 +484,8 @@ onMounted(cargarCategorias)
   border-radius: 18px;
   padding: 16px;
   min-height: 520px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .titulo-seccion {
@@ -282,11 +496,13 @@ onMounted(cargarCategorias)
 
 .input {
   width: 100%;
+  min-width: 0;
   padding: 10px;
   margin-bottom: 0;
   border: 1px solid black;
   border-radius: 10px;
   background: white;
+  display: block;
 }
 
 select.input {
@@ -310,16 +526,19 @@ select.input {
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  min-width: 0;
 }
 
 .buscador-menu {
   max-width: 260px;
+  width: 100%;
 }
 
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
+  min-width: 0;
 }
 
 .card-categoria,
@@ -329,6 +548,7 @@ select.input {
   padding: 12px;
   background: white;
   color: #1f1f1f;
+  min-width: 0;
 }
 
 .card-categoria {
@@ -379,6 +599,7 @@ select.input {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .contador {
@@ -389,7 +610,8 @@ select.input {
 
 .btn-cantidad,
 .btn-agregar,
-.btn-eliminar {
+.btn-eliminar,
+.btn-secundario {
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -414,6 +636,12 @@ select.input {
   color: white;
 }
 
+.btn-secundario {
+  padding: 8px 12px;
+  background: #f0c14b;
+  color: #1f1f1f;
+}
+
 .lista-pedido {
   display: grid;
   gap: 12px;
@@ -425,10 +653,77 @@ select.input {
   padding: 12px;
   background: white;
   color: #1f1f1f;
+  min-width: 0;
 }
 
 .info-pedido p {
   margin: 0 0 6px;
+}
+
+.resumen-adiciones {
+  margin: 4px 0 8px;
+}
+
+.titulo-resumen-adiciones {
+  font-weight: 800;
+}
+
+.bloque-adiciones {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed #1f1f1f;
+  min-width: 0;
+}
+
+.subtitulo-adiciones {
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.etiqueta-adiciones {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.lista-adiciones-disponibles,
+.lista-adiciones-seleccionadas {
+  display: grid;
+  gap: 10px;
+}
+
+.lista-adiciones-seleccionadas {
+  margin-top: 12px;
+}
+
+.adicion-disponible,
+.adicion-seleccionada {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  background: #fff7e8;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.adicion-disponible > div,
+.adicion-seleccionada > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-agregar-adicion {
+  padding: 8px 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.estado-adiciones {
+  padding: 8px 0;
 }
 
 .resumen-total {
