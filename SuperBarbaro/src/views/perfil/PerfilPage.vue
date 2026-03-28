@@ -1,59 +1,51 @@
 <template>
+
   <ion-page>
 
-    <AppHeader titulo="PERFIL">
-      <template #end>
-        <ion-button fill="clear" @click="editarPerfil" style="color:black">
-          <ion-icon :icon="createOutline" />
-        </ion-button>
-      </template>
-    </AppHeader>
+    <AppHeader titulo="PERFIL" />
+
+    <template #end>
+      <ion-button @click="editarPerfil">
+        <ion-icon :icon="createOutline"></ion-icon>
+      </ion-button>
+    </template>
+
 
     <ion-content class="fondo">
+
       <div class="contenedor">
 
-        <!-- FOTO -->
         <div class="foto-perfil">
-          <img v-if="usuario.foto" :src="'http://localhost:3000/' + usuario.foto" />
-          <ion-icon v-else :icon="person" class="icono" />
+          <ion-icon :icon="person" class="icono"></ion-icon>
         </div>
 
         <p class="rol">{{ usuario.rol }}</p>
 
-        <!-- DATOS -->
         <div class="datos">
+
           <p><b>Nombre:</b> {{ usuario.nombre }} {{ usuario.apellido }}</p>
           <p><b>Correo:</b> {{ usuario.correo }}</p>
           <p><b>Teléfono:</b> {{ usuario.telefono }}</p>
           <p><b>Dirección:</b> {{ usuario.direccion }}</p>
+
         </div>
 
         <div class="boton-usuarios" @click="irUsuarios">
-          usuarios
+          Usuarios
         </div>
 
-        <p class="cerrar" @click="mostrarModal = true">cerrar sesión</p>
+        <p class="cerrar" @click="cerrarSesion">
+          Cerrar sesión
+        </p>
 
       </div>
+
     </ion-content>
 
-    <!-- MODAL CERRAR SESIÓN -->
-    <ion-modal :is-open="mostrarModal" @did-dismiss="mostrarModal = false" class="modal-centro">
-      <div class="modal-contenido">
-
-        <img src="/logo.png" class="logo-modal" onerror="this.style.display='none'" />
-
-        <h2 class="modal-titulo">CERRAR</h2>
-        <p class="modal-subtitulo">¿Deseas cerrar sesión?</p>
-
-        <button class="boton-confirmar" @click="cerrarSesion">Cerrar Sesión</button>
-        <button class="boton-cancelar" @click="mostrarModal = false">Cancelar</button>
-
-      </div>
-    </ion-modal>
-
   </ion-page>
+
 </template>
+
 
 <script setup>
 
@@ -65,8 +57,7 @@ import {
   IonContent,
   IonButtons,
   IonButton,
-  IonIcon, 
-  IonModal
+  IonIcon
 } from '@ionic/vue'
 
 import { person, createOutline } from 'ionicons/icons'
@@ -78,22 +69,38 @@ const router = useRouter()
 
 const usuario = ref({})
 
-const mostrarModal = ref(false)
-
 onMounted(() => {
-  const data = localStorage.getItem('usuario')
-  if (data) usuario.value = JSON.parse(data)
+
+  const data = localStorage.getItem("usuario")
+
+  if (data) {
+
+    usuario.value = JSON.parse(data)
+
+  }
+
 })
 
-const irUsuarios = () => router.push('/usuarios')
+const irUsuarios = () => {
 
-const editarPerfil = () => router.push('/editar-perfil')
+  router.push('/usuarios')
+
+}
 
 const cerrarSesion = () => {
-  localStorage.removeItem('usuario')
-  mostrarModal.value = false
+
+  localStorage.removeItem("usuario")
+
   router.push('/login')
+
 }
+
+const editarPerfil = () => {
+
+  console.log("editar perfil")
+
+}
+
 </script>
 
 <style scoped>
