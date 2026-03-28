@@ -28,8 +28,7 @@
           <p><b>Dirección:</b> {{ usuario.direccion }}</p>
         </div>
 
-        <!-- BOTÓN USUARIOS (solo admin) -->
-        <div v-if="usuario.rol === 'ADMINISTRADOR'" class="boton-usuarios" @click="irUsuarios">
+        <div class="boton-usuarios" @click="irUsuarios">
           usuarios
         </div>
 
