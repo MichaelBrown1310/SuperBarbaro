@@ -95,11 +95,11 @@ const filtrados = computed(() => {
 })
 
 const verProducto = (p) => {
-  router.push(`/tabs/producto/${p.id}`)
+  router.push(`/producto/${p.id}`)
 }
 
 const nuevo = () => {
-  router.push('/tabs/nuevo-producto/' + categoria.value)
+  router.push('/nuevo-producto/' + categoria.value)
 }
 
 
@@ -168,11 +168,11 @@ const nuevo = () => {
   }
 
   .input {
-    width: 105%;
+    width: 110%;
   }
 
   .btn {
-    width: 105%;
+    width: 110%;
   }
 }
 </style>

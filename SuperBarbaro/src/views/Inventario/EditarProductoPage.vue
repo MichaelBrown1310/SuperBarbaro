@@ -131,7 +131,7 @@ const eliminar = async () => {
     method: 'DELETE'
   })
 
-  router.push('/tabs/inventario')
+  router.push('/inventario')
 }
 
 </script>

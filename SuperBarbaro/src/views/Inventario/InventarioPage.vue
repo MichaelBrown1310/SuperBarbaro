@@ -88,17 +88,17 @@ onIonViewWillEnter(() => {
 
 // IR A PRODUCTOS
 const ir = (cat) => {
-  router.push(`/tabs/productos/${cat}`)
+  router.push(`/productos/${cat}`)
 }
 
 // NUEVA CATEGORIA
 const nuevaCategoria = () => {
-  router.push('/tabs/nueva-categoria')
+  router.push('/nueva-categoria')
 }
 
 // MENU
 const irMenu = () => {
-  router.push('/tabs/menu')
+  router.push('/menu')
 }
 
 let timeout = null
@@ -152,6 +152,7 @@ const buscar = () => {
   width: auto;
   height: 250px;
   cursor: pointer;
+  color: black;
 }
 
 .card img {

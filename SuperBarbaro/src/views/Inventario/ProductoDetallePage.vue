@@ -82,7 +82,7 @@ const formatearFecha = (fecha) => {
 }
 
 const editar = () => {
-  router.push(`/tabs/editar-producto/${producto.value.id}`)
+  router.push(`/editar-producto/${producto.value.id}`)
 }
 
 </script>
@@ -95,6 +95,7 @@ const editar = () => {
 .contenedor {
   padding: 20px;
   text-align: center;
+  color: black;
 }
 
 img {
@@ -114,6 +115,7 @@ img {
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 10px;
+  color: black;
 }
 
 /* COLORES */

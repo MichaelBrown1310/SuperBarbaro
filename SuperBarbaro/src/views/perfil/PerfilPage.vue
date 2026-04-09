@@ -15,12 +15,15 @@
 
       <div class="contenedor">
 
+         <!-- FOTO -->
         <div class="foto-perfil">
-          <ion-icon :icon="person" class="icono"></ion-icon>
+          <img v-if="usuario.foto" :src="'http://localhost:3000/' + usuario.foto" />
+          <ion-icon v-else :icon="person" class="icono" />
         </div>
 
         <p class="rol">{{ usuario.rol }}</p>
 
+        <!-- DATOS -->
         <div class="datos">
 
           <p><b>Nombre:</b> {{ usuario.nombre }} {{ usuario.apellido }}</p>
@@ -31,12 +34,10 @@
         </div>
 
         <div class="boton-usuarios" @click="irUsuarios">
-          Usuarios
+          usuarios
         </div>
 
-        <p class="cerrar" @click="cerrarSesion">
-          Cerrar sesión
-        </p>
+        <p class="cerrar" @click="cerrarSesion"> cerrar sesión </p>
 
       </div>
 

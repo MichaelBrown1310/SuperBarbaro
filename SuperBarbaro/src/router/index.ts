@@ -41,41 +41,12 @@ const routes: Array<RouteRecordRaw> = [
         component: VentasPage
       },
 
-      // INVENTARIO VISTAS
+      // INVENTARIO VISTAS CON MENU INFERIOR
 
       {
         path: 'inventario',
         component: () => import('@/views/inventario/InventarioPage.vue')
       },
-      {
-        path: 'productos/:categoria',
-        component: () => import('@/views/inventario/ProductosPage.vue')
-      },
-      {
-        path: 'producto/:id',
-        component: () => import('@/views/inventario/ProductoDetallePage.vue')
-      },
-      {
-        path: 'nuevo-producto',
-        component: () => import('@/views/inventario/NuevoProductoPage.vue')
-      },
-      {
-        path: 'editar-producto/:id',
-        component: () => import('@/views/inventario/EditarProductoPage.vue')
-      },
-      {
-        path: 'nueva-categoria',
-        component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
-      },
-      {
-        path: 'nuevo-producto/:categoria',
-        component: () => import('@/views/inventario/NuevoProductoPage.vue')
-      },
-      {
-        path: 'menu',
-        component: () => import('@/views/inventario/MenuPage.vue')
-      },
-
       //REPORTES
       {
         path: 'reportes',
@@ -99,18 +70,47 @@ const routes: Array<RouteRecordRaw> = [
       },
 
       { 
-        path: '/editar-perfil', 
+        path: 'editar-perfil', 
         component: () => import('@/views/perfil/EditarUsuarioPage.vue') 
       },
       
       { 
-        path: '/editar-usuario', 
-        component: () => import('@/views/usuarios/EditarUsuarioPage.vue')
+        path: 'editar-usuario', 
+        component: () => import('@/views/perfil/EditarUsuarioPage.vue')
       },
 
     ]
   },
-
+  // INVENTARIO VISTAS
+  {
+    path: '/productos/:categoria',
+    component: () => import('@/views/inventario/ProductosPage.vue')
+  },
+  {
+    path: '/producto/:id',
+    component: () => import('@/views/inventario/ProductoDetallePage.vue')
+  },
+  {
+    path: '/nuevo-producto',
+    component: () => import('@/views/inventario/NuevoProductoPage.vue')
+  },
+  {
+    path: '/editar-producto/:id',
+    component: () => import('@/views/inventario/EditarProductoPage.vue')
+  },
+  {
+    path: '/nueva-categoria',
+    component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
+  },
+  {
+    path: '/nuevo-producto/:categoria',
+    component: () => import('@/views/inventario/NuevoProductoPage.vue')
+  },
+  {
+    path: '/menu',
+    component: () => import('@/views/inventario/MenuPage.vue')
+  },
+  //USUARIO VISTAS
   {
     path: '/usuarios',
     component: UsuariosPage

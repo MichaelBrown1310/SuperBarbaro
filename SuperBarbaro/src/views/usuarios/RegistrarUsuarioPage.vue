@@ -44,10 +44,11 @@
                 </select>
 
                 <input class="input" type="password" placeholder="Contraseña" v-model="password" />
-
+                <br>
                 <button class="boton" @click="registrar">
                     REGISTRAR
                 </button>
+                <br><br>
 
             </div>
 
@@ -201,7 +202,7 @@ const volver = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    gap: 10px;
     margin-top: 20px;
 
 }
@@ -260,13 +261,15 @@ const volver = () => {
 
     color: black;
 
+    
+
 }
 
 .boton {
 
     width: 85%;
 
-    padding: 12px;
+    padding: 15px;
 
     border: 2px solid black;
 
@@ -279,6 +282,7 @@ const volver = () => {
     font-size: 16px;
 
     cursor: pointer;
+
 
 }
 </style>

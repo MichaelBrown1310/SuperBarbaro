@@ -2,7 +2,7 @@
 
     <ion-page>
 
-        <AppHeader titulo="USUARIOS">
+        <AppHeader titulo="USUARIOS" :mostrarVolver="true" @volver="volver">
 
             <ion-buttons slot="start">
                 <ion-button @click="volver">
