@@ -758,6 +758,142 @@ ALTER TABLE `movimientos_productos`
 ALTER TABLE `producto_categoria`
   ADD CONSTRAINT `producto_categoria_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `producto_categoria_ibfk_2` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`) ON DELETE CASCADE;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedidos`
+--
+CREATE TABLE `pedidos` (
+  `id` int(11) NOT NULL,
+  `numero_pedido` varchar(30) NOT NULL,
+  `cliente_nombre` varchar(120) DEFAULT NULL,
+  `cliente_telefono` varchar(30) DEFAULT NULL,
+  `tipo_servicio` varchar(30) NOT NULL,
+  `estado` varchar(30) NOT NULL DEFAULT 'pendiente',
+  `subtotal` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total_adiciones` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `recibo_json` longtext DEFAULT NULL,
+  `recibo_texto` longtext DEFAULT NULL,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estructura de tabla para la tabla `pedido_detalles`
+--
+CREATE TABLE `pedido_detalles` (
+  `id` int(11) NOT NULL,
+  `pedido_id` int(11) NOT NULL,
+  `menu_id` int(11) NOT NULL,
+  `nombre_menu_snapshot` varchar(150) NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `subtotal_base` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `subtotal_adiciones` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `subtotal_final` decimal(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estructura de tabla para la tabla `pedido_detalle_adiciones`
+--
+CREATE TABLE `pedido_detalle_adiciones` (
+  `id` int(11) NOT NULL,
+  `pedido_detalle_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `nombre_producto_snapshot` varchar(150) NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `cantidad_por_unidad` int(11) NOT NULL,
+  `cantidad_total` int(11) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Estructura de tabla para la tabla `pedido_detalle_remociones`
+--
+CREATE TABLE `pedido_detalle_remociones` (
+  `id` int(11) NOT NULL,
+  `pedido_detalle_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `nombre_producto_snapshot` varchar(150) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indices de la tabla `pedidos`
+--
+ALTER TABLE `pedidos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `numero_pedido` (`numero_pedido`);
+
+--
+-- Indices de la tabla `pedido_detalles`
+--
+ALTER TABLE `pedido_detalles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pedido_id` (`pedido_id`),
+  ADD KEY `menu_id` (`menu_id`);
+
+--
+-- Indices de la tabla `pedido_detalle_adiciones`
+--
+ALTER TABLE `pedido_detalle_adiciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pedido_detalle_id` (`pedido_detalle_id`),
+  ADD KEY `producto_id` (`producto_id`);
+
+--
+-- Indices de la tabla `pedido_detalle_remociones`
+--
+ALTER TABLE `pedido_detalle_remociones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pedido_detalle_id` (`pedido_detalle_id`),
+  ADD KEY `producto_id` (`producto_id`);
+
+--
+-- AUTO_INCREMENT de la tabla `pedidos`
+--
+ALTER TABLE `pedidos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pedido_detalles`
+--
+ALTER TABLE `pedido_detalles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pedido_detalle_adiciones`
+--
+ALTER TABLE `pedido_detalle_adiciones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pedido_detalle_remociones`
+--
+ALTER TABLE `pedido_detalle_remociones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Filtros para la tabla `pedido_detalles`
+--
+ALTER TABLE `pedido_detalles`
+  ADD CONSTRAINT `pedido_detalles_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pedido_detalles_ibfk_2` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`id`) ON DELETE RESTRICT;
+
+--
+-- Filtros para la tabla `pedido_detalle_adiciones`
+--
+ALTER TABLE `pedido_detalle_adiciones`
+  ADD CONSTRAINT `pedido_detalle_adiciones_ibfk_1` FOREIGN KEY (`pedido_detalle_id`) REFERENCES `pedido_detalles` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pedido_detalle_adiciones_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT;
+
+--
+-- Filtros para la tabla `pedido_detalle_remociones`
+--
+ALTER TABLE `pedido_detalle_remociones`
+  ADD CONSTRAINT `pedido_detalle_remociones_ibfk_1` FOREIGN KEY (`pedido_detalle_id`) REFERENCES `pedido_detalles` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pedido_detalle_remociones_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

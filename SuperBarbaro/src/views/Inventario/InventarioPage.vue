@@ -152,6 +152,7 @@ const buscar = () => {
   width: auto;
   height: 250px;
   cursor: pointer;
+  color: black;
 }
 
 .card img {

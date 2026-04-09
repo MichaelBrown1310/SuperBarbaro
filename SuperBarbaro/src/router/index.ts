@@ -13,6 +13,8 @@ import PerfilPage from '../views/perfil/PerfilPage.vue'
 import UsuariosPage from '../views/usuarios/UsuariosPage.vue'
 import RegistrarUsuarioPage from '../views/usuarios/RegistrarUsuarioPage.vue'
 import NuevaOrdenPage from '@/views/Ventas/NuevaOrdenPage.vue'
+import ListaPedidoPage from '@/views/Ventas/ListaPedidoPage.vue'
+import DetallePedidoPage from '@/views/Ventas/DetallePedidoPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
 
@@ -39,6 +41,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'ventas',
         component: VentasPage
+      },
+      {
+        path: 'lista-pedidos',
+        component: ListaPedidoPage
+      },
+      {
+        path: 'detalle-pedido/:id',
+        component: DetallePedidoPage
       },
 
       // INVENTARIO VISTAS
@@ -71,10 +81,6 @@ const routes: Array<RouteRecordRaw> = [
         path: 'nuevo-producto/:categoria',
         component: () => import('@/views/inventario/NuevoProductoPage.vue')
       },
-      {
-        path: 'menu',
-        component: () => import('@/views/inventario/MenuPage.vue')
-      },
 
       //REPORTES
       {
@@ -91,8 +97,7 @@ const routes: Array<RouteRecordRaw> = [
         path: 'reportes/estimaciones',
         component: () => import('@/views/Reportes/EstimacionesPage.vue')
       },
-      
-      //PERFIL
+
       {
         path: 'perfil',
         component: PerfilPage
@@ -103,11 +108,6 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/perfil/EditarUsuarioPage.vue') 
       },
       
-      { 
-        path: '/editar-usuario', 
-        component: () => import('@/views/usuarios/EditarUsuarioPage.vue')
-      },
-
     ]
   },
 
@@ -124,6 +124,16 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/nueva-orden',
     component: NuevaOrdenPage
+  },
+
+  {
+    path: '/lista-pedidos',
+    component: ListaPedidoPage
+  },
+
+  {
+    path: '/detalle-pedido/:id',
+    component: DetallePedidoPage
   }
 
 

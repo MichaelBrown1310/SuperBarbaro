@@ -95,6 +95,7 @@ const editar = () => {
 .contenedor {
   padding: 20px;
   text-align: center;
+  color: black;
 }
 
 img {

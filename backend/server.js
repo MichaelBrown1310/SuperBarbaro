@@ -14,6 +14,173 @@ const db = mysql.createConnection({
   password: "",
   database: "superbarbaro"
 });
+const dbPromise = db.promise();
+
+const generarNumeroPedido = () => {
+  return `PED-${Date.now()}`;
+};
+
+const construirReciboTexto = (pedido) => {
+  const encabezado = [
+    `Pedido ${pedido.numero_pedido}`,
+    `Cliente: ${pedido.cliente_nombre || 'Sin nombre'}`,
+    `Telefono: ${pedido.cliente_telefono || 'Sin telefono'}`,
+    `Servicio: ${pedido.tipo_servicio}`,
+    `Estado: ${pedido.estado}`,
+    `Total: ${pedido.total}`
+  ];
+
+  const detalle = pedido.items.flatMap((item, index) => {
+    const lineas = [
+      `${index + 1}. ${item.nombre} x${item.cantidad} - ${item.subtotal_final}`
+    ];
+
+    item.adiciones.forEach((adicion) => {
+      lineas.push(`   + ${adicion.nombre} x${adicion.cantidad_total} - ${adicion.subtotal}`);
+    });
+
+    item.remociones.forEach((remocion) => {
+      lineas.push(`   - Sin ${remocion.nombre}`);
+    });
+
+    return lineas;
+  });
+
+  return [...encabezado, ...detalle].join('\n');
+};
+
+const normalizarItemsPedido = (items = []) => {
+  return items.map((item) => {
+    const precioUnitario = Number(item.precio_unitario || 0);
+    const cantidad = Number(item.cantidad || 0);
+    const subtotalBase = precioUnitario * cantidad;
+
+    const adiciones = Array.isArray(item.adiciones)
+      ? item.adiciones.map((adicion) => {
+          const precio = Number(adicion.precio_unitario || 0);
+          const cantidadPorUnidad = Number(adicion.cantidad_por_unidad || 0);
+          const cantidadTotal = cantidad * cantidadPorUnidad;
+
+          return {
+            ...adicion,
+            precio_unitario: precio,
+            cantidad_por_unidad: cantidadPorUnidad,
+            cantidad_total: cantidadTotal,
+            subtotal: precio * cantidadTotal
+          };
+        })
+      : [];
+
+    const remociones = Array.isArray(item.remociones) ? item.remociones : [];
+    const subtotalAdiciones = adiciones.reduce((acc, adicion) => acc + adicion.subtotal, 0);
+
+    return {
+      ...item,
+      precio_unitario: precioUnitario,
+      cantidad,
+      subtotal_base: subtotalBase,
+      subtotal_adiciones: subtotalAdiciones,
+      subtotal_final: subtotalBase + subtotalAdiciones,
+      adiciones,
+      remociones
+    };
+  });
+};
+
+const construirResumenPedido = ({
+  numeroPedido,
+  clienteNombre,
+  clienteTelefono,
+  tipoServicio,
+  estado,
+  itemsNormalizados
+}) => {
+  const subtotal = itemsNormalizados.reduce((acc, item) => acc + item.subtotal_base, 0);
+  const totalAdiciones = itemsNormalizados.reduce((acc, item) => acc + item.subtotal_adiciones, 0);
+  const total = subtotal + totalAdiciones;
+
+  const reciboJson = JSON.stringify({
+    numero_pedido: numeroPedido,
+    cliente_nombre: clienteNombre || '',
+    cliente_telefono: clienteTelefono || '',
+    tipo_servicio: tipoServicio,
+    estado,
+    subtotal,
+    total_adiciones: totalAdiciones,
+    total,
+    items: itemsNormalizados
+  });
+
+  const reciboTexto = construirReciboTexto({
+    numero_pedido: numeroPedido,
+    cliente_nombre: clienteNombre,
+    cliente_telefono: clienteTelefono,
+    tipo_servicio: tipoServicio,
+    estado,
+    total,
+    items: itemsNormalizados
+  });
+
+  return {
+    subtotal,
+    totalAdiciones,
+    total,
+    reciboJson,
+    reciboTexto
+  };
+};
+
+const guardarDetallesPedido = async (pedidoId, itemsNormalizados) => {
+  for (const item of itemsNormalizados) {
+    const [detalleResult] = await dbPromise.query(
+      `INSERT INTO pedido_detalles
+      (pedido_id, menu_id, nombre_menu_snapshot, precio_unitario, cantidad, subtotal_base, subtotal_adiciones, subtotal_final)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        pedidoId,
+        item.menu_id,
+        item.nombre_menu_snapshot,
+        item.precio_unitario,
+        item.cantidad,
+        item.subtotal_base,
+        item.subtotal_adiciones,
+        item.subtotal_final
+      ]
+    );
+
+    const detalleId = detalleResult.insertId;
+
+    for (const adicion of item.adiciones) {
+      await dbPromise.query(
+        `INSERT INTO pedido_detalle_adiciones
+        (pedido_detalle_id, producto_id, nombre_producto_snapshot, precio_unitario, cantidad_por_unidad, cantidad_total, subtotal)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          detalleId,
+          adicion.producto_id,
+          adicion.nombre_producto_snapshot,
+          adicion.precio_unitario,
+          adicion.cantidad_por_unidad,
+          adicion.cantidad_total,
+          adicion.subtotal
+        ]
+      );
+    }
+
+    for (const remocion of item.remociones) {
+      await dbPromise.query(
+        `INSERT INTO pedido_detalle_remociones
+        (pedido_detalle_id, producto_id, nombre_producto_snapshot)
+        VALUES (?, ?, ?)`,
+        [
+          detalleId,
+          remocion.producto_id,
+          remocion.nombre_producto_snapshot
+        ]
+      );
+    }
+  }
+};
 
 db.connect(err => {
   if (err) {
@@ -478,5 +645,213 @@ app.get('/menu', (req, res) => {
     res.json(results)
   })
 })
+
+// ================= PEDIDOS =================
+
+app.post('/pedidos', async (req, res) => {
+  const {
+    cliente_nombre,
+    cliente_telefono,
+    tipo_servicio,
+    items
+  } = req.body;
+
+  if (!tipo_servicio) {
+    return res.status(400).json({ error: 'El tipo de servicio es obligatorio' });
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Debes enviar al menos un item en el pedido' });
+  }
+
+  const numeroPedido = generarNumeroPedido();
+  const estado = 'pendiente';
+
+  const itemsNormalizados = normalizarItemsPedido(items);
+  const { subtotal, totalAdiciones, total, reciboJson, reciboTexto } = construirResumenPedido({
+    numeroPedido,
+    clienteNombre: cliente_nombre,
+    clienteTelefono: cliente_telefono,
+    tipoServicio: tipo_servicio,
+    estado,
+    itemsNormalizados
+  });
+
+  try {
+    await dbPromise.beginTransaction();
+
+    const [pedidoResult] = await dbPromise.query(
+      `INSERT INTO pedidos
+      (numero_pedido, cliente_nombre, cliente_telefono, tipo_servicio, estado, subtotal, total_adiciones, total, recibo_json, recibo_texto)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        numeroPedido,
+        cliente_nombre || null,
+        cliente_telefono || null,
+        tipo_servicio,
+        estado,
+        subtotal,
+        totalAdiciones,
+        total,
+        reciboJson,
+        reciboTexto
+      ]
+    );
+
+    const pedidoId = pedidoResult.insertId;
+
+    await guardarDetallesPedido(pedidoId, itemsNormalizados);
+
+    await dbPromise.commit();
+
+    res.json({
+      success: true,
+      pedido_id: pedidoId,
+      numero_pedido: numeroPedido
+    });
+  } catch (error) {
+    await dbPromise.rollback();
+    console.log('Error guardando pedido:', error);
+    res.status(500).json({ error: 'No se pudo guardar el pedido' });
+  }
+});
+
+app.get('/pedidos', async (req, res) => {
+  try {
+    const [pedidos] = await dbPromise.query(`
+      SELECT
+        id,
+        numero_pedido,
+        cliente_nombre,
+        cliente_telefono,
+        tipo_servicio,
+        estado,
+        total,
+        fecha_creacion
+      FROM pedidos
+      ORDER BY fecha_creacion DESC
+    `);
+
+    res.json(pedidos);
+  } catch (error) {
+    console.log('Error consultando pedidos:', error);
+    res.status(500).json({ error: 'No se pudieron consultar los pedidos' });
+  }
+});
+
+app.get('/pedidos/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [pedidos] = await dbPromise.query(
+      `SELECT
+        id,
+        numero_pedido,
+        cliente_nombre,
+        cliente_telefono,
+        tipo_servicio,
+        estado,
+        subtotal,
+        total_adiciones,
+        total,
+        recibo_json,
+        recibo_texto,
+        fecha_creacion
+      FROM pedidos
+      WHERE id = ?`,
+      [id]
+    );
+
+    if (pedidos.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    const pedido = pedidos[0];
+    const recibo = pedido.recibo_json ? JSON.parse(pedido.recibo_json) : null;
+
+    res.json({
+      ...pedido,
+      items: recibo?.items || []
+    });
+  } catch (error) {
+    console.log('Error consultando detalle del pedido:', error);
+    res.status(500).json({ error: 'No se pudo consultar el pedido' });
+  }
+});
+
+app.put('/pedidos/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    cliente_nombre,
+    cliente_telefono,
+    tipo_servicio,
+    items
+  } = req.body;
+
+  if (!tipo_servicio) {
+    return res.status(400).json({ error: 'El tipo de servicio es obligatorio' });
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Debes enviar al menos un item en el pedido' });
+  }
+
+  try {
+    const [pedidos] = await dbPromise.query(
+      'SELECT id, numero_pedido, estado FROM pedidos WHERE id = ?',
+      [id]
+    );
+
+    if (pedidos.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    const pedidoActual = pedidos[0];
+
+    if (pedidoActual.estado !== 'pendiente') {
+      return res.status(400).json({ error: 'Solo se pueden editar pedidos pendientes' });
+    }
+
+    const itemsNormalizados = normalizarItemsPedido(items);
+    const { subtotal, totalAdiciones, total, reciboJson, reciboTexto } = construirResumenPedido({
+      numeroPedido: pedidoActual.numero_pedido,
+      clienteNombre: cliente_nombre,
+      clienteTelefono: cliente_telefono,
+      tipoServicio: tipo_servicio,
+      estado: pedidoActual.estado,
+      itemsNormalizados
+    });
+
+    await dbPromise.beginTransaction();
+
+    await dbPromise.query(
+      `UPDATE pedidos
+      SET cliente_nombre = ?, cliente_telefono = ?, tipo_servicio = ?, subtotal = ?, total_adiciones = ?, total = ?, recibo_json = ?, recibo_texto = ?
+      WHERE id = ?`,
+      [
+        cliente_nombre || null,
+        cliente_telefono || null,
+        tipo_servicio,
+        subtotal,
+        totalAdiciones,
+        total,
+        reciboJson,
+        reciboTexto,
+        id
+      ]
+    );
+
+    await dbPromise.query('DELETE FROM pedido_detalles WHERE pedido_id = ?', [id]);
+    await guardarDetallesPedido(id, itemsNormalizados);
+
+    await dbPromise.commit();
+
+    res.json({ success: true, pedido_id: Number(id) });
+  } catch (error) {
+    await dbPromise.rollback();
+    console.log('Error actualizando pedido:', error);
+    res.status(500).json({ error: 'No se pudo actualizar el pedido' });
+  }
+});
 
 // ================= FIN INVENTARIO =================
