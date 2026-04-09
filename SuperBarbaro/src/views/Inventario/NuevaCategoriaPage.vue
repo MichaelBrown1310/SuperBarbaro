@@ -62,7 +62,7 @@ const guardar = async () => {
     })
   })
 
-  router.push('/tabs/inventario')
+  router.push('/inventario')
   onIonViewWillEnter(guardar)
 }
 

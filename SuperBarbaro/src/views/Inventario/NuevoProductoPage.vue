@@ -102,9 +102,9 @@ const guardar = async () => {
 
     console.log(data)
 
-    router.push('/tabs/productos/' + categoria)
+    router.push('/productos/' + categoria)
     
-    location.reload('/tabs/productos/' + categoria)
+    location.reload('/productos/' + categoria)
 
   } catch (error) {
     console.log("Error:", error)

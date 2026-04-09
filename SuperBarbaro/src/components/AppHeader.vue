@@ -4,6 +4,14 @@
 
     <ion-toolbar class="super-toolbar">
 
+      <!-- BOTON VOLVER -->
+      <ion-buttons slot="start" v-if="mostrarVolver">
+        <ion-button @click="volver" class="btn-volver">
+          <ion-icon :icon="chevronBackOutline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+      <!-- TITULO -->
       <ion-title class="title-barbaro">
         {{ titulo }}
       </ion-title>
@@ -25,12 +33,24 @@ import {
   IonIcon
 } from '@ionic/vue'
 
-import {
-  useRoute
-} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { chevronBackOutline } from 'ionicons/icons'
+import { computed } from 'vue'
 
+// props
 defineProps({
   titulo: String
+})
+
+const router = useRouter()
+const route = useRoute()
+
+const volver = () => {
+  router.back()
+}
+
+const mostrarVolver = computed(() => {
+  return !route.path.startsWith('/tabs')
 })
 
 </script>
@@ -49,12 +69,11 @@ defineProps({
   color: black;
 }
 
-ion-icon {
-  --background: white;
-
+/* botón volver */
+.btn-volver ion-icon {
+  color: white !important;
+  font-size: 25px;
 }
-
-/* nuevo*/
 
 /* TOOLBAR BASE */
 .super-toolbar {

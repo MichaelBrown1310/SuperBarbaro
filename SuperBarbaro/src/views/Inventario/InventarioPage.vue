@@ -88,17 +88,17 @@ onIonViewWillEnter(() => {
 
 // IR A PRODUCTOS
 const ir = (cat) => {
-  router.push(`/tabs/productos/${cat}`)
+  router.push(`/productos/${cat}`)
 }
 
 // NUEVA CATEGORIA
 const nuevaCategoria = () => {
-  router.push('/tabs/nueva-categoria')
+  router.push('/nueva-categoria')
 }
 
 // MENU
 const irMenu = () => {
-  router.push('/tabs/menu')
+  router.push('/menu')
 }
 
 let timeout = null
