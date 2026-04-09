@@ -13,6 +13,8 @@ import PerfilPage from '../views/perfil/PerfilPage.vue'
 import UsuariosPage from '../views/usuarios/UsuariosPage.vue'
 import RegistrarUsuarioPage from '../views/usuarios/RegistrarUsuarioPage.vue'
 import NuevaOrdenPage from '@/views/Ventas/NuevaOrdenPage.vue'
+import ListaPedidoPage from '@/views/Ventas/ListaPedidoPage.vue'
+import DetallePedidoPage from '@/views/Ventas/DetallePedidoPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
 
@@ -40,13 +42,46 @@ const routes: Array<RouteRecordRaw> = [
         path: 'ventas',
         component: VentasPage
       },
+      {
+        path: 'lista-pedidos',
+        component: ListaPedidoPage
+      },
+      {
+        path: 'detalle-pedido/:id',
+        component: DetallePedidoPage
+      },
 
-      // INVENTARIO VISTAS CON MENU INFERIOR
+      // INVENTARIO VISTAS
 
       {
         path: 'inventario',
         component: () => import('@/views/inventario/InventarioPage.vue')
       },
+      {
+        path: 'productos/:categoria',
+        component: () => import('@/views/inventario/ProductosPage.vue')
+      },
+      {
+        path: 'producto/:id',
+        component: () => import('@/views/inventario/ProductoDetallePage.vue')
+      },
+      {
+        path: 'nuevo-producto',
+        component: () => import('@/views/inventario/NuevoProductoPage.vue')
+      },
+      {
+        path: 'editar-producto/:id',
+        component: () => import('@/views/inventario/EditarProductoPage.vue')
+      },
+      {
+        path: 'nueva-categoria',
+        component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
+      },
+      {
+        path: 'nuevo-producto/:categoria',
+        component: () => import('@/views/inventario/NuevoProductoPage.vue')
+      },
+
       //REPORTES
       {
         path: 'reportes',
@@ -62,55 +97,20 @@ const routes: Array<RouteRecordRaw> = [
         path: 'reportes/estimaciones',
         component: () => import('@/views/Reportes/EstimacionesPage.vue')
       },
-      
-      //PERFIL
+
       {
         path: 'perfil',
         component: PerfilPage
       },
 
       { 
-        path: 'editar-perfil', 
+        path: '/editar-perfil', 
         component: () => import('@/views/perfil/EditarUsuarioPage.vue') 
       },
       
-      { 
-        path: 'editar-usuario', 
-        component: () => import('@/views/perfil/EditarUsuarioPage.vue')
-      },
-
     ]
   },
-  // INVENTARIO VISTAS
-  {
-    path: '/productos/:categoria',
-    component: () => import('@/views/inventario/ProductosPage.vue')
-  },
-  {
-    path: '/producto/:id',
-    component: () => import('@/views/inventario/ProductoDetallePage.vue')
-  },
-  {
-    path: '/nuevo-producto',
-    component: () => import('@/views/inventario/NuevoProductoPage.vue')
-  },
-  {
-    path: '/editar-producto/:id',
-    component: () => import('@/views/inventario/EditarProductoPage.vue')
-  },
-  {
-    path: '/nueva-categoria',
-    component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
-  },
-  {
-    path: '/nuevo-producto/:categoria',
-    component: () => import('@/views/inventario/NuevoProductoPage.vue')
-  },
-  {
-    path: '/menu',
-    component: () => import('@/views/inventario/MenuPage.vue')
-  },
-  //USUARIO VISTAS
+
   {
     path: '/usuarios',
     component: UsuariosPage
@@ -124,6 +124,16 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/nueva-orden',
     component: NuevaOrdenPage
+  },
+
+  {
+    path: '/lista-pedidos',
+    component: ListaPedidoPage
+  },
+
+  {
+    path: '/detalle-pedido/:id',
+    component: DetallePedidoPage
   }
 
 
