@@ -105,6 +105,10 @@ const editarPerfil = () => {
 </script>
 
 <style scoped>
+ion-content {
+  --padding-bottom: 90px;
+}
+
 .fondo {
   --background: white;
 }

@@ -133,6 +133,7 @@ const buscar = () => {
 
 .contenedor {
   padding: 15px;
+  padding-bottom: 300px;
 }
 
 .grid {

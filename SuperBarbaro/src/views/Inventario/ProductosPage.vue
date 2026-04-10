@@ -28,11 +28,11 @@
             <p>Cantidad: {{ p.cantidad }}</p>
 
           </div>
+          
         </div>
-        <br><br><br><br>
-
-
+        
       </div>
+      
     </ion-content>
 
   </ion-page>
@@ -112,6 +112,8 @@ const nuevo = () => {
 
 .contenedor {
   padding: 15px;
+  padding-bottom: 100px;
+  min-height: 50%;
 }
 
 .grid {
@@ -130,6 +132,7 @@ const nuevo = () => {
   width: 100%;
   height: 250px;
   overflow: hidden;
+  color: black;
 }
 
 .card img {
@@ -160,6 +163,7 @@ const nuevo = () => {
   text-align: center;
   object-fit: cover;
 }
+
 
 @media (max-width: 600px) {
   .grid {

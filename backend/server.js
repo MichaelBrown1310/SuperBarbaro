@@ -2,6 +2,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt')
 
 const app = express();
 
@@ -196,19 +197,25 @@ app.post("/login", (req, res) => {
 
   const { codigo, password } = req.body;
 
-  const sql = "SELECT * FROM usuarios WHERE codigo = ? AND password = ?";
+  const sql = "SELECT * FROM usuarios WHERE codigo = ?";
 
-  db.query(sql, [codigo, password], (err, result) => {
+  db.query(sql, [codigo], async (err, result) => {
 
-    if (err) {
-      return res.status(500).json(err);
+    if (err) return res.status(500).json(err);
+
+    if (result.length === 0) {
+      return res.json({ success: false });
     }
 
-    if (result.length > 0) {
+    const user = result[0];
+
+    const match = await bcrypt.compare(password, user.password);
+
+    if (match) {
 
       res.json({
         success: true,
-        user: result[0]
+        user
       });
 
     } else {
@@ -243,7 +250,7 @@ app.get("/usuarios", (req, res) => {
 
 
 // CREAR USUARIO
-app.post("/usuarios", (req, res) => {
+app.post("/usuarios", async (req, res) => {
 
   const { 
     codigo,
@@ -258,36 +265,44 @@ app.post("/usuarios", (req, res) => {
     foto
   } = req.body;
 
-  const sql = `
-  INSERT INTO usuarios 
-  (codigo,password,nombre,apellido,cedula,direccion,correo,telefono,rol,foto)
-  VALUES (?,?,?,?,?,?,?,?,?,?)
-  `;
+  try {
 
-  db.query(sql,
-  [
-    codigo,
-    password,
-    nombre,
-    apellido,
-    cedula,
-    direccion,
-    correo,
-    telefono,
-    rol,
-    foto
-  ],
-  (err,result)=>{
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    if(err){
-      return res.status(500).json(err)
-    }
+    const sql = `
+    INSERT INTO usuarios 
+    (codigo,password,nombre,apellido,cedula,direccion,correo,telefono,rol,foto)
+    VALUES (?,?,?,?,?,?,?,?,?,?)
+    `;
 
-    res.json({success:true})
+    db.query(sql,
+    [
+      codigo,
+      hashedPassword,
+      nombre,
+      apellido,
+      cedula,
+      direccion,
+      correo,
+      telefono,
+      rol,
+      foto
+    ],
+    (err,result)=>{
 
-  })
+      if(err){
+        return res.status(500).json(err)
+      }
 
-});
+      res.json({success:true})
+
+    })
+
+  } catch (error) {
+    res.status(500).json(error)
+  }
+
+})
 
 
 // EDITAR USUARIO
@@ -470,7 +485,7 @@ app.post("/categorias", (req, res) => {
 //  CREAR PRODUCTO
 app.post("/productos", (req, res) => {
 
-  const { nombre, precio, cantidad, imagen, categoria } = req.body;
+  const { nombre, precio, cantidad, imagen, categoria, minimo } = req.body;
 
   if (!nombre || !precio || !cantidad || !categoria) {
     return res.status(400).json({ error: "Faltan datos" });
@@ -491,11 +506,11 @@ app.post("/productos", (req, res) => {
 
     // 2. Insertar producto
     const sqlProducto = `
-      INSERT INTO productos (nombre, precio, cantidad, imagen)
+      INSERT INTO productos (nombre, precio, cantidad, imagen, minimo)
       VALUES (?, ?, ?, ?)
     `;
 
-    db.query(sqlProducto, [nombre, precio, cantidad, imagen], (err, result) => {
+    db.query(sqlProducto, [nombre, precio, cantidad, imagen, minimo || 10], (err, result) => {
 
       if (err) return res.status(500).json(err);
 
@@ -526,21 +541,20 @@ app.post("/productos", (req, res) => {
 app.put("/productos/:id", (req, res) => {
 
   const { id } = req.params;
-  const { nombre, precio, cantidad, imagen } = req.body;
+  const { nombre, precio, cantidad, imagen, minimo } = req.body;
 
   const sql = `
     UPDATE productos
-    SET nombre=?, precio=?, cantidad=?, imagen=?
+    SET nombre=?, precio=?, cantidad=?, imagen=?, minimo=?
     WHERE id=?
   `;
 
-  db.query(sql, [nombre, precio, cantidad, imagen, id], (err) => {
+  db.query(sql, [nombre, precio, cantidad, imagen, minimo, id], (err) => {
     if (err) return res.status(500).json(err);
     res.json({ success: true });
   });
 
 });
-
 
 //  ELIMINAR PRODUCTO
 app.delete("/productos/:id", (req, res) => {
@@ -886,3 +900,23 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
 });
 
 // ================= FIN INVENTARIO =================
+
+// ============== ALERTAS =================
+
+app.get("/alertas-stock", (req, res) => {
+
+  const sql = `
+    SELECT *
+    FROM productos
+    WHERE cantidad <= minimo
+  `;
+
+  db.query(sql, (err, result) => {
+
+    if (err) return res.status(500).json(err);
+
+    res.json(result);
+
+  });
+
+});
