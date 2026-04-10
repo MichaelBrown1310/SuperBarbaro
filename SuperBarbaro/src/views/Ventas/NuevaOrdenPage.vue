@@ -237,6 +237,11 @@ const router = useRouter()
 const pedidoId = computed(() => route.query.pedidoId ? Number(route.query.pedidoId) : null)
 const tituloPagina = computed(() => pedidoId.value ? 'EDITAR PEDIDO' : 'NUEVA ORDEN')
 const botonContinuar = computed(() => pedidoId.value ? 'GUARDAR CAMBIOS' : 'CONTINUAR')
+const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+const puedeGestionarPedidos = computed(() => {
+  const rol = (usuario?.rol || '').toString().trim().toUpperCase()
+  return rol === 'ADMINISTRADOR' || rol === 'CAJERO'
+})
 
 const nombre = ref('')
 const telefono = ref('')
@@ -556,6 +561,12 @@ const seleccion = async () => {
 }
 
 onMounted(async () => {
+  if (!puedeGestionarPedidos.value) {
+    window.alert('No tienes permisos para acceder a pedidos')
+    window.location.replace('/tabs/ventas')
+    return
+  }
+
   await cargarCategorias()
   await cargarMenuCompleto()
   await cargarPedidoEdicion()
@@ -568,7 +579,7 @@ onMounted(async () => {
 .contenedor-formulario { padding: 15px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .estado-carga { padding: 20px; text-align: center; font-weight: 700; }
 .layout-ventas { display: grid; grid-template-columns: 240px minmax(0, 1fr) 320px; gap: 16px; padding: 0 15px 15px; align-items: start; }
-.panel { background: #fffdf7; border: 2px solid #1f1f1f; border-radius: 18px; padding: 16px; min-height: 520px; min-width: 0; overflow: hidden; }
+.panel { background: #fffdf7; border: 2px solid #1f1f1f; border-radius: 18px; padding: 16px; min-height: 520px; min-width: 0; overflow: hidden; color: #1f1f1f;}
 .titulo-seccion { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
 .input { width: 100%; min-width: 0; padding: 10px; border: 1px solid black; border-radius: 10px; background: white; display: block; }
 select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; background-size: 16px; }

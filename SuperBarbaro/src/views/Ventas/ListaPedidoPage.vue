@@ -66,6 +66,7 @@ const formatearEstado = (estado) => {
   const estados = {
     pendiente: 'Pendiente',
     en_preparacion: 'En preparacion',
+    listo: 'Listo',
     entregado: 'Entregado'
   }
 
@@ -76,6 +77,7 @@ const estadoClase = (estado) => {
   return {
     pendiente: estado === 'pendiente',
     preparacion: estado === 'en_preparacion',
+    listo: estado === 'listo',
     entregado: estado === 'entregado'
   }
 }
@@ -152,6 +154,10 @@ onIonViewWillEnter(cargarPedidos)
 
 .estado-chip.entregado {
   background: #dcfce7;
+}
+
+.estado-chip.listo {
+  background: #d1fae5;
 }
 
 @media (max-width: 768px) {

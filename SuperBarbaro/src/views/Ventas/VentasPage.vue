@@ -4,7 +4,7 @@
 
     <ion-content class="fondo">
       <div class="contenedor-boton">
-        <button class="boton-general" @click="nuevaOrden">
+        <button v-if="puedeGestionarPedidos" class="boton-general" @click="nuevaOrden">
           +
           <p>Nueva orden</p>
         </button>
@@ -20,12 +20,24 @@
 
 <script setup>
 import { IonPage, IonContent } from '@ionic/vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
 
 const router = useRouter()
+const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+
+const puedeGestionarPedidos = computed(() => {
+  const rol = (usuario?.rol || '').toString().trim().toUpperCase()
+  return rol === 'ADMINISTRADOR' || rol === 'CAJERO'
+})
 
 const nuevaOrden = () => {
+  if (!puedeGestionarPedidos.value) {
+    window.alert('No tienes permisos para generar pedidos')
+    return
+  }
+
   router.push('/nueva-orden')
 }
 

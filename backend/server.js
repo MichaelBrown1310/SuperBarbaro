@@ -854,4 +854,35 @@ app.put('/pedidos/:id', async (req, res) => {
   }
 });
 
+app.patch('/pedidos/:id/estado', async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  const estadosPermitidos = ['pendiente', 'en_preparacion', 'listo', 'entregado'];
+
+  if (!estadosPermitidos.includes(estado)) {
+    return res.status(400).json({ error: 'Estado no permitido' });
+  }
+
+  try {
+    const [pedidos] = await dbPromise.query(
+      'SELECT id, estado FROM pedidos WHERE id = ?',
+      [id]
+    );
+
+    if (pedidos.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    await dbPromise.query(
+      'UPDATE pedidos SET estado = ? WHERE id = ?',
+      [estado, id]
+    );
+
+    res.json({ success: true, estado });
+  } catch (error) {
+    console.log('Error actualizando estado del pedido:', error);
+    res.status(500).json({ error: 'No se pudo actualizar el estado del pedido' });
+  }
+});
+
 // ================= FIN INVENTARIO =================

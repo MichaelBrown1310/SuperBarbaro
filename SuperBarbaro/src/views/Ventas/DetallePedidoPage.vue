@@ -41,15 +41,24 @@
             </div>
           </div>
 
-          <div class="tarjeta">
-            <p><strong>Total:</strong> ${{ formatearPrecio(pedido.total) }}</p>
+          <div class="tarjeta tarjeta-accion">
+            <p class="total-linea"><strong>Total:</strong> ${{ formatearPrecio(pedido.total) }}</p>
 
             <button
+              v-if="mostrarBotonEditar"
               class="boton-editar"
               :disabled="pedido.estado !== 'pendiente'"
               @click="editarPedido"
             >
               {{ pedido.estado === 'pendiente' ? 'Editar pedido' : 'No editable' }}
+            </button>
+
+            <button
+              v-else-if="textoBotonCocina"
+              class="boton-cocina"
+              @click="cambiarEstadoPedido"
+            >
+              {{ textoBotonCocina }}
             </button>
           </div>
         </div>
@@ -60,12 +69,14 @@
 
 <script setup>
 import { IonPage, IonContent, onIonViewWillEnter } from '@ionic/vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
+const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+const rolUsuario = (usuario?.rol || '').toString().trim().toUpperCase()
 
 const pedido = ref(null)
 const cargando = ref(false)
@@ -97,10 +108,81 @@ const editarPedido = () => {
   router.push(`/nueva-orden?pedidoId=${pedido.value.id}`)
 }
 
+const esRolGestion = computed(() => rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'CAJERO')
+const esRolCocina = computed(() => rolUsuario === 'COCINA' || rolUsuario === 'COCINERO')
+const mostrarBotonEditar = computed(() => esRolGestion.value)
+
+const siguienteEstadoCocina = computed(() => {
+  if (!pedido.value || !esRolCocina.value) {
+    return null
+  }
+
+  if (pedido.value.estado === 'pendiente') {
+    return 'en_preparacion'
+  }
+
+  if (pedido.value.estado === 'en_preparacion') {
+    return 'listo'
+  }
+
+  return null
+})
+
+const textoBotonCocina = computed(() => {
+  if (siguienteEstadoCocina.value === 'en_preparacion') {
+    return 'Pasar a preparacion'
+  }
+
+  if (siguienteEstadoCocina.value === 'listo') {
+    return 'Marcar como listo'
+  }
+
+  return ''
+})
+
+const cambiarEstadoPedido = async () => {
+  if (!pedido.value || !siguienteEstadoCocina.value) {
+    return
+  }
+
+  const mensaje = siguienteEstadoCocina.value === 'en_preparacion'
+    ? '¿Quieres cambiar el pedido a En preparacion?'
+    : '¿Quieres cambiar el pedido a Listo?'
+
+  if (!window.confirm(mensaje)) {
+    return
+  }
+
+  try {
+    const res = await fetch(`http://localhost:3000/pedidos/${pedido.value.id}/estado`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        estado: siguienteEstadoCocina.value
+      })
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'No se pudo actualizar el estado')
+    }
+
+    pedido.value.estado = data.estado
+    window.alert('El estado del pedido fue actualizado')
+  } catch (error) {
+    console.error('Error actualizando estado del pedido', error)
+    window.alert('No se pudo actualizar el estado del pedido')
+  }
+}
+
 const formatearServicio = (servicio) => servicio === 'comer aqui' ? 'Comer aqui' : 'Llevar'
 const formatearEstado = (estado) => ({
   pendiente: 'Pendiente',
   en_preparacion: 'En preparacion',
+  listo: 'Listo',
   entregado: 'Entregado'
 }[estado] || estado)
 
@@ -144,6 +226,15 @@ onIonViewWillEnter(cargarPedido)
   margin: 0 0 10px;
 }
 
+.tarjeta-accion {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .numero,
 .nombre {
   font-weight: 800;
@@ -170,7 +261,7 @@ onIonViewWillEnter(cargarPedido)
 }
 
 .boton-editar {
-  width: 100%;
+  min-width: 220px;
   padding: 14px;
   border: none;
   border-radius: 12px;
@@ -181,5 +272,33 @@ onIonViewWillEnter(cargarPedido)
 
 .boton-editar:disabled {
   opacity: 0.6;
+}
+
+.boton-cocina {
+  min-width: 220px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #d96c06;
+  color: white;
+  font-weight: 700;
+}
+
+.total-linea {
+  margin: 0;
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .tarjeta-accion {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .boton-editar,
+  .boton-cocina {
+    width: 100%;
+    min-width: 0;
+  }
 }
 </style>
