@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-03-2026 a las 20:50:03
+-- Tiempo de generación: 10-04-2026 a las 03:39:50
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -68,62 +68,62 @@ CREATE TABLE `menu` (
 --
 
 INSERT INTO `menu` (`id`, `nombre`, `descripcion`, `precio`, `categoria_id`, `imagen`, `fecha_creacion`) VALUES
-(1, 'americano', NULL, 10500.00, 2, NULL, '2026-03-26 03:51:28'),
-(2, 'street', NULL, 14000.00, 2, NULL, '2026-03-26 03:51:28'),
-(3, 'odin', NULL, 16000.00, 2, NULL, '2026-03-26 03:51:28'),
-(4, 'perras', NULL, 15000.00, 2, NULL, '2026-03-26 03:51:28'),
-(5, 'valkiria', NULL, 16000.00, 2, NULL, '2026-03-26 03:51:28'),
-(6, 'hawaiano', NULL, 15000.00, 2, NULL, '2026-03-26 03:51:28'),
-(7, 'asgard', NULL, 16000.00, 2, NULL, '2026-03-26 03:51:28'),
-(8, 'pollo', NULL, 17000.00, 2, NULL, '2026-03-26 03:51:28'),
-(9, 'carne', NULL, 18000.00, 2, NULL, '2026-03-26 03:51:28'),
-(10, 'americana', NULL, 12500.00, 1, NULL, '2026-03-26 03:51:28'),
-(11, 'street', NULL, 17000.00, 1, NULL, '2026-03-26 03:51:28'),
-(12, 'thor', NULL, 18000.00, 1, NULL, '2026-03-26 03:51:28'),
-(13, 'freya', NULL, 16000.00, 1, NULL, '2026-03-26 03:51:28'),
-(14, 'hawaiana', NULL, 17000.00, 1, NULL, '2026-03-26 03:51:28'),
-(15, 'asgard', NULL, 21000.00, 1, NULL, '2026-03-26 03:51:28'),
-(16, 'doble freya', NULL, 22000.00, 1, NULL, '2026-03-26 03:51:28'),
-(17, 'doble sabor', NULL, 22000.00, 1, NULL, '2026-03-26 03:51:28'),
-(18, 'loki', NULL, 22000.00, 1, NULL, '2026-03-26 03:51:28'),
-(19, 'apolo', NULL, 23000.00, 1, NULL, '2026-03-26 03:51:28'),
-(20, 'loconcha pollo', NULL, 16000.00, 1, NULL, '2026-03-26 03:51:28'),
-(21, 'loconcha carne', NULL, 17000.00, 1, NULL, '2026-03-26 03:51:28'),
-(22, 'fenrir', NULL, 28000.00, 1, NULL, '2026-03-26 03:51:28'),
-(23, 'chorizo', NULL, 12000.00, 6, NULL, '2026-03-26 03:51:28'),
-(24, 'panchorizo', NULL, 12000.00, 6, NULL, '2026-03-26 03:51:28'),
-(25, 'choripan', NULL, 12000.00, 6, NULL, '2026-03-26 03:51:28'),
-(26, 'pollo', NULL, 16000.00, 4, NULL, '2026-03-26 03:51:28'),
-(27, 'cerdo', NULL, 16000.00, 4, NULL, '2026-03-26 03:51:28'),
-(28, 'pollo bbq', NULL, 17000.00, 4, NULL, '2026-03-26 03:51:28'),
-(29, 'cerdo bbq', NULL, 17000.00, 4, NULL, '2026-03-26 03:51:28'),
-(30, 'pollo gratinado', NULL, 18000.00, 4, NULL, '2026-03-26 03:51:28'),
-(31, 'cerdo gratinado', NULL, 18000.00, 4, NULL, '2026-03-26 03:51:28'),
-(32, 'vegetariano', NULL, 12000.00, 5, NULL, '2026-03-26 03:51:28'),
-(33, 'tradicional', NULL, 15000.00, 5, NULL, '2026-03-26 03:51:28'),
-(34, 'cubano', NULL, 16000.00, 5, NULL, '2026-03-26 03:51:28'),
-(35, 'cordero', NULL, 17000.00, 5, NULL, '2026-03-26 03:51:28'),
-(36, 'pollo', NULL, 16000.00, 5, NULL, '2026-03-26 03:51:28'),
-(37, 'pollo bbq', NULL, 17000.00, 5, NULL, '2026-03-26 03:51:28'),
-(38, 'ropa vieja', NULL, 18000.00, 5, NULL, '2026-03-26 03:51:28'),
-(39, 'del campo', NULL, 18000.00, 5, NULL, '2026-03-26 03:51:28'),
-(40, 'valhalla', NULL, 24000.00, 5, NULL, '2026-03-26 03:51:28'),
-(41, 'hawaiano', NULL, 14000.00, 5, NULL, '2026-03-26 03:51:28'),
-(42, 'sven', NULL, 22000.00, 5, NULL, '2026-03-26 03:51:28'),
-(43, 'frigg', NULL, 20000.00, 5, NULL, '2026-03-26 03:51:28'),
-(44, 'gungnir', NULL, 18000.00, 5, NULL, '2026-03-26 03:51:28'),
-(45, 'nordico', NULL, 22000.00, 5, NULL, '2026-03-26 03:51:28'),
-(46, 'solita', NULL, 1500.00, 3, NULL, '2026-03-26 03:51:28'),
-(47, 'con queso', NULL, 3000.00, 3, NULL, '2026-03-26 03:51:28'),
-(48, 'hawaiana', NULL, 10000.00, 3, NULL, '2026-03-26 03:51:28'),
-(49, 'balder', NULL, 9000.00, 3, NULL, '2026-03-26 03:51:28'),
-(50, 'frigg', NULL, 10000.00, 3, NULL, '2026-03-26 03:51:28'),
-(51, 'street', NULL, 16000.00, 3, NULL, '2026-03-26 03:51:28'),
-(52, 'freya', NULL, 16000.00, 3, NULL, '2026-03-26 03:51:28'),
-(53, 'sven', NULL, 9000.00, 3, NULL, '2026-03-26 03:51:28'),
-(54, 'olaf', NULL, 10000.00, 3, NULL, '2026-03-26 03:51:28'),
-(55, 'loconcha pollo', NULL, 16000.00, 3, NULL, '2026-03-26 03:51:28'),
-(56, 'loconcha carne', NULL, 17000.00, 3, NULL, '2026-03-26 03:51:28');
+(1, 'americano', 'PAN, SALCHICHA AMERICANA, QUESO FUNDIDO, SALSA DE TOMATE Y MOSTAZA (O DOS SALSAS DE SU PREFERENCIA)', 10500.00, 2, NULL, '2026-03-26 03:51:28'),
+(2, 'street', 'PAN, SALCHICHA AMERICANA, QUESO FUNDIDO, TODAS LAS SALSAS, RIPIO, TOCINETA', 14000.00, 2, NULL, '2026-03-26 03:51:28'),
+(3, 'odin', 'PAN, CHORIZO DE CERDO, QUESO FUNDIDO, TODAS LAS SALSAS, RIPIO, TOCINETA', 16000.00, 2, NULL, '2026-03-26 03:51:28'),
+(4, 'perras', 'PAN, TOCINETA, CON DOBLE QUESO FUNDIDO, TODAS LAS SALSAS, RIPIO\n', 15000.00, 2, NULL, '2026-03-26 03:51:28'),
+(5, 'valkiria', 'PAN, SALCHICHA AMERICANA, DOBLE QUESO FUNDIDO, MAICITOS, TODAS LAS SALSAS, RIPIO, TOCINETA\n', 16000.00, 2, NULL, '2026-03-26 03:51:28'),
+(6, 'hawaiano', 'PAN, SALCHICHA AMERICANA, DOBLE QUESO FUNDIDO, PIÑA CALADA, TODAS LAS SALSAS, RIPIO, TOCINETA\n', 15000.00, 2, NULL, '2026-03-26 03:51:28'),
+(7, 'asgard', 'PAN, SALCHICHA AMERICANA, DOBLE QUESO FUNDIDO, MADURO, TODAS LAS SALSAS, CHICHARRÓN CROCANTE, TOCINETA\n', 16000.00, 2, NULL, '2026-03-26 03:51:28'),
+(8, 'pollo', 'PAN, SALCHICHA AMERICANA, POLLO DESMECHADO, TODAS LAS SALSAS, RIPIO, TOCINETA', 17000.00, 2, NULL, '2026-03-26 03:51:28'),
+(9, 'carne', 'PAN, SALCHICHA AMERICANA, CARNE DESMECHADA, TODAS LAS SALSAS, RIPIO, TOCINETA', 18000.00, 2, NULL, '2026-03-26 03:51:28'),
+(10, 'americana', 'PAN, TOMATE, CARNE, SALSA DE TOMATE. MOSTAZA, PAN CON EL QUESO FUNDIDO', 12500.00, 1, NULL, '2026-03-26 03:51:28'),
+(11, 'street', 'PAN, TOMATE, CARNE, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO', 17000.00, 1, NULL, '2026-03-26 03:51:28'),
+(12, 'thor', 'PAN, TOMATE, DOBLE PORCION DE CHORIZO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO', 18000.00, 1, NULL, '2026-03-26 03:51:28'),
+(13, 'freya', 'PAN, TOMATE, FILETE DE POLLO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO', 16000.00, 1, NULL, '2026-03-26 03:51:28'),
+(14, 'hawaiana', 'PAN, PIÑA ASADA, CARNE, DOBLE TOCINETA, DOBLE QUESO, SALSA BARBARA', 17000.00, 1, NULL, '2026-03-26 03:51:28'),
+(15, 'asgard', 'PAN, TOMATE, MADURO, CARNE, CHICHARRON CROCANTE, CEBOLLA, TODAS LAS SALSAS, TOCINETA, PAN CON EL QUESO FUNDIDO', 21000.00, 1, NULL, '2026-03-26 03:51:28'),
+(16, 'doble freya', 'PAN, TOMATE, DOBLE FILETE DE POLLO, CEBOLLA, TODAS LAS SALSAS, RIPIO, DOBLE TOCINETA, PAN CON DOBLE QUESO FUNDIDO\n', 22000.00, 1, NULL, '2026-03-26 03:51:28'),
+(17, 'doble sabor', 'PAN, TOMATE, DOBLE CARNE, CEBOLLA, TODAS LAS SALSAS, RIPIO, DOBLE TOCINETA, PAN CON DOBLE QUESO FUNDIDO', 22000.00, 1, NULL, '2026-03-26 03:51:28'),
+(18, 'loki', 'PAN, TOMATE, CARNE, FILETE DE POLLO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO', 22000.00, 1, NULL, '2026-03-26 03:51:28'),
+(19, 'apolo', 'PAN, TOMATE, CARNE, DOBLE PORCIOS DE CHORIZO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO', 23000.00, 1, NULL, '2026-03-26 03:51:28'),
+(20, 'loconcha pollo', 'PAN, TOMATE, POLLO DESMECHADO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO', 16000.00, 1, NULL, '2026-03-26 03:51:28'),
+(21, 'loconcha carne', 'PAN, TOMATE, CARNE DESMECHADO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, PAN CON EL QUESO FUNDIDO\n', 17000.00, 1, NULL, '2026-03-26 03:51:28'),
+(22, 'fenrir', 'PAN, TOMATE, CARNE, FILETE DE POLLO, CHORIZO, CEBOLLA, RIPIO, TODAS LAS SALSAS, TOCINETA, PAN CON EL QUESO FUNDIDO\n', 28000.00, 1, NULL, '2026-03-26 03:51:28'),
+(23, 'chorizo', 'CHORIZO DE CERDO ARTESANAL ACOPAÑADO DE AREPA CON QUESO FUNDIDO\n', 12000.00, 6, NULL, '2026-03-26 03:51:28'),
+(24, 'panchorizo', 'CHORIZO DE CERDO DENTRO DE UN PAN FRANCES RELLENO DE SALSAS\n', 12000.00, 6, NULL, '2026-03-26 03:51:28'),
+(25, 'choripan', 'CHORIZO DE CERDO ABIERTO EN MARIPOSA BAÑADO EN CHIMICHURRI EN MEDIO DE UN PAN FRANCES GRILLADO', 12000.00, 6, NULL, '2026-03-26 03:51:28'),
+(26, 'pollo', 'CHORIZO DE CERDO ABIERTO EN MARIPOSA BAÑADO EN CHIMICHURRI EN MEDIO DE UN PAN FRANCES GRILLADO', 16000.00, 4, NULL, '2026-03-26 03:51:28'),
+(27, 'cerdo', 'CHUZO DE CERDO ARTESANAL ACOMPAÑADO DE ENSALADA Y AREPA CON QUESO', 16000.00, 4, NULL, '2026-03-26 03:51:28'),
+(28, 'pollo bbq', 'CHUZO DE POLLO ARTESANAL BAÑADO EN BBQ, AREPA CON QUESO Y ENSALADA', 17000.00, 4, NULL, '2026-03-26 03:51:28'),
+(29, 'cerdo bbq', 'CHUZO DE CERDO ARTESANAL BAÑADO EN BBQ, AREPA CON QUESO Y ENSALADA\n', 17000.00, 4, NULL, '2026-03-26 03:51:28'),
+(30, 'pollo gratinado', 'CHUZO DE POLLO ARTESANAL GRATINADO, AREPA CON QUESO Y ENSALADA\n', 18000.00, 4, NULL, '2026-03-26 03:51:28'),
+(31, 'cerdo gratinado', 'CHUZO DE CERDO ARTESANAL GRATINADO, AREPA CON QUESO Y ENSALADA\n', 18000.00, 4, NULL, '2026-03-26 03:51:28'),
+(32, 'vegetariano', 'PAN FRANCES, SALSA DE AJO TOMATE LECHUGA, MAICITOS, QUESO (CEBOLLA)\n', 12000.00, 5, NULL, '2026-03-26 03:51:28'),
+(33, 'tradicional', 'PAN FRANCES, SALSA DE AJO, TOMATE, LECHUGA, JAMON, SALAMI, QUESO\n', 15000.00, 5, NULL, '2026-03-26 03:51:28'),
+(34, 'cubano', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, TRES CAPAS DE JAMON, QUESO', 16000.00, 5, NULL, '2026-03-26 03:51:28'),
+(35, 'cordero', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, JAMON TIPO CORDERO, QUESO', 17000.00, 5, NULL, '2026-03-26 03:51:28'),
+(36, 'pollo', 'PAN FRANCES, SALSA DE AJO, TOMATE LECHUGA, POLLO DESMECHADO, QUESO\n', 16000.00, 5, NULL, '2026-03-26 03:51:28'),
+(37, 'pollo bbq', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, POLLO DESMECHADO EN SALSA BBO, QUESO\n', 17000.00, 5, NULL, '2026-03-26 03:51:28'),
+(38, 'ropa vieja', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, CARNE DESMECHADA, QUESO\n', 18000.00, 5, NULL, '2026-03-26 03:51:28'),
+(39, 'del campo', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, TOCINETA, MAICITOS, QUESO', 18000.00, 5, NULL, '2026-03-26 03:51:28'),
+(40, 'valhalla', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, CARNES DE HAMBURGESA TOCINETA, QUESO', 24000.00, 5, NULL, '2026-03-26 03:51:28'),
+(41, 'hawaiano', 'PAN FRANCES, TROZOS DE PIÑA, JAMON, QUESO\n', 14000.00, 5, NULL, '2026-03-26 03:51:28'),
+(42, 'sven', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, PIÑA CALADA, TOCINETA, POLLO DESMECHADO, QUESO\n', 22000.00, 5, NULL, '2026-03-26 03:51:28'),
+(43, 'frigg', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, DOBLE FILETE DE POLLO, QUESO\n', 20000.00, 5, NULL, '2026-03-26 03:51:28'),
+(44, 'gungnir', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, CHORIZO, MADURO, QUESO', 18000.00, 5, NULL, '2026-03-26 03:51:28'),
+(45, 'nordico', 'PAN FRANCES, SALSA DE AJO, TOMATE. LECHUGA, CARNE Y POLLO DESMECHADO, QUESO', 22000.00, 5, NULL, '2026-03-26 03:51:28'),
+(46, 'solita', 'AREPA ALIÑADA ARTESANAL \n', 1500.00, 3, NULL, '2026-03-26 03:51:28'),
+(47, 'con queso', 'AREPA ALIÑADA ARTESANAL CON QUESO FUNDIDO\n', 3000.00, 3, NULL, '2026-03-26 03:51:28'),
+(48, 'hawaiana', 'AREPA CON QUESO FUNDIDO, JAMON Y PIÑA CALADA\n', 10000.00, 3, NULL, '2026-03-26 03:51:28'),
+(49, 'balder', 'AREPA ARTESANAL CON QUESO FUNDIDO Y CARNE DE HAMBURGUESA\n', 9000.00, 3, NULL, '2026-03-26 03:51:28'),
+(50, 'frigg', 'AREPA ARTESANAL CON QUESO FUNDIDO Y FILETE DE POLLO\n', 10000.00, 3, NULL, '2026-03-26 03:51:28'),
+(51, 'street', 'AREPA, TOMATE, CARNE, CEBOLLA, TODAS LA SALSAS, RIPIO, TOCINETA, AREPA CON EL QUESO FUNDIDO', 16000.00, 3, NULL, '2026-03-26 03:51:28'),
+(52, 'freya', 'AREPA, TOMATE, FILETE DE POLLO, CEBOLLA TODAS LAS SALSAS, RIPIO, TOCINETA, AREPA CON EL QUESO FUNDIDO\n', 16000.00, 3, NULL, '2026-03-26 03:51:28'),
+(53, 'sven', 'AREPA ARTESANAL CON QUESO FUNDIDO Y POLLO DEMECHADO\n', 9000.00, 3, NULL, '2026-03-26 03:51:28'),
+(54, 'olaf', 'AREPA ARTESANAL CON QUESO FUNDIDO Y CARNE DESMECHADA\n', 10000.00, 3, NULL, '2026-03-26 03:51:28'),
+(55, 'loconcha pollo', 'AREPA, TOMATE, POLLO DESMECHADO, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, AREPA CON EL QUESO FUNDIDO\n', 16000.00, 3, NULL, '2026-03-26 03:51:28'),
+(56, 'loconcha carne', 'AREPA, TOMATE, CARNE DESMECHADA, CEBOLLA, TODAS LAS SALSAS, RIPIO, TOCINETA, AREPA CON EL QUESO FUNDIDO', 17000.00, 3, NULL, '2026-03-26 03:51:28');
 
 -- --------------------------------------------------------
 
@@ -444,7 +444,9 @@ CREATE TABLE `movimientos_productos` (
 INSERT INTO `movimientos_productos` (`id`, `producto_id`, `tipo`, `cantidad`, `motivo`, `fecha`) VALUES
 (11, 2, 'ENTRADA', 50, 'Edición manual', '2026-03-26 03:33:41'),
 (12, 2, 'SALIDA', 40, 'Edición manual', '2026-03-26 03:33:52'),
-(13, 35, 'ENTRADA', 8, 'Edición manual', '2026-03-26 18:48:58');
+(13, 35, 'ENTRADA', 8, 'Edición manual', '2026-03-26 18:48:58'),
+(14, 34, 'ENTRADA', 2, 'Edición manual', '2026-04-09 01:17:45'),
+(15, 9, 'SALIDA', 90, 'Edición manual', '2026-04-09 01:22:10');
 
 -- --------------------------------------------------------
 
@@ -458,49 +460,50 @@ CREATE TABLE `productos` (
   `precio` decimal(10,2) NOT NULL,
   `cantidad` int(11) NOT NULL,
   `imagen` text DEFAULT NULL,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `minimo` int(11) NOT NULL DEFAULT 10
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id`, `nombre`, `precio`, `cantidad`, `imagen`, `fecha_creacion`) VALUES
-(1, 'Pan de perro', 500.00, 100, 'https://img.freepik.com/fotos-premium/pan-perrito-caliente-vacio-sobre-fondo-blanco-aislado_66899-2509.jpg', '2026-03-26 03:25:36'),
-(2, 'Pan de hamburguesa', 500.00, 110, 'https://img.freepik.com/fotos-premium/pan-hamburguesa-sobre-fondo-blanco-aislado_66899-2531.jpg', '2026-03-26 03:25:36'),
-(3, 'Pan francés', 700.00, 100, 'https://png.pngtree.com/thumb_back/fw800/background/20250323/pngtree-french-bread-loaf-isolated-on-white-background-long-photo-photo-image_66198122.webp', '2026-03-26 03:25:36'),
-(4, 'Salchicha', 2000.00, 100, 'https://static8.depositphotos.com/1036794/859/i/450/depositphotos_8599505-stock-photo-sausages.jpg', '2026-03-26 03:25:36'),
-(5, 'Chorizo de cerdo', 4000.00, 100, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_6YuBHid-1_AFMBi9DbUvjW77RQa4Q2xluw&s', '2026-03-26 03:25:36'),
-(6, 'Carne de hamburguesa', 5000.00, 100, 'https://img.freepik.com/fotos-premium/carne-hamburguesa-aislada-sobre-fondo-blanco_667286-3965.jpg', '2026-03-26 03:25:36'),
-(7, 'Carne desmechada', 6000.00, 100, 'https://i.pinimg.com/originals/b4/0e/5a/b40e5a9550dee69e79cb6b6071fa4c77.png', '2026-03-26 03:25:36'),
-(8, 'Pollo desmechado', 5000.00, 100, 'https://png.pngtree.com/png-clipart/20230714/ourmid/pngtree-shredded-chicken-png-image_7507559.png', '2026-03-26 03:25:36'),
-(9, 'Filete de pollo', 6000.00, 100, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw12xFn_nBWBsyStHnKSPIVMRgE9YBOa6n3Q&s', '2026-03-26 03:25:36'),
-(10, 'Queso', 800.00, 200, 'https://www.merkadomi.com/wp-content/uploads/2020/11/QUESO-DOBLE-CREMA-TAJADO-300x300.jpg', '2026-03-26 03:25:36'),
-(11, 'Tocineta', 1500.00, 100, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvOkHbd3yZvib70WD6yltfrdxEwJnCPwjbyA&s', '2026-03-26 03:25:36'),
-(12, 'Ripio', 300.00, 100, 'https://img.freepik.com/foto-gratis/fries-frances_74190-1192.jpg?semt=ais_rp_50_assets&w=740&q=80', '2026-03-26 03:25:36'),
-(13, 'Maicitos', 1000.00, 100, 'https://www.shutterstock.com/image-photo/corn-seeds-on-nwhite-background-260nw-327659597.jpg', '2026-03-26 03:25:36'),
-(14, 'Piña calada', 2000.00, 100, 'https://b2cqbano.vtexassets.com/arquivos/ids/156058-800-auto?v=638843436833200000&width=800&height=auto&aspect=true', '2026-03-26 03:25:36'),
-(15, 'Piña asada', 2000.00, 100, 'https://www.shutterstock.com/image-photo/slice-grilled-pineapple-isolated-on-260nw-2022007334.jpg', '2026-03-26 03:25:36'),
-(16, 'Maduro', 1500.00, 100, 'https://www.shutterstock.com/image-photo/pile-fried-plantains-on-white-260nw-2674249167.jpg', '2026-03-26 03:25:36'),
-(17, 'Chicharrón', 2000.00, 100, 'https://previews.123rf.com/images/simicv/simicv1703/simicv170300068/74187683-heap-of-domestic-salty-fried-pork-greaves-cvarci-isolated-on-white.jpg', '2026-03-26 03:25:36'),
-(18, 'Tomate', 500.00, 100, 'https://thumbs.dreamstime.com/b/dos-rodajas-de-tomate-aisladas-sobre-blanco-fondo-230499458.jpg', '2026-03-26 03:25:36'),
-(19, 'Cebolla', 500.00, 100, 'https://thumbs.dreamstime.com/b/rebanadas-de-la-cebolla-roja-49669396.jpg', '2026-03-26 03:25:36'),
-(20, 'Lechuga', 500.00, 100, 'https://img.freepik.com/fotos-premium/lechuga-sobre-fondo-blanco-cerrar_183352-1921.jpg', '2026-03-26 03:25:36'),
-(21, 'Jamón', 2000.00, 100, 'https://static.vecteezy.com/system/resources/previews/009/809/228/large_2x/slices-of-cooked-ham-isolate-on-white-free-photo.jpg', '2026-03-26 03:25:36'),
-(22, 'Salami', 2500.00, 100, 'https://img.freepik.com/fotos-premium/rodajas-salami-sobre-fondo-blanco_770606-1956.jpg', '2026-03-26 03:25:36'),
-(23, 'Cordero', 4000.00, 100, 'https://st2.depositphotos.com/18050070/43803/i/450/depositphotos_438033448-stock-photo-smoked-pork-meat-isolated-white.jpg', '2026-03-26 03:25:36'),
-(24, 'Arepa', 1000.00, 100, 'https://static.vecteezy.com/system/resources/thumbnails/053/648/138/small/a-flatbread-on-a-transparent-background-png.png', '2026-03-26 03:25:36'),
-(25, 'Ensalada', 1500.00, 100, 'https://img.freepik.com/foto-gratis/ensalada-salmon-aguacate-aislado-sobre-fondo-blanco_123827-20214.jpg?semt=ais_hybrid&w=740&q=80', '2026-03-26 03:25:36'),
-(26, 'Salsa tomate', 300.00, 200, 'https://us.123rf.com/450wm/magone/magone1410/magone141000063/32532150-taz%C3%B3n-de-salsa-de-tomate-o-salsa-de-tomate-en-un-fondo-blanco.jpg?ver=6', '2026-03-26 03:25:36'),
-(27, 'Salsa mostaza', 300.00, 200, 'https://thumbs.dreamstime.com/b/deliciosa-salsa-de-mostaza-en-taz%C3%B3n-negra-con-un-fondo-blanco-perfecto-para-uso-culinario-la-amarilla-suave-moteada-pimienta-398641368.jpg', '2026-03-26 03:25:36'),
-(28, 'Salsa BBQ', 500.00, 200, 'https://thumbs.dreamstime.com/b/salsa-de-barbacoa-en-taz%C3%B3n-aislada-fondo-blanco-una-cercana-la-sabrosa-para-bq-un-negro-roja-oscura-y-suave-llena-peque%C3%B1o-398640745.jpg', '2026-03-26 03:25:36'),
-(29, 'Salsa de ajo', 500.00, 200, 'https://www.shutterstock.com/image-photo/bowl-fresh-garlic-dip-sauce-260nw-154947794.jpg', '2026-03-26 03:25:36'),
-(30, 'Salsa barbara', 500.00, 200, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9IDJMIgYM4z-ByMc0o4Ot2sCM7k40KckdWg&s', '2026-03-26 03:25:36'),
-(31, 'Salsa piña', 500.00, 200, 'https://img.freepik.com/fotos-premium/salsa-pina-aislado-sobre-fondo-blanco_311158-942.jpg', '2026-03-26 03:25:36'),
-(32, 'Salsa verde', 500.00, 200, 'https://thumbs.dreamstime.com/b/bowl-de-png-salsa-verde-contra-fondo-transparente-381737744.jpg', '2026-03-26 03:25:36'),
-(34, 'Fanta 500ml', 3500.00, 9, 'https://www.shutterstock.com/image-photo/orange-flavoured-fanta-bottle-isolated-260nw-2455212953.jpg', '2026-03-26 18:42:50'),
-(35, 'CocaCola 400ml', 3000.00, 15, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZL1xsSl0OYu69sWOXDYDFoajEhWRESSM7JA&s', '2026-03-26 18:43:48'),
-(36, 'Sprite 450ml', 3000.00, 8, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwMElMf-k724ZxQZNUqMu9LvKMRviZ0TrQQ&s', '2026-03-26 18:50:28');
+INSERT INTO `productos` (`id`, `nombre`, `precio`, `cantidad`, `imagen`, `fecha_creacion`, `minimo`) VALUES
+(1, 'Pan de perro', 500.00, 100, 'https://img.freepik.com/fotos-premium/pan-perrito-caliente-vacio-sobre-fondo-blanco-aislado_66899-2509.jpg', '2026-03-26 03:25:36', 10),
+(2, 'Pan de hamburguesa', 500.00, 110, 'https://img.freepik.com/fotos-premium/pan-hamburguesa-sobre-fondo-blanco-aislado_66899-2531.jpg', '2026-03-26 03:25:36', 10),
+(3, 'Pan francés', 700.00, 100, 'https://png.pngtree.com/thumb_back/fw800/background/20250323/pngtree-french-bread-loaf-isolated-on-white-background-long-photo-photo-image_66198122.webp', '2026-03-26 03:25:36', 10),
+(4, 'Salchicha', 2000.00, 100, 'https://static8.depositphotos.com/1036794/859/i/450/depositphotos_8599505-stock-photo-sausages.jpg', '2026-03-26 03:25:36', 10),
+(5, 'Chorizo de cerdo', 4000.00, 100, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_6YuBHid-1_AFMBi9DbUvjW77RQa4Q2xluw&s', '2026-03-26 03:25:36', 10),
+(6, 'Carne de hamburguesa', 5000.00, 100, 'https://img.freepik.com/fotos-premium/carne-hamburguesa-aislada-sobre-fondo-blanco_667286-3965.jpg', '2026-03-26 03:25:36', 10),
+(7, 'Carne desmechada', 6000.00, 100, 'https://i.pinimg.com/originals/b4/0e/5a/b40e5a9550dee69e79cb6b6071fa4c77.png', '2026-03-26 03:25:36', 10),
+(8, 'Pollo desmechado', 5000.00, 100, 'https://png.pngtree.com/png-clipart/20230714/ourmid/pngtree-shredded-chicken-png-image_7507559.png', '2026-03-26 03:25:36', 10),
+(9, 'Filete de pollo', 6000.00, 10, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw12xFn_nBWBsyStHnKSPIVMRgE9YBOa6n3Q&s', '2026-03-26 03:25:36', 10),
+(10, 'Queso', 800.00, 200, 'https://www.merkadomi.com/wp-content/uploads/2020/11/QUESO-DOBLE-CREMA-TAJADO-300x300.jpg', '2026-03-26 03:25:36', 10),
+(11, 'Tocineta', 1500.00, 100, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvOkHbd3yZvib70WD6yltfrdxEwJnCPwjbyA&s', '2026-03-26 03:25:36', 10),
+(12, 'Ripio', 300.00, 100, 'https://img.freepik.com/foto-gratis/fries-frances_74190-1192.jpg?semt=ais_rp_50_assets&w=740&q=80', '2026-03-26 03:25:36', 10),
+(13, 'Maicitos', 1000.00, 100, 'https://www.shutterstock.com/image-photo/corn-seeds-on-nwhite-background-260nw-327659597.jpg', '2026-03-26 03:25:36', 10),
+(14, 'Piña calada', 2000.00, 100, 'https://b2cqbano.vtexassets.com/arquivos/ids/156058-800-auto?v=638843436833200000&width=800&height=auto&aspect=true', '2026-03-26 03:25:36', 10),
+(15, 'Piña asada', 2000.00, 100, 'https://www.shutterstock.com/image-photo/slice-grilled-pineapple-isolated-on-260nw-2022007334.jpg', '2026-03-26 03:25:36', 10),
+(16, 'Maduro', 1500.00, 100, 'https://www.shutterstock.com/image-photo/pile-fried-plantains-on-white-260nw-2674249167.jpg', '2026-03-26 03:25:36', 10),
+(17, 'Chicharrón', 2000.00, 100, 'https://previews.123rf.com/images/simicv/simicv1703/simicv170300068/74187683-heap-of-domestic-salty-fried-pork-greaves-cvarci-isolated-on-white.jpg', '2026-03-26 03:25:36', 10),
+(18, 'Tomate', 500.00, 100, 'https://thumbs.dreamstime.com/b/dos-rodajas-de-tomate-aisladas-sobre-blanco-fondo-230499458.jpg', '2026-03-26 03:25:36', 10),
+(19, 'Cebolla', 500.00, 100, 'https://thumbs.dreamstime.com/b/rebanadas-de-la-cebolla-roja-49669396.jpg', '2026-03-26 03:25:36', 10),
+(20, 'Lechuga', 500.00, 100, 'https://img.freepik.com/fotos-premium/lechuga-sobre-fondo-blanco-cerrar_183352-1921.jpg', '2026-03-26 03:25:36', 10),
+(21, 'Jamón', 2000.00, 100, 'https://static.vecteezy.com/system/resources/previews/009/809/228/large_2x/slices-of-cooked-ham-isolate-on-white-free-photo.jpg', '2026-03-26 03:25:36', 10),
+(22, 'Salami', 2500.00, 100, 'https://img.freepik.com/fotos-premium/rodajas-salami-sobre-fondo-blanco_770606-1956.jpg', '2026-03-26 03:25:36', 10),
+(23, 'Cordero', 4000.00, 100, 'https://st2.depositphotos.com/18050070/43803/i/450/depositphotos_438033448-stock-photo-smoked-pork-meat-isolated-white.jpg', '2026-03-26 03:25:36', 10),
+(24, 'Arepa', 1000.00, 100, 'https://static.vecteezy.com/system/resources/thumbnails/053/648/138/small/a-flatbread-on-a-transparent-background-png.png', '2026-03-26 03:25:36', 10),
+(25, 'Ensalada', 1500.00, 100, 'https://img.freepik.com/foto-gratis/ensalada-salmon-aguacate-aislado-sobre-fondo-blanco_123827-20214.jpg?semt=ais_hybrid&w=740&q=80', '2026-03-26 03:25:36', 10),
+(26, 'Salsa tomate', 300.00, 200, 'https://us.123rf.com/450wm/magone/magone1410/magone141000063/32532150-taz%C3%B3n-de-salsa-de-tomate-o-salsa-de-tomate-en-un-fondo-blanco.jpg?ver=6', '2026-03-26 03:25:36', 10),
+(27, 'Salsa mostaza', 300.00, 200, 'https://thumbs.dreamstime.com/b/deliciosa-salsa-de-mostaza-en-taz%C3%B3n-negra-con-un-fondo-blanco-perfecto-para-uso-culinario-la-amarilla-suave-moteada-pimienta-398641368.jpg', '2026-03-26 03:25:36', 10),
+(28, 'Salsa BBQ', 500.00, 200, 'https://thumbs.dreamstime.com/b/salsa-de-barbacoa-en-taz%C3%B3n-aislada-fondo-blanco-una-cercana-la-sabrosa-para-bq-un-negro-roja-oscura-y-suave-llena-peque%C3%B1o-398640745.jpg', '2026-03-26 03:25:36', 10),
+(29, 'Salsa de ajo', 500.00, 200, 'https://www.shutterstock.com/image-photo/bowl-fresh-garlic-dip-sauce-260nw-154947794.jpg', '2026-03-26 03:25:36', 10),
+(30, 'Salsa barbara', 500.00, 200, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9IDJMIgYM4z-ByMc0o4Ot2sCM7k40KckdWg&s', '2026-03-26 03:25:36', 10),
+(31, 'Salsa piña', 500.00, 200, 'https://img.freepik.com/fotos-premium/salsa-pina-aislado-sobre-fondo-blanco_311158-942.jpg', '2026-03-26 03:25:36', 10),
+(32, 'Salsa verde', 500.00, 200, 'https://thumbs.dreamstime.com/b/bowl-de-png-salsa-verde-contra-fondo-transparente-381737744.jpg', '2026-03-26 03:25:36', 10),
+(34, 'Fanta 500ml', 3500.00, 11, 'https://www.shutterstock.com/image-photo/orange-flavoured-fanta-bottle-isolated-260nw-2455212953.jpg', '2026-03-26 18:42:50', 10),
+(35, 'CocaCola 400ml', 3000.00, 15, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZL1xsSl0OYu69sWOXDYDFoajEhWRESSM7JA&s', '2026-03-26 18:43:48', 10),
+(36, 'Sprite 450ml', 3000.00, 8, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwMElMf-k724ZxQZNUqMu9LvKMRviZ0TrQQ&s', '2026-03-26 18:50:28', 10);
 
 -- --------------------------------------------------------
 
@@ -623,10 +626,10 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `codigo`, `password`, `nombre`, `apellido`, `cedula`, `direccion`, `correo`, `telefono`, `rol`, `foto`, `fecha_creacion`) VALUES
-(1, 'admin', '1234', 'Administrador', '', '1111111111', 'Cl 47 #120-103', 'administrador@gmail.com', '3333333333', 'Administrador', NULL, '2026-03-13 21:12:51'),
-(2, 'cocinero1', '1234', 'Miguel', 'Reyes', '1222222222', 'Cl. 50 #101-60', 'miguelreyes@gmail.com', '3222222222', 'COCINERO', NULL, '2026-03-13 21:15:35'),
-(3, 'cajero1', '1234', 'Michael', 'Moreno', '1111661861', 'Cra. 1c #63-29', 'michaelmoreno@gmail.com', '3122222222', 'CAJERO', NULL, '2026-03-14 00:06:03'),
-(4, 'cocinero2', '1234', 'Valeria', 'Espinosa', '11111155', 'Cra. 1c #63-29', 'cocinero@gmail.com', '3145555555', 'COCINERO', NULL, '2026-03-14 01:31:28');
+(1, 'admin', '$2b$10$1/a2VGQ/TYoTqTUyqQWn7.nYEHJlDG7ja8oqC7LpXoyEnYODzGlwa', 'Administrador', '', '1111111111', 'Cl 47 #120-103', 'administrador@gmail.com', '3333333333', 'ADMINISTRADOR', NULL, '2026-03-13 21:12:51'),
+(2, 'cocinero1', '$2b$10$1/a2VGQ/TYoTqTUyqQWn7.nYEHJlDG7ja8oqC7LpXoyEnYODzGlwa', 'Miguel', 'Reyes', '1222222222', 'Cl. 50 #101-60', 'miguelreyes@gmail.com', '3222222222', 'COCINERO', NULL, '2026-03-13 21:15:35'),
+(3, 'cajero1', '$2b$10$1/a2VGQ/TYoTqTUyqQWn7.nYEHJlDG7ja8oqC7LpXoyEnYODzGlwa', 'Michael', 'Moreno', '1111661861', 'Cra. 1c #63-29', 'michaelmoreno@gmail.com', '3122222222', 'CAJERO', NULL, '2026-03-14 00:06:03'),
+(4, 'cocinero2', '$2b$10$1/a2VGQ/TYoTqTUyqQWn7.nYEHJlDG7ja8oqC7LpXoyEnYODzGlwa', 'Valeria', 'Espinosa', '11111155', 'Cra. 1c #63-29', 'cocinero@gmail.com', '3145555555', 'COCINERO', NULL, '2026-03-14 01:31:28');
 
 --
 -- Índices para tablas volcadas
@@ -709,7 +712,7 @@ ALTER TABLE `menu_productos`
 -- AUTO_INCREMENT de la tabla `movimientos_productos`
 --
 ALTER TABLE `movimientos_productos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
