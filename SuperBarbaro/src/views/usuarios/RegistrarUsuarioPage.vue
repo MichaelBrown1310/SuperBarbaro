@@ -77,10 +77,15 @@ import {
     chevronBackOutline
 } from 'ionicons/icons'
 import AppHeader from '@/components/AppHeader.vue'
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+const esAdministrador = computed(() => {
+    const rol = (usuario?.rol || '').toString().trim().toUpperCase()
+    return rol === 'ADMINISTRADOR'
+})
 
 const codigo = ref('')
 const nombre = ref('')
@@ -115,6 +120,10 @@ const cargarFoto = (event) => {
 }
 
 const registrar = async () => {
+
+    if (!esAdministrador.value) {
+        return
+    }
 
     if (
         !codigo.value ||
@@ -183,6 +192,13 @@ const volver = () => {
     router.push('/usuarios')
 
 }
+
+onMounted(() => {
+    if (!esAdministrador.value) {
+        window.alert('No tienes permisos para acceder a usuarios')
+        window.location.replace('/tabs/perfil')
+    }
+})
 
 </script>
 

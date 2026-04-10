@@ -83,7 +83,7 @@ import {
     chevronBackOutline
 } from 'ionicons/icons'
 
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 
@@ -91,8 +91,19 @@ import AppHeader from '@/components/AppHeader.vue'
 const router = useRouter()
 
 const usuarios = ref([])
+const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+const esAdministrador = computed(() => {
+    const rol = (usuario?.rol || '').toString().trim().toUpperCase()
+    return rol === 'ADMINISTRADOR'
+})
 
 onMounted(async () => {
+
+    if (!esAdministrador.value) {
+        window.alert('No tienes permisos para acceder a usuarios')
+        window.location.replace('/tabs/perfil')
+        return
+    }
 
     try {
 
@@ -123,6 +134,10 @@ const editarUsuario = (usuario) => {
 }
 
 const registrarUsuario = () => {
+
+    if (!esAdministrador.value) {
+        return
+    }
 
     router.push('/registrar-usuario')
 

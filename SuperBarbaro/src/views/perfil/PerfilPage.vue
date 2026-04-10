@@ -33,7 +33,7 @@
 
         </div>
 
-        <div class="boton-usuarios" @click="irUsuarios">
+        <div v-if="esAdministrador" class="boton-usuarios" @click="irUsuarios">
           usuarios
         </div>
 
@@ -63,12 +63,16 @@ import {
 
 import { person, createOutline } from 'ionicons/icons'
 import AppHeader from '@/components/AppHeader.vue'
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 const usuario = ref({})
+const esAdministrador = computed(() => {
+  const rol = (usuario.value?.rol || '').toString().trim().toUpperCase()
+  return rol === 'ADMINISTRADOR'
+})
 
 onMounted(() => {
 
@@ -83,6 +87,9 @@ onMounted(() => {
 })
 
 const irUsuarios = () => {
+  if (!esAdministrador.value) {
+    return
+  }
 
   router.push('/usuarios')
 
