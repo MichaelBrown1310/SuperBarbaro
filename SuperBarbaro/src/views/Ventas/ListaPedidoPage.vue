@@ -33,8 +33,8 @@
               </button>
 
               <button v-if="(esCocinero || esAdmin) && pedido.estado === 'en_preparacion'"
-                @click="cambiarEstado(pedido.id, 'listo')">
-                Marcar listo
+                @click="cambiarEstado(pedido.id, 'completado')">
+                Completado
               </button>
 
               <!-- CAJERO -->
@@ -136,15 +136,9 @@ const formatearServicio = (servicio) => {
 const formatearEstado = (estado) => {
   const estados = {
     pendiente: 'Pendiente',
-<<<<<<< Updated upstream
     en_preparacion: 'En preparación',
     completado: 'Completado',
     cancelado: 'Cancelado'
-=======
-    en_preparacion: 'En preparacion',
-    completado: 'completado',
-    entregado: 'Entregado'
->>>>>>> Stashed changes
   }
 
   return estados[estado] || estado
@@ -248,13 +242,8 @@ onIonViewWillLeave(() => {
   background: #fde68a;
 }
 
-<<<<<<< Updated upstream
 .estado-chip.completado {
   background: #bbf7d0;
-=======
-.estado-chip.listo {
-  background: #bbf7d0; 
->>>>>>> Stashed changes
 }
 
 .estado-chip.cancelado {

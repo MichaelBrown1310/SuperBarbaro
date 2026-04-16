@@ -222,14 +222,11 @@ db.connect(err => {
   }
 });
 
-<<<<<<< Updated upstream
-=======
 io.on('connection', () => {
   console.log('Cliente conectado por socket');
 });
 
 
->>>>>>> Stashed changes
 // LOGIN
 app.post("/login", (req, res) => {
 
@@ -1004,9 +1001,9 @@ app.put('/pedidos/:id', async (req, res) => {
 
 app.patch('/pedidos/:id/estado', async (req, res) => {
   const { id } = req.params;
-  const { estado } = req.body;
+  let { estado } = req.body;
 
-  const estadosPermitidos = ['pendiente', 'en_preparacion', 'listo', 'entregado', 'cancelado'];
+  const estadosPermitidos = ['pendiente', 'en_preparacion', 'completado', 'cancelado'];
 
   if (!estadosPermitidos.includes(estado)) {
     return res.status(400).json({ error: 'Estado no permitido' });
@@ -1030,7 +1027,10 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
 
     console.log('Estado anterior:', pedidos[0].estado);
 
-    const estadoAnterior = pedidos[0].estado.trim().toLowerCase();
+    let estadoAnterior = pedidos[0].estado;
+
+    // normalizar por si hay espacios o mayúsculas
+    estadoAnterior = estadoAnterior?.trim().toLowerCase();
 
     // VALIDACIONES DE FLUJO
     if (estado === 'en_preparacion' && estadoAnterior !== 'pendiente') {
@@ -1038,7 +1038,7 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
       return res.status(400).json({ error: 'Solo pedidos pendientes pueden iniciar' });
     }
 
-    if (estado === 'listo' && estadoAnterior !== 'en_preparacion') {
+    if (estado === 'completado' && estadoAnterior !== 'en_preparacion') {
       await conn.rollback();
       return res.status(400).json({ error: 'Solo pedidos en preparación pueden completarse' });
     }
