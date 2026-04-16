@@ -889,7 +889,7 @@ app.put('/pedidos/:id', async (req, res) => {
 app.patch('/pedidos/:id/estado', async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
-  const estadosPermitidos = ['pendiente', 'en_preparacion', 'listo', 'entregado'];
+  const estadosPermitidos = ['pendiente', 'en_preparacion', 'completado', 'cancelado'];
 
   if (!estadosPermitidos.includes(estado)) {
     return res.status(400).json({ error: 'Estado no permitido' });

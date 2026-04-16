@@ -23,6 +23,28 @@
               </span>
             </p>
             <p><strong>Hora:</strong> {{ formatearHora(pedido.fecha_creacion) }}</p>
+
+            <div class="acciones" @click.stop>
+
+              <!-- COCINERO -->
+              <button v-if="(esCocinero || esAdmin) && pedido.estado === 'pendiente'"
+                @click="cambiarEstado(pedido.id, 'en_preparacion')">
+                Iniciar
+              </button>
+
+              <button v-if="(esCocinero || esAdmin) && pedido.estado === 'en_preparacion'"
+                @click="cambiarEstado(pedido.id, 'completado')">
+                Completar
+              </button>
+
+              <!-- CAJERO -->
+              <button v-if="(esCajero || esAdmin) && pedido.estado === 'pendiente'"
+                @click="cambiarEstado(pedido.id, 'cancelado')">
+                Cancelar
+              </button>
+
+            </div>
+
           </div>
         </div>
       </div>
@@ -35,6 +57,14 @@ import { IonPage, IonContent, onIonViewWillEnter } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
+import { toastController } from '@ionic/vue'
+import { computed } from 'vue'
+
+const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+
+const esAdmin = computed(() => usuario?.rol === 'ADMINISTRADOR')
+const esCajero = computed(() => usuario?.rol === 'CAJERO')
+const esCocinero = computed(() => usuario?.rol === 'COCINERO')
 
 const router = useRouter()
 const pedidos = ref([])
@@ -45,12 +75,47 @@ const cargarPedidos = async () => {
 
   try {
     const res = await fetch('http://localhost:3000/pedidos')
-    pedidos.value = await res.json()
+    const data = await res.json()
+
+    // solo mostrar activos
+    pedidos.value = data.filter(p =>
+      p.estado !== 'completado' && p.estado !== 'cancelado'
+    )
+
   } catch (error) {
     console.error('Error cargando pedidos', error)
     pedidos.value = []
   } finally {
     cargando.value = false
+  }
+}
+
+const cambiarEstado = async (id, nuevoEstado) => {
+  try {
+    await fetch(`http://localhost:3000/pedidos/${id}/estado`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estado: nuevoEstado })
+    })
+
+    // MENSAJES SEGÚN ACCIÓN
+    if (nuevoEstado === 'en_preparacion') {
+      mostrarToast('Pedido en preparación', 'warning')
+    }
+
+    if (nuevoEstado === 'completado') {
+      mostrarToast('Pedido completado', 'success')
+    }
+
+    if (nuevoEstado === 'cancelado') {
+      mostrarToast('Pedido cancelado', 'danger')
+    }
+
+    cargarPedidos()
+
+  } catch (error) {
+    console.log(error)
+    mostrarToast('Error al actualizar pedido', 'danger')
   }
 }
 
@@ -77,9 +142,20 @@ const estadoClase = (estado) => {
   return {
     pendiente: estado === 'pendiente',
     preparacion: estado === 'en_preparacion',
-    listo: estado === 'listo',
-    entregado: estado === 'entregado'
+    completado: estado === 'completado',
+    cancelado: estado === 'cancelado'
   }
+}
+
+const mostrarToast = async (mensaje, color = 'success') => {
+  const toast = await toastController.create({
+    message: mensaje,
+    duration: 2000,
+    position: 'top',
+    color: color
+  })
+
+  await toast.present()
 }
 
 const formatearHora = (fecha) => {
@@ -149,15 +225,43 @@ onIonViewWillEnter(cargarPedidos)
 }
 
 .estado-chip.preparacion {
-  background: #dbeafe;
+  background: #fde68a; 
 }
 
-.estado-chip.entregado {
-  background: #dcfce7;
+.estado-chip.completado {
+  background: #bbf7d0; 
 }
 
-.estado-chip.listo {
-  background: #d1fae5;
+.estado-chip.cancelado {
+  background: #fecaca; 
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.acciones button {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.acciones button:nth-child(1) {
+  background: #fde68a; /* iniciar */
+}
+
+.acciones button:nth-child(2) {
+  background: #bbf7d0; /* completar */
+}
+
+.acciones button:nth-child(3) {
+  background: #fecaca; /* cancelar */
 }
 
 @media (max-width: 768px) {
