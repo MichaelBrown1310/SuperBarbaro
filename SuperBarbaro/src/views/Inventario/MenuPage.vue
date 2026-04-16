@@ -1,43 +1,56 @@
 <template>
-
   <ion-page>
-
     <AppHeader titulo="MENÚ" />
 
     <ion-content class="fondo">
-        <br>
-      <!-- BUSCADOR CENTRADO -->
-      <div class="busqueda-box">
-        <input 
-          v-model="busqueda" 
-          placeholder="Buscar..." 
-          class="input-busqueda" 
-        />
+
+      <br>
+
+      <div class="contenedor-principal">
+
+        <!-- BOTON -->
+        <div class="contenedor-boton">
+          <button v-if="esAdmin()" class="btn-principal" @click="irNuevo">
+            + Nuevo Plato
+          </button>
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="busqueda-box">
+          <input v-model="busqueda" placeholder="Buscar..." class="input-busqueda" />
+        </div>
+
       </div>
 
-      <!-- SECCIONES POR CATEGORIA -->
+      <!-- CATEGORIAS -->
       <div v-for="(items, categoria) in menuAgrupado" :key="categoria">
 
+        <!-- TITULO CATEGORIA -->
         <h2 class="titulo-categoria">
           {{ categoria }}
         </h2>
 
         <div class="menu-container">
 
-          <div 
-            class="menu-card" 
-            v-for="item in items" 
-            :key="item.id"
-          >
+          <div class="menu-card" v-for="item in items" :key="item.id">
+
+            <!-- EDITAR -->
+            <img
+              v-if="esAdmin()"
+              src="https://cdn-icons-png.flaticon.com/128/1827/1827933.png"
+              class="icono-editar"
+              @click="editar(item.id)"
+            />
+
             <img :src="item.imagen || 'https://via.placeholder.com/80'" />
 
-            <h3>
-              <span class="categoria"> {{ item.nombre }} </span>
-            </h3>
+            <h3 class="nombre">{{ item.nombre }}</h3>
 
-            <strong>${{ Number(item.precio).toLocaleString() }}</strong>
+            <strong class="precio">
+              ${{ Number(item.precio).toLocaleString() }}
+            </strong>
 
-            <p>{{ item.descripcion }}</p>
+            <p class="descripcion">{{ item.descripcion }}</p>
 
           </div>
 
@@ -45,12 +58,10 @@
 
       </div>
 
-      <br><br><br><br><br>
+      <br><br><br>
 
     </ion-content>
-
   </ion-page>
-
 </template>
 
 <script setup>
@@ -58,11 +69,17 @@ import { ref, computed } from 'vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 import { IonPage, IonContent } from '@ionic/vue'
 import AppHeader from '@/components/AppHeader.vue'
+import { useRouter } from 'vue-router'
+import { esAdmin } from '@/utils/auth'
+
+const router = useRouter()
+
+const irNuevo = () => router.push('/nuevo-menu')
+const editar = (id) => router.push(`/editar-menu/${id}`)
 
 const busqueda = ref('')
 const menu = ref([])
 
-// FILTRO
 const menuFiltrado = computed(() => {
   if (!busqueda.value) return menu.value
 
@@ -74,16 +91,13 @@ const menuFiltrado = computed(() => {
   )
 })
 
-// AGRUPAR POR CATEGORIA
 const menuAgrupado = computed(() => {
   const grupos = {}
 
   menuFiltrado.value.forEach(item => {
-    const cat = item.categoria_nombre || 'otros'
+    const cat = item.categoria_nombre || 'Otros'
 
-    if (!grupos[cat]) {
-      grupos[cat] = []
-    }
+    if (!grupos[cat]) grupos[cat] = []
 
     grupos[cat].push(item)
   })
@@ -91,87 +105,112 @@ const menuAgrupado = computed(() => {
   return grupos
 })
 
-// CARGAR DATOS
 const cargarMenu = async () => {
-  try {
-    const res = await fetch('http://localhost:3000/menu')
-    const data = await res.json()
-
-    console.log('MENU:', data)
-
-    menu.value = data
-  } catch (error) {
-    console.error('Error cargando menú:', error)
-  }
+  const res = await fetch('http://localhost:3000/menu')
+  menu.value = await res.json()
 }
 
 onIonViewWillEnter(cargarMenu)
 </script>
 
 <style>
-.menu-container {
-  padding: 15px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  color:black;
+/* CONTENEDOR GENERAL */
+.contenedor-principal {
+  padding: 0 15px;
 }
 
-/* CENTRAR BUSCADOR */
+/* BOTON */
+.contenedor-boton {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.btn-principal {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  max-width: 650px;
+}
+
+/* BUSCADOR */
 .busqueda-box {
   display: flex;
   justify-content: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .input-busqueda {
-  width: 100%;
+  width: 90%;
   max-width: 650px;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid #020202;
-  color: #393939;
-  background: rgb(239, 236, 236);
+  border: 1px solid #000;
+  background: #efefef;
 }
 
-/* TARJETAS */
-.menu-card {
-  border: 2px solid #000;
-  border-radius: 15px;
-  padding: 10px;
-  text-align: center;
-  color: black;
-}
-
-.menu-card img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-}
-
-/* NOMBRE */
-.categoria {
-  font-size: 20px;
-  color: rgb(0, 0, 0);
-  display: block;
-  font-weight: bold;
-}
-
-/* TITULO DE SECCION */
+/* TITULO CATEGORIA */
 .titulo-categoria {
-  margin-top: 20px;
-  margin-left: 15px;
+  margin: 20px 15px 10px;
   font-size: 18px;
   font-weight: bold;
   text-transform: capitalize;
   color: black;
+  border-bottom: 2px solid #000;
+  padding-bottom: 5px;
 }
 
-@media (max-width: 600px) {
-
-.input-busqueda{
-    max-width: 500px;
+/* GRID */
+.menu-container {
+  padding: 15px 30px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
 }
 
+/* CARD */
+.menu-card {
+  border: 2px solid #000;
+  border-radius: 15px;
+  padding: 15px;
+  text-align: center;
+  position: relative;
+  background: white;
+  color: black;
+}
+
+/* IMAGENES */
+.menu-card img:not(.icono-editar) {
+  width: 80px;
+  height: 80px;
+}
+
+/* ICONO */
+.icono-editar {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  cursor: pointer;
+}
+
+.icono-editar:hover {
+  transform: scale(1.1);
+}
+
+/* TEXTOS */
+.nombre {
+  font-weight: bold;
+}
+
+.precio {
+  display: block;
+  margin: 5px 0;
 }
 </style>
