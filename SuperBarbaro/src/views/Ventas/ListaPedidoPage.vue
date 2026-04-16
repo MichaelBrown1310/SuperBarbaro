@@ -77,7 +77,6 @@ const cargarPedidos = async () => {
     const res = await fetch('http://localhost:3000/pedidos')
     const data = await res.json()
 
-    // solo mostrar activos
     pedidos.value = data.filter(p =>
       p.estado !== 'completado' && p.estado !== 'cancelado'
     )
@@ -92,13 +91,19 @@ const cargarPedidos = async () => {
 
 const cambiarEstado = async (id, nuevoEstado) => {
   try {
-    await fetch(`http://localhost:3000/pedidos/${id}/estado`, {
+    const res = await fetch(`http://localhost:3000/pedidos/${id}/estado`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ estado: nuevoEstado })
     })
 
-    // MENSAJES SEGÚN ACCIÓN
+    const data = await res.json()
+
+    if (!res.ok) {
+      mostrarToast(data.error || 'Error', 'danger')
+      return
+    }
+
     if (nuevoEstado === 'en_preparacion') {
       mostrarToast('Pedido en preparación', 'warning')
     }
@@ -130,9 +135,9 @@ const formatearServicio = (servicio) => {
 const formatearEstado = (estado) => {
   const estados = {
     pendiente: 'Pendiente',
-    en_preparacion: 'En preparacion',
-    listo: 'Listo',
-    entregado: 'Entregado'
+    en_preparacion: 'En preparación',
+    completado: 'Completado',
+    cancelado: 'Cancelado'
   }
 
   return estados[estado] || estado
@@ -225,15 +230,15 @@ onIonViewWillEnter(cargarPedidos)
 }
 
 .estado-chip.preparacion {
-  background: #fde68a; 
+  background: #fde68a;
 }
 
 .estado-chip.completado {
-  background: #bbf7d0; 
+  background: #bbf7d0;
 }
 
 .estado-chip.cancelado {
-  background: #fecaca; 
+  background: #fecaca;
 }
 
 .acciones {
@@ -253,15 +258,18 @@ onIonViewWillEnter(cargarPedidos)
 }
 
 .acciones button:nth-child(1) {
-  background: #fde68a; /* iniciar */
+  background: #fde68a;
+  /* iniciar */
 }
 
 .acciones button:nth-child(2) {
-  background: #bbf7d0; /* completar */
+  background: #bbf7d0;
+  /* completar */
 }
 
 .acciones button:nth-child(3) {
-  background: #fecaca; /* cancelar */
+  background: #fecaca;
+  /* cancelar */
 }
 
 @media (max-width: 768px) {

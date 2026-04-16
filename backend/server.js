@@ -25,11 +25,12 @@ const upload = multer({ storage })
 app.use('/uploads', express.static('uploads'))
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "superbarbaro"
+  host: "sql5.freesqldatabase.com",
+  user: "sql5823450",
+  password: "tCbXXHpw7W",
+  database: "sql5823450"
 });
+
 const dbPromise = db.promise();
 
 const generarNumeroPedido = () => {
@@ -203,9 +204,15 @@ db.connect(err => {
     console.log("Error conectando a MySQL:", err);
   } else {
     console.log("Conectado a MySQL");
+    db.query("SET time_zone = '-05:00'", (timezoneError) => {
+      if (timezoneError) {
+        console.log("Error configurando zona horaria de MySQL:", timezoneError);
+      } else {
+        console.log("Zona horaria MySQL configurada en America/Bogota (-05:00)");
+      }
+    });
   }
 });
-
 
 // LOGIN
 app.post("/login", (req, res) => {
@@ -843,6 +850,7 @@ app.get('/pedidos', async (req, res) => {
 
   try {
     const [pedidos] = await dbPromise.query(sql, params);
+    console.log('PEDIDOS DESDE BACK:', pedidos);
     res.json(pedidos);
   } catch (error) {
     console.log(error);
@@ -992,7 +1000,9 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
       return res.status(404).json({ error: 'Pedido no encontrado' });
     }
 
-    const estadoAnterior = pedidos[0].estado;
+    console.log('Estado anterior:', pedidos[0].estado);
+
+    const estadoAnterior = pedidos[0].estado.trim().toLowerCase();
 
     // VALIDACIONES DE FLUJO
     if (estado === 'en_preparacion' && estadoAnterior !== 'pendiente') {

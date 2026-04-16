@@ -191,7 +191,6 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-<<<<<<< Updated upstream
   path: '/historial-ventas',
   component: () => import('@/views/Ventas/HistorialVentasPage.vue'),
   meta: {
@@ -204,14 +203,6 @@ const routes: Array<RouteRecordRaw> = [
   meta: {
     requiresAuth: true
   }
-=======
-    path: '/historial-ventas',
-    component: () => import('@/views/Ventas/HistorialVentasPage.vue')
-  },
-  {
-    path: '/pedidos-hoy',
-    component: () => import('@/views/ventas/PedidosHoyPage.vue')
->>>>>>> Stashed changes
   }
 ]
 
