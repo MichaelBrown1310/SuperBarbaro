@@ -4,9 +4,11 @@
 
     <ion-content class="fondo">
       <div class="contenedor-formulario">
-        <input class="input" placeholder="Nombre" v-model="nombre" :disabled="cargandoEdicion" />
+        <input class="input" placeholder="Nombre" v-model="nombre" required :disabled="cargandoEdicion" />
 
-        <select class="input" v-model="tipoServicio" :disabled="cargandoEdicion">
+        <!-- Selecciona el tipo de servicio (obligatorio) -->
+        <select class="input" v-model="tipoServicio" required :disabled="cargandoEdicion">
+          <option disabled value="">Seleccione tipo de servicio</option>
           <option value="llevar">Llevar</option>
           <option value="comer aqui">Comer aqui</option>
         </select>
@@ -21,13 +23,8 @@
           <h2 class="titulo-seccion">Categorias</h2>
 
           <div class="lista-categorias">
-            <button
-              class="card-categoria"
-              :class="{ activa: categoriaSeleccionada?.id === c.id }"
-              v-for="c in categorias"
-              :key="c.id"
-              @click="seleccionarCategoria(c)"
-            >
+            <button class="card-categoria" :class="{ activa: categoriaSeleccionada?.id === c.id }"
+              v-for="c in categorias" :key="c.id" @click="seleccionarCategoria(c)">
               <img :src="c.imagen || 'https://via.placeholder.com/80'" :alt="c.nombre" />
               <span>{{ c.nombre }}</span>
             </button>
@@ -77,12 +74,9 @@
           </div>
 
           <div v-else class="lista-pedido">
-            <div
-              class="item-pedido"
+            <div class="item-pedido"
               :class="{ 'item-pedido-personalizado': item.adiciones.length > 0 || item.remociones.length > 0 }"
-              v-for="item in pedido"
-              :key="item.lineaId"
-            >
+              v-for="item in pedido" :key="item.lineaId">
               <div class="info-pedido">
                 <p class="nombre-producto">{{ item.nombre }}</p>
                 <p>${{ formatearPrecio(item.precio) }} c/u</p>
@@ -91,7 +85,8 @@
                 <div v-if="item.adiciones.length > 0" class="resumen-adiciones">
                   <p class="titulo-resumen-adiciones">Adiciones:</p>
                   <p v-for="adicion in item.adiciones" :key="`${item.lineaId}-ad-${adicion.id}`">
-                    {{ adicion.nombre }} x{{ cantidadTotalAdicion(item, adicion) }} - ${{ formatearPrecio(totalAdicionLinea(item, adicion)) }}
+                    {{ adicion.nombre }} x{{ cantidadTotalAdicion(item, adicion) }} - ${{
+                      formatearPrecio(totalAdicionLinea(item, adicion)) }}
                   </p>
                 </div>
 
@@ -107,7 +102,8 @@
 
               <div class="controles-pedido">
                 <div class="contador">
-                  <button class="btn-cantidad" :class="{ 'btn-cantidad-eliminar': item.cantidad === 1 }" @click="disminuirPedido(item.lineaId)">
+                  <button class="btn-cantidad" :class="{ 'btn-cantidad-eliminar': item.cantidad === 1 }"
+                    @click="disminuirPedido(item.lineaId)">
                     -
                   </button>
                   <span>{{ item.cantidad }}</span>
@@ -133,7 +129,8 @@
                 <div v-if="item.adiciones.length > 0" class="lista-adiciones-seleccionadas">
                   <p class="etiqueta-adiciones">Ya seleccionadas</p>
 
-                  <div class="adicion-seleccionada" v-for="adicion in item.adiciones" :key="`${item.lineaId}-sel-${adicion.id}`">
+                  <div class="adicion-seleccionada" v-for="adicion in item.adiciones"
+                    :key="`${item.lineaId}-sel-${adicion.id}`">
                     <div>
                       <p class="nombre-producto">{{ adicion.nombre }}</p>
                       <p>${{ formatearPrecio(adicion.precio) }} por unidad del elemento</p>
@@ -160,7 +157,8 @@
                     No hay mas adiciones disponibles para esta categoria
                   </div>
 
-                  <div class="adicion-disponible" v-for="adicion in adicionesNoSeleccionadas(item)" :key="`${item.lineaId}-disp-${adicion.id}`">
+                  <div class="adicion-disponible" v-for="adicion in adicionesNoSeleccionadas(item)"
+                    :key="`${item.lineaId}-disp-${adicion.id}`">
                     <div>
                       <p class="nombre-producto">{{ adicion.nombre }}</p>
                       <p>${{ formatearPrecio(adicion.precio) }}</p>
@@ -181,13 +179,15 @@
                     No hay mas ingredientes para quitar en este elemento
                   </div>
 
-                  <div class="adicion-disponible" v-for="ingrediente in ingredientesNoRemovidos(item)" :key="`${item.lineaId}-ing-${ingrediente.id}`">
+                  <div class="adicion-disponible" v-for="ingrediente in ingredientesNoRemovidos(item)"
+                    :key="`${item.lineaId}-ing-${ingrediente.id}`">
                     <div>
                       <p class="nombre-producto">{{ ingrediente.nombre }}</p>
                       <p>Ingrediente base del menu</p>
                     </div>
 
-                    <button class="btn-eliminar btn-quitar-ingrediente" @click="quitarIngrediente(item.lineaId, ingrediente)">
+                    <button class="btn-eliminar btn-quitar-ingrediente"
+                      @click="quitarIngrediente(item.lineaId, ingrediente)">
                       Quitar
                     </button>
                   </div>
@@ -196,7 +196,8 @@
                 <div v-if="item.remociones.length > 0" class="lista-adiciones-seleccionadas">
                   <p class="etiqueta-adiciones">Ingredientes quitados</p>
 
-                  <div class="adicion-seleccionada" v-for="ingrediente in item.remociones" :key="`${item.lineaId}-rest-${ingrediente.id}`">
+                  <div class="adicion-seleccionada" v-for="ingrediente in item.remociones"
+                    :key="`${item.lineaId}-rest-${ingrediente.id}`">
                     <div>
                       <p class="nombre-producto">{{ ingrediente.nombre }}</p>
                       <p>Retirado del elemento</p>
@@ -245,7 +246,7 @@ const puedeGestionarPedidos = computed(() => {
 
 const nombre = ref('')
 const telefono = ref('')
-const tipoServicio = ref('llevar')
+const tipoServicio = ref('')
 const categorias = ref([])
 const categoriaSeleccionada = ref(null)
 const menu = ref([])
@@ -279,6 +280,7 @@ const seleccionarCategoria = async (categoria) => {
 
   const res = await fetch(`http://localhost:3000/menu/${categoria.id}`)
   menu.value = await res.json()
+
   inicializarCantidades()
 }
 
@@ -343,7 +345,20 @@ const buscarCategoriaMenu = (menuId) => {
   return itemEncontrado?.categoria_id || categoriaSeleccionada.value?.id || null
 }
 
-const menuFiltrado = computed(() => menu.value.filter((item) => item.nombre.toLowerCase().includes(busqueda.value.toLowerCase())))
+const menuFiltrado = computed(() => {
+  const texto = busqueda.value.toLowerCase()
+
+  // si hay búsqueda → usar TODO el menú
+  if (texto) {
+    return menuCompleto.value.filter((item) =>
+      item.nombre.toLowerCase().includes(texto)
+    )
+  }
+
+  // si no hay búsqueda → usar categoría actual
+  return menu.value
+})
+
 const totalItems = computed(() => pedido.value.reduce((acumulado, item) => acumulado + item.cantidad, 0))
 const totalPedido = computed(() => pedido.value.reduce((acumulado, item) => acumulado + totalLinea(item), 0))
 
@@ -528,12 +543,24 @@ const construirPayloadPedido = () => ({
 })
 
 const seleccion = async () => {
+  
   if (pedido.value.length === 0) {
     window.alert('Debes agregar al menos un elemento al pedido')
     return
   }
 
+  if (!nombre.value || nombre.value.trim() === "") {
+    alert("El nombre es obligatorio");
+    return;
+  }
+
+  if (!tipoServicio.value) {
+    alert("Debes seleccionar el tipo de servicio");
+    return;
+  }
+
   guardandoPedido.value = true
+
   const esEdicion = !!pedidoId.value
   const url = esEdicion ? `http://localhost:3000/pedidos/${pedidoId.value}` : 'http://localhost:3000/pedidos'
   const method = esEdicion ? 'PUT' : 'POST'
