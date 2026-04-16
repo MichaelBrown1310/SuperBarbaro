@@ -13,6 +13,17 @@
           =
           <p>Lista de pedidos</p>
         </button>
+
+        <button class="boton-general" @click="pedidosHoy">
+          📅
+          <p>Pedidos de hoy</p>
+        </button>
+
+        <button v-if="esAdmin" class="boton-general" @click="historialVentas">
+          📄
+          <p>Historial</p>
+        </button>
+
       </div>
     </ion-content>
   </ion-page>
@@ -23,6 +34,7 @@ import { IonPage, IonContent } from '@ionic/vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
+import { esAdmin } from '@/utils/auth'
 
 const router = useRouter()
 const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
@@ -42,8 +54,17 @@ const nuevaOrden = () => {
 }
 
 const listaPedidos = () => {
-  router.push('/tabs/lista-pedidos')
+  router.push('/lista-pedidos')
 }
+
+const pedidosHoy = () => {
+  router.push('/pedidos-hoy')
+}
+
+const historialVentas = () => {
+  router.push('/historial-ventas')
+}
+
 </script>
 
 <style>
