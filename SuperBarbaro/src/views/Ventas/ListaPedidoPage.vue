@@ -33,8 +33,8 @@
               </button>
 
               <button v-if="(esCocinero || esAdmin) && pedido.estado === 'en_preparacion'"
-                @click="cambiarEstado(pedido.id, 'completado')">
-                Completar
+                @click="cambiarEstado(pedido.id, 'listo')">
+                Marcar listo
               </button>
 
               <!-- CAJERO -->
@@ -53,10 +53,11 @@
 </template>
 
 <script setup>
-import { IonPage, IonContent, onIonViewWillEnter } from '@ionic/vue'
+import { IonPage, IonContent, onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
+import { socket } from '@/utils/socket'
 import { toastController } from '@ionic/vue'
 import { computed } from 'vue'
 
@@ -135,16 +136,22 @@ const formatearServicio = (servicio) => {
 const formatearEstado = (estado) => {
   const estados = {
     pendiente: 'Pendiente',
+<<<<<<< Updated upstream
     en_preparacion: 'En preparación',
     completado: 'Completado',
     cancelado: 'Cancelado'
+=======
+    en_preparacion: 'En preparacion',
+    completado: 'completado',
+    entregado: 'Entregado'
+>>>>>>> Stashed changes
   }
 
   return estados[estado] || estado
 }
 
 const estadoClase = (estado) => {
-  return {
+    return {
     pendiente: estado === 'pendiente',
     preparacion: estado === 'en_preparacion',
     completado: estado === 'completado',
@@ -175,6 +182,14 @@ const verDetalle = (id) => {
 }
 
 onIonViewWillEnter(cargarPedidos)
+onIonViewWillEnter(() => {
+  socket.off('pedidos:actualizados', cargarPedidos)
+  socket.on('pedidos:actualizados', cargarPedidos)
+})
+
+onIonViewWillLeave(() => {
+  socket.off('pedidos:actualizados', cargarPedidos)
+})
 </script>
 
 <style>
@@ -233,8 +248,13 @@ onIonViewWillEnter(cargarPedidos)
   background: #fde68a;
 }
 
+<<<<<<< Updated upstream
 .estado-chip.completado {
   background: #bbf7d0;
+=======
+.estado-chip.listo {
+  background: #bbf7d0; 
+>>>>>>> Stashed changes
 }
 
 .estado-chip.cancelado {

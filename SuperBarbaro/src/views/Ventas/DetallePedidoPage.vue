@@ -68,10 +68,11 @@
 </template>
 
 <script setup>
-import { IonPage, IonContent, onIonViewWillEnter } from '@ionic/vue'
+import { IonPage, IonContent, onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
+import { socket } from '@/utils/socket'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,6 +81,12 @@ const rolUsuario = (usuario?.rol || '').toString().trim().toUpperCase()
 
 const pedido = ref(null)
 const cargando = ref(false)
+
+const refrescarDetalleSocket = (payload) => {
+  if (!payload || Number(payload.id) === Number(route.params.id)) {
+    cargarPedido()
+  }
+}
 
 const cargarPedido = async () => {
   cargando.value = true
@@ -196,6 +203,17 @@ const formatearHora = (fecha) => {
 const formatearPrecio = (valor) => Number(valor || 0).toLocaleString('es-CO')
 
 onIonViewWillEnter(cargarPedido)
+onIonViewWillEnter(() => {
+  socket.off('pedido:detalle-actualizado', refrescarDetalleSocket)
+  socket.off('pedidos:actualizados', cargarPedido)
+  socket.on('pedido:detalle-actualizado', refrescarDetalleSocket)
+  socket.on('pedidos:actualizados', cargarPedido)
+})
+
+onIonViewWillLeave(() => {
+  socket.off('pedidos:actualizados', cargarPedido)
+  socket.off('pedido:detalle-actualizado', refrescarDetalleSocket)
+})
 </script>
 
 <style>

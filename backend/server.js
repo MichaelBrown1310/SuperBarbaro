@@ -1,12 +1,20 @@
 const express = require("express");
+const http = require("http");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const { Server } = require("socket.io");
 const bcrypt = require('bcrypt')
 const multer = require('multer')
 const path = require('path')
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -214,6 +222,14 @@ db.connect(err => {
   }
 });
 
+<<<<<<< Updated upstream
+=======
+io.on('connection', () => {
+  console.log('Cliente conectado por socket');
+});
+
+
+>>>>>>> Stashed changes
 // LOGIN
 app.post("/login", (req, res) => {
 
@@ -316,6 +332,8 @@ app.post("/usuarios", async (req, res) => {
           return res.status(500).json(err)
         }
 
+        io.emit('usuarios:actualizados')
+
         res.json({ success: true })
 
       })
@@ -346,6 +364,8 @@ WHERE id=?
       return res.status(500).json(err)
     }
 
+    io.emit('usuarios:actualizados')
+
     res.json({ success: true })
 
   })
@@ -366,6 +386,8 @@ app.delete("/usuarios/:id", (req, res) => {
       return res.status(500).json(err)
     }
 
+    io.emit('usuarios:actualizados')
+
     res.json({ success: true })
 
   })
@@ -373,7 +395,7 @@ app.delete("/usuarios/:id", (req, res) => {
 })
 
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log("Servidor corriendo en puerto 3000");
 });
 
@@ -805,6 +827,9 @@ app.post('/pedidos', async (req, res) => {
 
     await dbPromise.commit();
 
+    io.emit('pedidos:actualizados');
+    io.emit('pedido:detalle-actualizado', { id: pedidoId });
+
     res.json({
       success: true,
       pedido_id: pedidoId,
@@ -966,6 +991,9 @@ app.put('/pedidos/:id', async (req, res) => {
 
     await dbPromise.commit();
 
+    io.emit('pedidos:actualizados');
+    io.emit('pedido:detalle-actualizado', { id: Number(id) });
+
     res.json({ success: true, pedido_id: Number(id) });
   } catch (error) {
     await dbPromise.rollback();
@@ -978,7 +1006,7 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
 
-  const estadosPermitidos = ['pendiente', 'en_preparacion', 'completado', 'cancelado'];
+  const estadosPermitidos = ['pendiente', 'en_preparacion', 'listo', 'entregado', 'cancelado'];
 
   if (!estadosPermitidos.includes(estado)) {
     return res.status(400).json({ error: 'Estado no permitido' });
@@ -1010,7 +1038,7 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
       return res.status(400).json({ error: 'Solo pedidos pendientes pueden iniciar' });
     }
 
-    if (estado === 'completado' && estadoAnterior !== 'en_preparacion') {
+    if (estado === 'listo' && estadoAnterior !== 'en_preparacion') {
       await conn.rollback();
       return res.status(400).json({ error: 'Solo pedidos en preparación pueden completarse' });
     }
@@ -1094,6 +1122,9 @@ app.patch('/pedidos/:id/estado', async (req, res) => {
     );
 
     await conn.commit();
+
+    io.emit('pedidos:actualizados');
+    io.emit('pedido:detalle-actualizado', { id: Number(id), estado });
 
     res.json({ success: true, estado });
 

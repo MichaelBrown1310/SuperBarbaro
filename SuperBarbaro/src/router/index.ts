@@ -194,8 +194,9 @@ const routes: Array<RouteRecordRaw> = [
   path: '/historial-ventas',
   component: () => import('@/views/Ventas/HistorialVentasPage.vue'),
   meta: {
-    requiresAuth: true
-  }
+      requiresAuth: true,
+      allowedRoles: ['ADMINISTRADOR']
+    }
   },
   {
   path: '/pedidos-hoy',

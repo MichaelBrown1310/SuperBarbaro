@@ -83,9 +83,10 @@ import {
     chevronBackOutline
 } from 'ionicons/icons'
 
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
+import { socket } from '@/utils/socket'
 
 
 const router = useRouter()
@@ -97,14 +98,7 @@ const esAdministrador = computed(() => {
     return rol === 'ADMINISTRADOR'
 })
 
-onMounted(async () => {
-
-    if (!esAdministrador.value) {
-        window.alert('No tienes permisos para acceder a usuarios')
-        window.location.replace('/tabs/perfil')
-        return
-    }
-
+const cargarUsuarios = async () => {
     try {
 
         const response = await fetch('http://localhost:3000/usuarios')
@@ -118,7 +112,24 @@ onMounted(async () => {
         console.log("Error cargando usuarios")
 
     }
+}
 
+onMounted(async () => {
+
+    if (!esAdministrador.value) {
+        window.alert('No tienes permisos para acceder a usuarios')
+        window.location.replace('/tabs/perfil')
+        return
+    }
+
+    await cargarUsuarios()
+    socket.off('usuarios:actualizados', cargarUsuarios)
+    socket.on('usuarios:actualizados', cargarUsuarios)
+
+})
+
+onUnmounted(() => {
+    socket.off('usuarios:actualizados', cargarUsuarios)
 })
 
 const volver = () => {
