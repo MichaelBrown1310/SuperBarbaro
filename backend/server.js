@@ -3,11 +3,26 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt')
+const multer = require('multer')
+const path = require('path')
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/')
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({ storage })
+
+app.use('/uploads', express.static('uploads'))
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -657,6 +672,71 @@ app.get('/menu', (req, res) => {
     }
 
     res.json(results)
+  })
+})
+
+app.get('/menu-id/:id', (req, res) => {
+  const { id } = req.params
+
+  const sql = "SELECT * FROM menu WHERE id = ?"
+
+  db.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json(err)
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'No encontrado' })
+    }
+
+    res.json(result[0])
+  })
+})
+
+app.post('/menu', upload.single('imagen'), (req, res) => {
+
+  const { nombre, descripcion, precio, categoria_id, imagen_url } = req.body
+
+  let imagen = imagen_url || null
+
+  if (req.file) {
+    imagen = `http://localhost:3000/uploads/${req.file.filename}`
+  }
+
+  const sql = `
+    INSERT INTO menu (nombre, descripcion, precio, categoria_id, imagen, fecha_creacion)
+    VALUES (?, ?, ?, ?, ?, NOW())
+  `
+
+  db.query(sql, [nombre, descripcion, precio, categoria_id, imagen], (err) => {
+    if (err) return res.status(500).json(err)
+
+    res.json({ success: true })
+  })
+})
+
+app.put('/menu/:id', upload.single('imagen'), (req, res) => {
+  const { id } = req.params
+  const { nombre, descripcion, precio, categoria_id, imagen_url } = req.body
+
+  let imagen = imagen_url || null
+
+  // si sube archivo nuevo
+  if (req.file) {
+    imagen = `http://localhost:3000/uploads/${req.file.filename}`
+  }
+
+  const sql = `
+    UPDATE menu
+    SET nombre = ?, descripcion = ?, precio = ?, categoria_id = ?, imagen = ?
+    WHERE id = ?
+  `
+
+  db.query(sql, [nombre, descripcion, precio, categoria_id, imagen, id], (err) => {
+    if (err) {
+      console.log(err)
+      return res.status(500).json(err)
+    }
+
+    res.json({ success: true })
   })
 })
 

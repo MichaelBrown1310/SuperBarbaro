@@ -48,7 +48,7 @@ const routes: Array<RouteRecordRaw> = [
         path: 'ventas',
         component: VentasPage
       },
-      
+
 
       // INVENTARIO VISTAS CON MENU INFERIOR
 
@@ -80,11 +80,11 @@ const routes: Array<RouteRecordRaw> = [
         component: PerfilPage
       },
 
-      { 
-        path: '/editar-perfil', 
-        component: () => import('@/views/perfil/EditarUsuarioPage.vue') 
+      {
+        path: '/editar-perfil',
+        component: () => import('@/views/perfil/EditarUsuarioPage.vue')
       },
-      
+
     ]
   },
 
@@ -146,7 +146,15 @@ const routes: Array<RouteRecordRaw> = [
       requiresAuth: true
     }
   },
-  
+  {
+    path: '/nuevo-menu',
+    component: () => import('@/views/inventario/NuevoMenuPage.vue')
+  },
+  {
+    path: '/editar-menu/:id',
+    component: () => import('@/views/inventario/EditarMenuPage.vue')
+  },
+
   //USUARIO VISTAS PEDIDOS
 
   {
@@ -183,6 +191,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+<<<<<<< Updated upstream
   path: '/historial-ventas',
   component: () => import('@/views/Ventas/HistorialVentasPage.vue'),
   meta: {
@@ -195,6 +204,14 @@ const routes: Array<RouteRecordRaw> = [
   meta: {
     requiresAuth: true
   }
+=======
+    path: '/historial-ventas',
+    component: () => import('@/views/Ventas/HistorialVentasPage.vue')
+  },
+  {
+    path: '/pedidos-hoy',
+    component: () => import('@/views/ventas/PedidosHoyPage.vue')
+>>>>>>> Stashed changes
   }
 ]
 
