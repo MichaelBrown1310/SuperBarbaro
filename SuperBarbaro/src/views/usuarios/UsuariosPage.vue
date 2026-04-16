@@ -128,10 +128,14 @@ const volver = () => {
 }
 
 const editarUsuario = (usuario) => {
-
-    console.log("editar", usuario)
-
+  router.push({
+    path: '/editar-perfil',
+    query: {
+      usuario: encodeURIComponent(JSON.stringify(usuario))
+    }
+  })
 }
+
 
 const registrarUsuario = () => {
 
@@ -158,139 +162,95 @@ const registrarUsuario = () => {
 }
 
 .lista {
-
     width: 100%;
-
     display: flex;
     flex-direction: column;
     align-items: center;
-
     margin-top: 10px;
-
 }
 
 .usuario {
-
     width: 90%;
     max-width: 500px;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     border: 2px solid black;
     border-radius: 15px;
-
     padding: 12px 15px;
-
     margin: 10px 0;
-
 }
 
 .izquierda {
-
     display: flex;
     align-items: center;
-
 }
 
 .foto-usuario {
-
     width: 35px;
     height: 35px;
-
     min-width: 35px;
-
     border-radius: 50%;
-
     background: black;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     margin-right: 12px;
-
     overflow: hidden;
-
 }
 
 .foto-usuario img {
-
     width: 100%;
     height: 100%;
     object-fit: cover;
-
 }
 
 .icono {
-
     font-size: 16px;
     color: white;
-
 }
 
 .info {
-
     display: flex;
     flex-direction: column;
-
     color: black;
-
 }
 
 .rol {
-
     font-weight: bold;
     text-transform: uppercase;
-
     font-size: 12px;
-
     margin: 0;
-
 }
 
 .nombre {
-
     font-size: 13px;
-
     margin: 0;
     color: #333;
-
 }
 
 .editar {
-
     color: black;
-
 }
 
 .contenedor-boton {
-
     display: flex;
     justify-content: center;
-
     margin-top: 25px;
     margin-bottom: 30px;
-
 }
 
 .boton-registrar {
-
     width: 90%;
     max-width: 500px;
-
     padding: 12px;
-
     border: 2px solid black;
     border-radius: 25px;
-
     background: white;
     color: black;
-
     font-size: 16px;
-
     font-weight: bold;
     cursor: pointer;
 }
+
 </style>

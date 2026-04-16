@@ -4,18 +4,16 @@
 
     <AppHeader titulo="PERFIL" />
 
-    <template #end>
-      <ion-button @click="editarPerfil">
-        <ion-icon :icon="createOutline"></ion-icon>
-      </ion-button>
-    </template>
-
-
     <ion-content class="fondo">
 
       <div class="contenedor">
 
-         <!-- FOTO -->
+        <!-- BOTON EDITAR -->
+        <div class="btn-editar" @click="editarPerfil">
+          <img src="https://cdn-icons-png.flaticon.com/128/1827/1827933.png" />
+        </div>
+
+        <!-- FOTO -->
         <div class="foto-perfil">
           <img v-if="usuario.foto" :src="'http://localhost:3000/' + usuario.foto" />
           <ion-icon v-else :icon="person" class="icono" />
@@ -25,12 +23,10 @@
 
         <!-- DATOS -->
         <div class="datos">
-
           <p><b>Nombre:</b> {{ usuario.nombre }} {{ usuario.apellido }}</p>
           <p><b>Correo:</b> {{ usuario.correo }}</p>
           <p><b>Teléfono:</b> {{ usuario.telefono }}</p>
           <p><b>Dirección:</b> {{ usuario.direccion }}</p>
-
         </div>
 
         <div v-if="esAdministrador" class="boton-usuarios" @click="irUsuarios">
@@ -47,21 +43,14 @@
 
 </template>
 
-
 <script setup>
-
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonButtons,
-  IonButton,
   IonIcon
 } from '@ionic/vue'
 
-import { person, createOutline } from 'ionicons/icons'
+import { person } from 'ionicons/icons'
 import AppHeader from '@/components/AppHeader.vue'
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -69,68 +58,54 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const usuario = ref({})
+
 const esAdministrador = computed(() => {
-  const rol = (usuario.value?.rol || '').toString().trim().toUpperCase()
+  const rol = (usuario.value?.rol || '').toUpperCase()
   return rol === 'ADMINISTRADOR'
 })
 
 onMounted(() => {
-
   const data = localStorage.getItem("usuario")
-
-  if (data) {
-
-    usuario.value = JSON.parse(data)
-
-  }
-
+  if (data) usuario.value = JSON.parse(data)
 })
 
 const irUsuarios = () => {
-  if (!esAdministrador.value) {
-    return
-  }
-
   router.push('/usuarios')
-
 }
 
 const cerrarSesion = () => {
-
   localStorage.removeItem("usuario")
-
   router.push('/login')
-
 }
 
 const editarPerfil = () => {
-
-  console.log("editar perfil")
-
+  router.push('/editar-perfil')
 }
-
 </script>
 
 <style scoped>
-ion-content {
-  --padding-bottom: 90px;
-}
 
 .fondo {
   --background: white;
 }
 
+
 .contenedor {
+  width: 100%;
+  max-width: 400px; 
+  margin: 0 auto;
+  padding: 30px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 30px;
   color: black;
+  position: relative;
 }
 
+/* FOTO */
 .foto-perfil {
-  width: 120px;
-  height: 120px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   background: black;
   display: flex;
@@ -151,24 +126,26 @@ ion-content {
   color: white;
 }
 
+/* TEXTO */
 .rol {
   font-weight: bold;
-  text-transform: uppercase;
   margin-bottom: 20px;
 }
 
+/* DATOS */
 .datos {
-  width: 60%;
-  max-width: 320px;
+  width: 100%;
+  max-width: 450px;
   font-size: 16px;
-  margin-bottom: 25px;
   line-height: 1.8;
+  margin-bottom: 25px;
 }
 
+/* BOTONES */
 .boton-usuarios {
   border: 2px solid black;
   border-radius: 20px;
-  padding: 8px 40px;
+  padding: 10px 40px;
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 15px;
@@ -177,64 +154,25 @@ ion-content {
 .cerrar {
   color: #cc0000;
   cursor: pointer;
-  font-size: 14px;
 }
 
-/* ── Modal ── */
-.modal-centro {
-  --height: auto;
-  --border-radius: 20px;
-  --width: 80%;
-  --max-width: 320px;
-}
-
-.modal-contenido {
+/* EDITAR */
+.btn-editar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  background: white;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 30px 24px;
-  background: white;
-  border-radius: 20px;
-  gap: 10px;
-}
-
-.logo-modal {
-  width: 70px;
-  margin-bottom: 6px;
-}
-
-.modal-titulo {
-  font-size: 22px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.modal-subtitulo {
-  font-size: 14px;
-  color: #555;
-  margin: 0 0 10px;
-}
-
-.boton-confirmar {
-  width: 100%;
-  padding: 12px;
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 15px;
-  font-weight: bold;
+  justify-content: center;
   cursor: pointer;
 }
 
-.boton-cancelar {
-  width: 100%;
-  padding: 12px;
-  background: white;
-  color: black;
-  border: 2px solid black;
-  border-radius: 25px;
-  font-size: 15px;
-  cursor: pointer;
+.btn-editar img {
+  width: 18px;
 }
+
 </style>

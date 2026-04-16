@@ -18,10 +18,23 @@
         </div>
 
         <!-- ROL (solo admin editando otro usuario) -->
-        <div v-if="esAdmin && editandoOtro" class="selector-rol" @click="toggleRoles">
-          <span>{{ rol || 'Seleccionar rol' }}</span>
-          <ion-icon :icon="chevronDownOutline" />
+        <div v-if="esAdmin && editandoOtro" class="contenedor-rol">
+
+          <!-- Selector -->
+          <div class="selector-rol" @click="toggleRoles">
+            <span>{{ rol || 'Seleccionar rol' }}</span>
+            <ion-icon :icon="chevronDownOutline" />
+          </div>
+
+          <!-- Opciones -->
+          <div v-if="mostrarRoles" class="opciones-rol">
+            <div v-for="r in roles" :key="r" class="opcion" @click="seleccionarRol(r)">
+              {{ r }}
+            </div>
+          </div>
+
         </div>
+
         <div v-else>
           <p class="etiqueta-rol">{{ rol }}</p>
         </div>
@@ -35,11 +48,7 @@
         <button class="boton-confirmar" @click="confirmar">Confirmar</button>
 
         <!-- Eliminar solo si admin edita otro usuario -->
-        <button
-          v-if="esAdmin && editandoOtro"
-          class="boton-eliminar"
-          @click="mostrarConfirmarEliminar = true"
-        >
+        <button v-if="esAdmin && editandoOtro" class="boton-eliminar" @click="mostrarConfirmarEliminar = true">
           Eliminar Usuario
         </button>
 
@@ -80,6 +89,10 @@ const foto = ref(null)
 const fotoArchivo = ref(null)
 const inputFoto = ref(null)
 const mostrarConfirmarEliminar = ref(false)
+
+const mostrarRoles = ref(false)
+const roles = ['CAJERO', 'COCINERO', 'ADMINISTRADOR']
+
 
 // Datos del usuario logueado
 const usuarioLogueado = ref({})
@@ -125,9 +138,12 @@ const cargarFoto = (event) => {
 }
 
 const toggleRoles = () => {
-  const roles = ['CAJERO', 'COCINERO', 'ADMINISTRADOR']
-  const idx = roles.indexOf(rol.value)
-  rol.value = roles[(idx + 1) % roles.length]
+  mostrarRoles.value = !mostrarRoles.value
+}
+
+const seleccionarRol = (r) => {
+  rol.value = r
+  mostrarRoles.value = false
 }
 
 const confirmar = async () => {
@@ -199,6 +215,39 @@ const volver = () => {
   padding-bottom: 30px;
 }
 
+.contenedor-rol {
+  width: 85%;
+  max-width: 340px;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.opciones-rol {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  color: black;
+  border: 2px solid rgb(184, 184, 184);
+  border-radius: 10px;
+  background: white;
+  
+}
+
+.opcion {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.opcion:last-child {
+  border-bottom: none;
+}
+
+.opcion:hover {
+  background: #f2f2f2;
+}
+
 /* ── Foto ── */
 .foto {
   width: 100px;
@@ -241,29 +290,33 @@ const volver = () => {
 
 /* ── Rol ── */
 .etiqueta-rol {
+  width: 100%;
+  text-align: center;
+  font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
 }
 
 .selector-rol {
   display: flex;
   align-items: center;
   gap: 6px;
-  border: 2px solid black;
   border-radius: 20px;
   padding: 6px 16px;
   font-weight: bold;
   font-size: 14px;
   cursor: pointer;
   margin-bottom: 16px;
+  color: black;
 }
 
 /* ── Inputs ── */
 .input {
   width: 85%;
   max-width: 340px;
-  padding: 10px 0;
+  padding: 12px 15px;
   border: none;
   border-bottom: 2px solid black;
   margin-bottom: 20px;
