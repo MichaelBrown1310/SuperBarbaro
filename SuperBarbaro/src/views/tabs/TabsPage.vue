@@ -6,7 +6,7 @@
 
       <ion-router-outlet></ion-router-outlet>
 
-      <ion-tab-bar slot="bottom" class="ultra-tab-bar">
+      <ion-tab-bar v-if="mostrarTabBar" slot="bottom" class="ultra-tab-bar">
 
         <ion-tab-button tab="ventas" href="/tabs/ventas">
           <ion-icon :icon="restaurantOutline"></ion-icon>
@@ -43,6 +43,8 @@ import {
   IonTabButton,
   IonIcon
 } from '@ionic/vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 import {
   restaurantOutline,
@@ -50,6 +52,17 @@ import {
   documentTextOutline,
   personOutline
 } from 'ionicons/icons'
+
+const route = useRoute()
+
+const mostrarTabBar = computed(() => {
+  const rutasOcultas = [
+    '/tabs/lista-pedidos',
+    '/tabs/detalle-pedido'
+  ]
+
+  return !rutasOcultas.some((ruta) => route.path.startsWith(ruta))
+})
 
 </script>
 <style>

@@ -25,12 +25,18 @@ const routes: Array<RouteRecordRaw> = [
 
   {
     path: '/login',
-    component: LoginPage
+    component: LoginPage,
+    meta: {
+      guestOnly: true
+    }
   },
 
   {
     path: '/tabs',
     component: TabsPage,
+    meta: {
+      requiresAuth: true
+    },
     children: [
 
       {
@@ -84,72 +90,144 @@ const routes: Array<RouteRecordRaw> = [
 
   {
     path: '/usuarios',
-    component: UsuariosPage
+    component: UsuariosPage,
+    meta: {
+      requiresAuth: true,
+      allowedRoles: ['ADMINISTRADOR']
+    }
   },
   // INVENTARIO VISTAS
   {
     path: '/productos/:categoria',
-    component: () => import('@/views/inventario/ProductosPage.vue')
+    component: () => import('@/views/inventario/ProductosPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/producto/:id',
-    component: () => import('@/views/inventario/ProductoDetallePage.vue')
+    component: () => import('@/views/inventario/ProductoDetallePage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/nuevo-producto',
-    component: () => import('@/views/inventario/NuevoProductoPage.vue')
+    component: () => import('@/views/inventario/NuevoProductoPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/editar-producto/:id',
-    component: () => import('@/views/inventario/EditarProductoPage.vue')
+    component: () => import('@/views/inventario/EditarProductoPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/nueva-categoria',
-    component: () => import('@/views/inventario/NuevaCategoriaPage.vue')
+    component: () => import('@/views/inventario/NuevaCategoriaPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/nuevo-producto/:categoria',
-    component: () => import('@/views/inventario/NuevoProductoPage.vue')
+    component: () => import('@/views/inventario/NuevoProductoPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/menu',
-    component: () => import('@/views/inventario/MenuPage.vue')
+    component: () => import('@/views/inventario/MenuPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   
   //USUARIO VISTAS PEDIDOS
 
   {
     path: '/registrar-usuario',
-    component: RegistrarUsuarioPage
+    component: RegistrarUsuarioPage,
+    meta: {
+      requiresAuth: true,
+      allowedRoles: ['ADMINISTRADOR']
+    }
   },
 
   {
     path: '/nueva-orden',
-    component: NuevaOrdenPage
+    component: NuevaOrdenPage,
+    meta: {
+      requiresAuth: true,
+      allowedRoles: ['ADMINISTRADOR', 'CAJERO']
+    }
   },
 
   {
     path: '/lista-pedidos',
-    component: ListaPedidoPage
+    component: ListaPedidoPage,
+    meta: {
+      requiresAuth: true
+    }
   },
 
   {
     path: '/detalle-pedido/:id',
-    component: DetallePedidoPage
+    component: DetallePedidoPage,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
   path: '/historial-ventas',
-  component: () => import('@/views/Ventas/HistorialVentasPage.vue')
+  component: () => import('@/views/Ventas/HistorialVentasPage.vue'),
+  meta: {
+    requiresAuth: true
+  }
   },
   {
   path: '/pedidos-hoy',
-  component: () => import('@/views/ventas/PedidosHoyPage.vue')
+  component: () => import('@/views/ventas/PedidosHoyPage.vue'),
+  meta: {
+    requiresAuth: true
+  }
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+})
+
+router.beforeEach((to) => {
+  const usuarioGuardado = localStorage.getItem('usuario')
+  const usuario = usuarioGuardado ? JSON.parse(usuarioGuardado) : null
+  const rolUsuario = (usuario?.rol || '').toString().trim().toUpperCase()
+
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth) || to.path !== '/login'
+  const guestOnly = to.matched.some((record) => record.meta.guestOnly)
+  const rolesPermitidos = [...to.matched]
+    .reverse()
+    .find((record) => Array.isArray(record.meta.allowedRoles))
+    ?.meta.allowedRoles as string[] | undefined
+
+  if (requiresAuth && !usuario) {
+    return '/login'
+  }
+
+  if (guestOnly && usuario) {
+    return '/tabs/ventas'
+  }
+
+  if (rolesPermitidos && !rolesPermitidos.includes(rolUsuario)) {
+    return '/tabs/ventas'
+  }
+
+  return true
 })
 
 export default router
