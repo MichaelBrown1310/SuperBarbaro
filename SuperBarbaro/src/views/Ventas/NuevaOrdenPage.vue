@@ -299,7 +299,7 @@ const cargarPedidoEdicion = async () => {
 
     if (data.estado !== 'pendiente') {
       window.alert('Solo se pueden editar pedidos pendientes')
-      router.push(`/tabs/detalle-pedido/${pedidoId.value}`)
+      router.push(`/detalle-pedido/${pedidoId.value}`)
       return
     }
 
@@ -332,7 +332,7 @@ const cargarPedidoEdicion = async () => {
   } catch (error) {
     console.error('Error cargando pedido para editar', error)
     window.alert('No se pudo cargar el pedido')
-    router.push('/tabs/lista-pedidos')
+    router.push('/lista-pedidos')
   } finally {
     cargandoEdicion.value = false
   }

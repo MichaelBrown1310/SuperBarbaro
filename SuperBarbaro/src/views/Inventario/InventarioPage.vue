@@ -8,7 +8,7 @@
 
       <div class="contenedor">
 
-        <button class="btn" @click="nuevaCategoria">+ Nueva Categoría</button>
+        <button class="btn" v-if="esAdmin()" @click="nuevaCategoria">+ Nueva Categoría</button>
 
         <!-- BUSCADOR -->
         <input v-model="busqueda" @input="buscar" placeholder="Buscar productos..." class="input" />
@@ -68,6 +68,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../../components/AppHeader.vue'
 import { onIonViewWillEnter } from '@ionic/vue'
+import { esAdmin } from '@/utils/auth'
 
 const busqueda = ref('')
 const resultados = ref([])

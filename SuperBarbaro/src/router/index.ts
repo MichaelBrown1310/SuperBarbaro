@@ -42,14 +42,7 @@ const routes: Array<RouteRecordRaw> = [
         path: 'ventas',
         component: VentasPage
       },
-      {
-        path: 'lista-pedidos',
-        component: ListaPedidoPage
-      },
-      {
-        path: 'detalle-pedido/:id',
-        component: DetallePedidoPage
-      },
+      
 
       // INVENTARIO VISTAS CON MENU INFERIOR
 
@@ -123,7 +116,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/inventario/MenuPage.vue')
   },
   
-  //USUARIO VISTAS
+  //USUARIO VISTAS PEDIDOS
 
   {
     path: '/registrar-usuario',
@@ -143,9 +136,15 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/detalle-pedido/:id',
     component: DetallePedidoPage
+  },
+  {
+  path: '/historial-ventas',
+  component: () => import('@/views/Ventas/HistorialVentasPage.vue')
+  },
+  {
+  path: '/pedidos-hoy',
+  component: () => import('@/views/ventas/PedidosHoyPage.vue')
   }
-
-
 ]
 
 const router = createRouter({

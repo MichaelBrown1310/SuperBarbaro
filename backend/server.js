@@ -731,27 +731,45 @@ app.post('/pedidos', async (req, res) => {
 });
 
 app.get('/pedidos', async (req, res) => {
-  try {
-    const [pedidos] = await dbPromise.query(`
-      SELECT
-        id,
-        numero_pedido,
-        cliente_nombre,
-        cliente_telefono,
-        tipo_servicio,
-        estado,
-        total,
-        fecha_creacion
-      FROM pedidos
-      ORDER BY fecha_creacion DESC
-    `);
+  const { fecha, hoy } = req.query;
 
+  let sql = `
+    SELECT
+      id,
+      numero_pedido,
+      cliente_nombre,
+      cliente_telefono,
+      tipo_servicio,
+      estado,
+      total,
+      fecha_creacion
+    FROM pedidos
+  `;
+
+  let params = [];
+
+  // FILTRO POR FECHA ESPECÍFICA
+  if (fecha) {
+    sql += ` WHERE DATE(fecha_creacion) = ?`;
+    params.push(fecha);
+  }
+
+  // FILTRO DIA ACTUAL
+  if (hoy === 'true') {
+    sql += ` WHERE DATE(fecha_creacion) = CURDATE()`;
+  }
+
+  sql += ` ORDER BY fecha_creacion DESC`;
+
+  try {
+    const [pedidos] = await dbPromise.query(sql, params);
     res.json(pedidos);
   } catch (error) {
-    console.log('Error consultando pedidos:', error);
-    res.status(500).json({ error: 'No se pudieron consultar los pedidos' });
+    console.log(error);
+    res.status(500).json({ error: 'Error consultando pedidos' });
   }
 });
+
 
 app.get('/pedidos/:id', async (req, res) => {
   const { id } = req.params;

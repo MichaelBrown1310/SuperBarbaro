@@ -5,7 +5,7 @@
             <div class="alerta" v-for="a in alertas" :key="a.id">
 
                 <span>
-                    ⚠️ {{ a.nombre }} tiene bajo stock ({{ a.cantidad }})
+                    ⚠️ {{ a.nombre }} bajo stock ({{ a.cantidad }})
                 </span>
 
                 <button @click="cerrar(a.id)">✖</button>
@@ -102,7 +102,7 @@ onMounted(() => {
 
   width: 350px;
   z-index: 9999;
-
+ text-align: right;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -114,13 +114,10 @@ onMounted(() => {
   padding: 12px;
   margin-top: 10px;
   border-radius: 10px;
-
   width: 100%;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 

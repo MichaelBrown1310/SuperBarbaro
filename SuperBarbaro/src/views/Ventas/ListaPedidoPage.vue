@@ -90,7 +90,7 @@ const formatearHora = (fecha) => {
 }
 
 const verDetalle = (id) => {
-  router.push(`/tabs/detalle-pedido/${id}`)
+  router.push(`/detalle-pedido/${id}`)
 }
 
 onIonViewWillEnter(cargarPedidos)
