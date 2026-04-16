@@ -61,17 +61,11 @@ const iniciarSesion = async (event) => {
   const data = await response.json()
 
   if (data.success) {
-
     localStorage.setItem("usuario", JSON.stringify(data.user))
-
     router.push('/tabs')
-
   } else {
-
     alert("Usuario o contraseña incorrectos")
-
   }
-
 }
 
 </script>
@@ -117,7 +111,7 @@ ion-content.fondoo::part(background) {
   align-items: center;
   justify-content: center;
 
-  
+
   background: rgb(255, 255, 255);
   /* 0.6 = nivel de opacidad (entre 0 y 1) */
 
@@ -137,7 +131,7 @@ ion-content.fondoo::part(background) {
   align-items: center;
   justify-content: center;
 
-  
+
   background: rgba(190, 171, 171, 0.463);
   /* 0.6 = nivel de opacidad (entre 0 y 1) */
 

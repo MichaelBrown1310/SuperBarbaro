@@ -58,18 +58,18 @@ const normalizarItemsPedido = (items = []) => {
 
     const adiciones = Array.isArray(item.adiciones)
       ? item.adiciones.map((adicion) => {
-          const precio = Number(adicion.precio_unitario || 0);
-          const cantidadPorUnidad = Number(adicion.cantidad_por_unidad || 0);
-          const cantidadTotal = cantidad * cantidadPorUnidad;
+        const precio = Number(adicion.precio_unitario || 0);
+        const cantidadPorUnidad = Number(adicion.cantidad_por_unidad || 0);
+        const cantidadTotal = cantidad * cantidadPorUnidad;
 
-          return {
-            ...adicion,
-            precio_unitario: precio,
-            cantidad_por_unidad: cantidadPorUnidad,
-            cantidad_total: cantidadTotal,
-            subtotal: precio * cantidadTotal
-          };
-        })
+        return {
+          ...adicion,
+          precio_unitario: precio,
+          cantidad_por_unidad: cantidadPorUnidad,
+          cantidad_total: cantidadTotal,
+          subtotal: precio * cantidadTotal
+        };
+      })
       : [];
 
     const remociones = Array.isArray(item.remociones) ? item.remociones : [];
@@ -252,7 +252,7 @@ app.get("/usuarios", (req, res) => {
 // CREAR USUARIO
 app.post("/usuarios", async (req, res) => {
 
-  const { 
+  const {
     codigo,
     password,
     nombre,
@@ -276,27 +276,27 @@ app.post("/usuarios", async (req, res) => {
     `;
 
     db.query(sql,
-    [
-      codigo,
-      hashedPassword,
-      nombre,
-      apellido,
-      cedula,
-      direccion,
-      correo,
-      telefono,
-      rol,
-      foto
-    ],
-    (err,result)=>{
+      [
+        codigo,
+        hashedPassword,
+        nombre,
+        apellido,
+        cedula,
+        direccion,
+        correo,
+        telefono,
+        rol,
+        foto
+      ],
+      (err, result) => {
 
-      if(err){
-        return res.status(500).json(err)
-      }
+        if (err) {
+          return res.status(500).json(err)
+        }
 
-      res.json({success:true})
+        res.json({ success: true })
 
-    })
+      })
 
   } catch (error) {
     res.status(500).json(error)
@@ -306,47 +306,47 @@ app.post("/usuarios", async (req, res) => {
 
 
 // EDITAR USUARIO
-app.put("/usuarios/:id",(req,res)=>{
+app.put("/usuarios/:id", (req, res) => {
 
-const { id } = req.params
+  const { id } = req.params
 
-const { nombre, apellido, direccion, correo, telefono } = req.body
+  const { nombre, apellido, direccion, correo, telefono } = req.body
 
-const sql = `
+  const sql = `
 UPDATE usuarios
 SET nombre=?, apellido=?, direccion=?, correo=?, telefono=?
 WHERE id=?
 `
 
-db.query(sql,[nombre,apellido,direccion,correo,telefono,id],(err,result)=>{
+  db.query(sql, [nombre, apellido, direccion, correo, telefono, id], (err, result) => {
 
-if(err){
-return res.status(500).json(err)
-}
+    if (err) {
+      return res.status(500).json(err)
+    }
 
-res.json({success:true})
+    res.json({ success: true })
 
-})
+  })
 
 })
 
 
 // ELIMINAR USUARIO
-app.delete("/usuarios/:id",(req,res)=>{
+app.delete("/usuarios/:id", (req, res) => {
 
-const { id } = req.params
+  const { id } = req.params
 
-const sql = "DELETE FROM usuarios WHERE id=?"
+  const sql = "DELETE FROM usuarios WHERE id=?"
 
-db.query(sql,[id],(err,result)=>{
+  db.query(sql, [id], (err, result) => {
 
-if(err){
-return res.status(500).json(err)
-}
+    if (err) {
+      return res.status(500).json(err)
+    }
 
-res.json({success:true})
+    res.json({ success: true })
 
-})
+  })
 
 })
 
@@ -889,31 +889,128 @@ app.put('/pedidos/:id', async (req, res) => {
 app.patch('/pedidos/:id/estado', async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
+
   const estadosPermitidos = ['pendiente', 'en_preparacion', 'completado', 'cancelado'];
 
   if (!estadosPermitidos.includes(estado)) {
     return res.status(400).json({ error: 'Estado no permitido' });
   }
 
+  const conn = dbPromise;
+
   try {
-    const [pedidos] = await dbPromise.query(
+    await conn.beginTransaction();
+
+    // obtener pedido actual
+    const [pedidos] = await conn.query(
       'SELECT id, estado FROM pedidos WHERE id = ?',
       [id]
     );
 
     if (pedidos.length === 0) {
+      await conn.rollback();
       return res.status(404).json({ error: 'Pedido no encontrado' });
     }
 
-    await dbPromise.query(
+    const estadoAnterior = pedidos[0].estado;
+
+    // VALIDACIONES DE FLUJO
+    if (estado === 'en_preparacion' && estadoAnterior !== 'pendiente') {
+      await conn.rollback();
+      return res.status(400).json({ error: 'Solo pedidos pendientes pueden iniciar' });
+    }
+
+    if (estado === 'completado' && estadoAnterior !== 'en_preparacion') {
+      await conn.rollback();
+      return res.status(400).json({ error: 'Solo pedidos en preparación pueden completarse' });
+    }
+
+    if (estado === 'cancelado' && estadoAnterior !== 'pendiente') {
+      await conn.rollback();
+      return res.status(400).json({ error: 'Solo pedidos pendientes pueden cancelarse' });
+    }
+
+    // SOLO DESCONTAR SI PASA A "en_preparacion"
+    if (estado === 'en_preparacion' && estadoAnterior !== 'en_preparacion') {
+
+      // 1. obtener detalles del pedido
+      const [detalles] = await conn.query(
+        'SELECT id, menu_id, cantidad FROM pedido_detalles WHERE pedido_id = ?',
+        [id]
+      );
+
+      for (const detalle of detalles) {
+
+        // 2. obtener productos del menú
+        const [productosMenu] = await conn.query(
+          'SELECT producto_id, cantidad FROM menu_productos WHERE menu_id = ?',
+          [detalle.menu_id]
+        );
+
+        for (const prod of productosMenu) {
+
+          const cantidadDescontar = prod.cantidad * detalle.cantidad;
+
+          // 3. descontar inventario
+          await conn.query(
+            'UPDATE productos SET cantidad = cantidad - ? WHERE id = ?',
+            [cantidadDescontar, prod.producto_id]
+          );
+
+          // 4. registrar movimiento
+          await conn.query(
+            `INSERT INTO movimientos_productos 
+             (producto_id, tipo, cantidad, motivo, fecha)
+             VALUES (?, 'salida', ?, ?, NOW())`,
+            [
+              prod.producto_id,
+              cantidadDescontar,
+              `Pedido #${id}`
+            ]
+          );
+        }
+
+        // 5. ADICIONES
+        const [adiciones] = await conn.query(
+          'SELECT producto_id, cantidad_total FROM pedido_detalle_adiciones WHERE pedido_detalle_id = ?',
+          [detalle.id]
+        );
+
+        for (const ad of adiciones) {
+
+          await conn.query(
+            'UPDATE productos SET cantidad = cantidad - ? WHERE id = ?',
+            [ad.cantidad_total, ad.producto_id]
+          );
+
+          await conn.query(
+            `INSERT INTO movimientos_productos 
+             (producto_id, tipo, cantidad, motivo, fecha)
+             VALUES (?, 'salida', ?, ?, NOW())`,
+            [
+              ad.producto_id,
+              ad.cantidad_total,
+              `Adición pedido #${id}`
+            ]
+          );
+        }
+      }
+    }
+
+    // actualizar estado
+    await conn.query(
       'UPDATE pedidos SET estado = ? WHERE id = ?',
       [estado, id]
     );
 
+    await conn.commit();
+
     res.json({ success: true, estado });
+
   } catch (error) {
-    console.log('Error actualizando estado del pedido:', error);
-    res.status(500).json({ error: 'No se pudo actualizar el estado del pedido' });
+    await conn.rollback();
+    console.log('Error:', error);
+    res.status(500).json({ error: 'Error al procesar pedido' });
   }
 });
 

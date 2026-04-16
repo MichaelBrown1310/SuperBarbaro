@@ -75,7 +75,7 @@ const irUsuarios = () => {
 
 const cerrarSesion = () => {
   localStorage.removeItem("usuario")
-  router.push('/login')
+  router.push('/login') 
 }
 
 const editarPerfil = () => {
