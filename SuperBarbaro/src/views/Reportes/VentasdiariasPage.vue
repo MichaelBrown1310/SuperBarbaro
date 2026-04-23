@@ -92,17 +92,21 @@
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
 import { addIcons } from 'ionicons'
 import {
-  chevronDownOutline, chevronUpOutline, receiptOutline
+  chevronDownOutline, chevronUpOutline, receiptOutline, arrowBackOutline
 } from 'ionicons/icons'
 import AppHeader from '../../components/AppHeader.vue'
 import { ref, computed, onMounted } from 'vue'
 import { onIonViewWillEnter } from '@ionic/vue'
+import { useRouter } from 'vue-router'
 
 addIcons({
   'chevron-down-outline': chevronDownOutline,
   'chevron-up-outline': chevronUpOutline,
-  'receipt-outline': receiptOutline
+  'receipt-outline': receiptOutline,
+  'arrow-back-outline': arrowBackOutline
 })
+
+const router = useRouter()
 
 // ──────────────────────────────────────────
 // Estado
@@ -196,7 +200,6 @@ const cargar = async () => {
     const res = await fetch('http://localhost:3000/ventas')
     todasLasVentas.value = await res.json()
   } catch {
-    // Datos de ejemplo mientras no hay backend
     const diaHoy = hoy.getDate()
     todasLasVentas.value = [
       {
