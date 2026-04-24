@@ -53,7 +53,7 @@ import { IonPage, IonContent, IonButtons, IonButton, IonIcon, onIonViewDidEnter 
 import { createOutline } from 'ionicons/icons'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 
 const route = useRoute()
@@ -66,11 +66,11 @@ const movimientos = ref([])
 const cargar = async () => {
 
   // PRODUCTO
-  const res = await fetch(`http://localhost:3000/producto/${route.params.id}`)
+  const res = await fetch(`https://superbarbaro.onrender.com/producto/${route.params.id}`)
   producto.value = await res.json()
 
   // HISTORIAL
-  const mov = await fetch(`http://localhost:3000/movimientos/${route.params.id}`)
+  const mov = await fetch(`https://superbarbaro.onrender.com/movimientos/${route.params.id}`)
   movimientos.value = await mov.json()
 }
 
@@ -109,7 +109,7 @@ img {
   left: 100px;
 }
 
-/* 🔥 HISTORIAL */
+/* ðŸ”¥ HISTORIAL */
 .historial {
   background: #f5f5f5;
   padding: 10px;
@@ -129,3 +129,6 @@ img {
   font-weight: bold;
 }
 </style>
+
+
+

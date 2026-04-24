@@ -41,7 +41,7 @@ const iniciarSesion = async (event) => {
 
   event.target.blur()
 
-  const response = await fetch('http://localhost:3000/login', {
+  const response = await fetch('https://superbarbaro.onrender.com/login', {
 
     method: 'POST',
 
@@ -191,3 +191,5 @@ ion-content.fondoo::part(background) {
   cursor: pointer;
 }
 </style>
+
+

@@ -15,7 +15,7 @@
         </button>
 
         <button class="boton-general" @click="pedidosHoy">
-          📅
+          📆
           <p>Pedidos de hoy</p>
         </button>
 
@@ -33,7 +33,7 @@
 import { IonPage, IonContent } from '@ionic/vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { esAdmin } from '@/utils/auth'
 
 const router = useRouter()
@@ -96,3 +96,6 @@ const historialVentas = () => {
   font-size: 20px;
 }
 </style>
+
+
+

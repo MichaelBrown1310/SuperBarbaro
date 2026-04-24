@@ -9,3 +9,5 @@
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import AlertasStock from '@/components/AlertasStock.vue'
 </script>
+
+

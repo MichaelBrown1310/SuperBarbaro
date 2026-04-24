@@ -16,35 +16,31 @@
             <p><strong>Cliente:</strong> {{ pedido.cliente_nombre || 'Sin nombre' }}</p>
             <p><strong>Telefono:</strong> {{ pedido.cliente_telefono || 'Sin telefono' }}</p>
             <p><strong>Servicio:</strong> {{ formatearServicio(pedido.tipo_servicio) }}</p>
-            <p>
-              <strong>Estado:</strong>
-              <span class="estado-chip" :class="estadoClase(pedido.estado)">
-                {{ formatearEstado(pedido.estado) }}
-              </span>
-            </p>
+            <p><strong>Estado:</strong> <PedidoEstadoChip class="estado-inline" :estado="pedido.estado" /></p>
             <p><strong>Hora:</strong> {{ formatearHora(pedido.fecha_creacion) }}</p>
 
             <div class="acciones" @click.stop>
-
-              <!-- COCINERO -->
-              <button v-if="(esCocinero || esAdmin) && pedido.estado === 'pendiente'"
-                @click="cambiarEstado(pedido.id, 'en_preparacion')">
+              <button
+                v-if="(esCocinero || esAdmin) && pedido.estado === 'pendiente'"
+                @click="cambiarEstado(pedido.id, 'en_preparacion')"
+              >
                 Iniciar
               </button>
 
-              <button v-if="(esCocinero || esAdmin) && pedido.estado === 'en_preparacion'"
-                @click="cambiarEstado(pedido.id, 'completado')">
+              <button
+                v-if="(esCocinero || esAdmin) && pedido.estado === 'en_preparacion'"
+                @click="cambiarEstado(pedido.id, 'completado')"
+              >
                 Completado
               </button>
 
-              <!-- CAJERO -->
-              <button v-if="(esCajero || esAdmin) && pedido.estado === 'pendiente'"
-                @click="cambiarEstado(pedido.id, 'cancelado')">
+              <button
+                v-if="(esCajero || esAdmin) && pedido.estado === 'pendiente'"
+                @click="cambiarEstado(pedido.id, 'cancelado')"
+              >
                 Cancelar
               </button>
-
             </div>
-
           </div>
         </div>
       </div>
@@ -53,13 +49,12 @@
 </template>
 
 <script setup>
-import { IonPage, IonContent, onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
-import { ref } from 'vue'
+import { IonPage, IonContent, onIonViewWillEnter, onIonViewWillLeave, toastController } from '@ionic/vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
+import PedidoEstadoChip from '@/components/PedidoEstadoChip.vue'
 import { socket } from '@/utils/socket'
-import { toastController } from '@ionic/vue'
-import { computed } from 'vue'
 
 const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
 
@@ -75,13 +70,10 @@ const cargarPedidos = async () => {
   cargando.value = true
 
   try {
-    const res = await fetch('http://localhost:3000/pedidos')
+    const res = await fetch('https://superbarbaro.onrender.com/pedidos')
     const data = await res.json()
 
-    pedidos.value = data.filter(p =>
-      p.estado !== 'completado' && p.estado !== 'cancelado'
-    )
-
+    pedidos.value = data.filter(p => p.estado !== 'completado' && p.estado !== 'cancelado')
   } catch (error) {
     console.error('Error cargando pedidos', error)
     pedidos.value = []
@@ -92,7 +84,7 @@ const cargarPedidos = async () => {
 
 const cambiarEstado = async (id, nuevoEstado) => {
   try {
-    const res = await fetch(`http://localhost:3000/pedidos/${id}/estado`, {
+    const res = await fetch(`https://superbarbaro.onrender.com/pedidos/${id}/estado`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ estado: nuevoEstado })
@@ -118,7 +110,6 @@ const cambiarEstado = async (id, nuevoEstado) => {
     }
 
     cargarPedidos()
-
   } catch (error) {
     console.log(error)
     mostrarToast('Error al actualizar pedido', 'danger')
@@ -133,32 +124,12 @@ const formatearServicio = (servicio) => {
   return 'Llevar'
 }
 
-const formatearEstado = (estado) => {
-  const estados = {
-    pendiente: 'Pendiente',
-    en_preparacion: 'En preparación',
-    completado: 'Completado',
-    cancelado: 'Cancelado'
-  }
-
-  return estados[estado] || estado
-}
-
-const estadoClase = (estado) => {
-    return {
-    pendiente: estado === 'pendiente',
-    preparacion: estado === 'en_preparacion',
-    completado: estado === 'completado',
-    cancelado: estado === 'cancelado'
-  }
-}
-
 const mostrarToast = async (mensaje, color = 'success') => {
   const toast = await toastController.create({
     message: mensaje,
     duration: 2000,
     position: 'top',
-    color: color
+    color
   })
 
   await toast.present()
@@ -225,29 +196,8 @@ onIonViewWillLeave(() => {
   font-weight: 700;
 }
 
-.estado-chip {
-  display: inline-block;
+.estado-inline {
   margin-left: 8px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.estado-chip.pendiente {
-  background: #fff1b8;
-}
-
-.estado-chip.preparacion {
-  background: #fde68a;
-}
-
-.estado-chip.completado {
-  background: #bbf7d0;
-}
-
-.estado-chip.cancelado {
-  background: #fecaca;
 }
 
 .acciones {
@@ -268,17 +218,14 @@ onIonViewWillLeave(() => {
 
 .acciones button:nth-child(1) {
   background: #fde68a;
-  /* iniciar */
 }
 
 .acciones button:nth-child(2) {
   background: #bbf7d0;
-  /* completar */
 }
 
 .acciones button:nth-child(3) {
   background: #fecaca;
-  /* cancelar */
 }
 
 @media (max-width: 768px) {

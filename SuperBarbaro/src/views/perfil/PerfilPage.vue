@@ -15,7 +15,7 @@
 
         <!-- FOTO -->
         <div class="foto-perfil">
-          <img v-if="usuario.foto" :src="'http://localhost:3000/' + usuario.foto" />
+          <img v-if="usuario.foto" :src="'https://superbarbaro.onrender.com/' + usuario.foto" />
           <ion-icon v-else :icon="person" class="icono" />
         </div>
 
@@ -176,3 +176,6 @@ const editarPerfil = () => {
 }
 
 </style>
+
+
+

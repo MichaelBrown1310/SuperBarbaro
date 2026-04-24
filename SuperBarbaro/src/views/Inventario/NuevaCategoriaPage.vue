@@ -31,7 +31,7 @@
 import { IonPage, IonContent } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 
 const router = useRouter()
@@ -53,7 +53,7 @@ const guardar = async () => {
 
   const imagenFinal = imagenUrl.value || preview.value
 
-  await fetch('http://localhost:3000/categorias', {
+  await fetch('https://superbarbaro.onrender.com/categorias', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -98,3 +98,6 @@ input {
   color: white;
 }
 </style>
+
+
+

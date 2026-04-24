@@ -49,7 +49,7 @@
 import { IonPage, IonContent } from '@ionic/vue'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 
 const route = useRoute()
@@ -64,7 +64,7 @@ const cantidadOriginal = ref(0)
 
 // CARGAR PRODUCTO
 const cargar = async () => {
-  const res = await fetch(`http://localhost:3000/producto/${route.params.id}`)
+  const res = await fetch(`https://superbarbaro.onrender.com/producto/${route.params.id}`)
   producto.value = await res.json()
 
   // guardar cantidad inicial
@@ -103,7 +103,7 @@ const guardar = async () => {
 
     const tipo = diferencia > 0 ? "ENTRADA" : "SALIDA"
 
-    await fetch('http://localhost:3000/movimientos', {
+    await fetch('https://superbarbaro.onrender.com/movimientos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -116,7 +116,7 @@ const guardar = async () => {
   }
 
   // ACTUALIZA PRODUCTO
-  await fetch(`http://localhost:3000/productos/${producto.value.id}`, {
+  await fetch(`https://superbarbaro.onrender.com/productos/${producto.value.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(producto.value)
@@ -127,7 +127,7 @@ const guardar = async () => {
 
 // ELIMINAR
 const eliminar = async () => {
-  await fetch(`http://localhost:3000/productos/${producto.value.id}`, {
+  await fetch(`https://superbarbaro.onrender.com/productos/${producto.value.id}`, {
     method: 'DELETE'
   })
 
@@ -191,3 +191,6 @@ input {
   font-weight: bold;
 }
 </style>
+
+
+

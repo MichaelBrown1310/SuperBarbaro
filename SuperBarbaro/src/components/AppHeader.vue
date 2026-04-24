@@ -1,29 +1,20 @@
 <template>
-
   <ion-header>
-
     <ion-toolbar class="super-toolbar">
-
-      <!-- BOTON VOLVER -->
-      <ion-buttons slot="start" v-if="mostrarVolver">
-        <ion-button @click="volver" class="btn-volver">
+      <ion-buttons slot="start" v-if="showBackButton">
+        <ion-button @click="handleBack" class="btn-volver">
           <ion-icon :icon="chevronBackOutline"></ion-icon>
         </ion-button>
       </ion-buttons>
 
-      <!-- TITULO -->
       <ion-title class="title-barbaro">
         {{ titulo }}
       </ion-title>
-
     </ion-toolbar>
-
   </ion-header>
-
 </template>
 
-<script setup>
-
+<script setup lang="ts">
 import {
   IonHeader,
   IonToolbar,
@@ -32,27 +23,44 @@ import {
   IonButton,
   IonIcon
 } from '@ionic/vue'
-
-import { useRouter, useRoute } from 'vue-router'
+import { computed, getCurrentInstance } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { chevronBackOutline } from 'ionicons/icons'
-import { computed } from 'vue'
 
-// props
-defineProps({
-  titulo: String
+const props = withDefaults(defineProps<{
+  titulo?: string
+  mostrarVolver?: boolean
+}>(), {
+  titulo: '',
+  mostrarVolver: undefined
 })
 
-const router = useRouter()
+const emit = defineEmits<{
+  (e: 'volver'): void
+}>()
+
 const route = useRoute()
+const router = useRouter()
+const instance = getCurrentInstance()
 
-const volver = () => {
-  router.back()
-}
+const showBackButton = computed(() => {
+  if (typeof props.mostrarVolver === 'boolean') {
+    return props.mostrarVolver
+  }
 
-const mostrarVolver = computed(() => {
   return !route.path.startsWith('/tabs')
 })
 
+const handleBack = () => {
+  const hasCustomHandler = Boolean(instance?.vnode.props?.onVolver)
+
+  if (hasCustomHandler) {
+    emit('volver')
+    return
+  }
+
+  router.back()
+}
 </script>
 
 <style>
@@ -69,46 +77,36 @@ const mostrarVolver = computed(() => {
   color: black;
 }
 
-/* botón volver */
 .btn-volver ion-icon {
   color: white !important;
   font-size: 25px;
 }
 
-/* TOOLBAR BASE */
 .super-toolbar {
   --background: linear-gradient(135deg, #0a0a0a, #1c1c1c);
   --color: white;
-
   position: relative;
-
   border-bottom: none;
-
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
-/* EFECTO LÍNEA DE ENERGÍA */
 .super-toolbar::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
-
   width: 100%;
   height: 3px;
-
   background: linear-gradient(90deg,
       transparent,
       #ff3b3b,
       #ff7a00,
       #ff3b3b,
       transparent);
-
   animation: energia 3s linear infinite;
 }
 
-/* ANIMACIÓN */
 @keyframes energia {
   0% {
     transform: translateX(-100%);
@@ -119,28 +117,22 @@ const mostrarVolver = computed(() => {
   }
 }
 
-/* TÍTULO PRO */
 .title-barbaro {
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-
   background: linear-gradient(90deg,
       #ff3b3b,
       #ff7a00,
       #ffd000);
-
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-
   text-shadow:
     0 0 10px rgba(255, 60, 60, 0.4),
     0 0 20px rgba(255, 120, 0, 0.2);
-
   animation: glow 2s ease-in-out infinite alternate;
 }
 
-/* GLOW SUAVE */
 @keyframes glow {
   from {
     text-shadow:

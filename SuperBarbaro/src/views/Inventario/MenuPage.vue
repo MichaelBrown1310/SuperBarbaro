@@ -106,7 +106,7 @@ const menuAgrupado = computed(() => {
 })
 
 const cargarMenu = async () => {
-  const res = await fetch('http://localhost:3000/menu')
+  const res = await fetch('https://superbarbaro.onrender.com/menu')
   menu.value = await res.json()
 }
 
@@ -214,3 +214,5 @@ onIonViewWillEnter(cargarMenu)
   margin: 5px 0;
 }
 </style>
+
+

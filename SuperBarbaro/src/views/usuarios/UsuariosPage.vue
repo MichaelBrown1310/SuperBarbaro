@@ -20,7 +20,7 @@
 
                         <div class="foto-usuario">
 
-                            <img v-if="u.foto" :src="'http://localhost:3000/' + u.foto" />
+                            <img v-if="u.foto" :src="'https://superbarbaro.onrender.com/' + u.foto" />
 
                             <ion-icon v-else :icon="person" class="icono" />
 
@@ -101,7 +101,7 @@ const esAdministrador = computed(() => {
 const cargarUsuarios = async () => {
     try {
 
-        const response = await fetch('http://localhost:3000/usuarios')
+        const response = await fetch('https://superbarbaro.onrender.com/usuarios')
 
         const data = await response.json()
 
@@ -265,3 +265,6 @@ const registrarUsuario = () => {
 }
 
 </style>
+
+
+

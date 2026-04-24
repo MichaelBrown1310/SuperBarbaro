@@ -211,7 +211,7 @@
 
 <script setup>
 import { IonPage, IonContent, IonSpinner } from '@ionic/vue'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { ref, computed, onMounted } from 'vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 
@@ -339,11 +339,11 @@ const productoEstrella = computed(() => {
 const cargar = async () => {
   cargando.value = true
   try {
-    const resCat = await fetch('http://localhost:3000/categorias')
+    const resCat = await fetch('https://superbarbaro.onrender.com/categorias')
     const cats = await resCat.json()
     const todos = []
     for (const cat of cats) {
-      const res = await fetch(`http://localhost:3000/productos/${cat.id}`)
+      const res = await fetch(`https://superbarbaro.onrender.com/productos/${cat.id}`)
       const prods = await res.json()
       prods.forEach(p => todos.push({ ...p, categoria_nombre: cat.nombre }))
     }
@@ -351,7 +351,7 @@ const cargar = async () => {
     productos.value = unicos
 
     try {
-      const resV = await fetch('http://localhost:3000/ventas')
+      const resV = await fetch('https://superbarbaro.onrender.com/ventas')
       ventasReales.value = await resV.json()
     } catch {
       ventasReales.value = []
@@ -711,3 +711,6 @@ onMounted(cargar)
   font-weight: 600;
 }
 </style>
+
+
+

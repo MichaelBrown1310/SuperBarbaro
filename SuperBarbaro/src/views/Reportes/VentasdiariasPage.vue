@@ -94,7 +94,7 @@ import { addIcons } from 'ionicons'
 import {
   chevronDownOutline, chevronUpOutline, receiptOutline, arrowBackOutline
 } from 'ionicons/icons'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { ref, computed, onMounted } from 'vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 import { useRouter } from 'vue-router'
@@ -197,7 +197,7 @@ const formatear = (n) =>
 // ──────────────────────────────────────────
 const cargar = async () => {
   try {
-    const res = await fetch('http://localhost:3000/ventas')
+    const res = await fetch('https://superbarbaro.onrender.com/ventas')
     todasLasVentas.value = await res.json()
   } catch {
     const diaHoy = hoy.getDate()
@@ -445,3 +445,6 @@ onMounted(cargar)
   color: #aaa;
 }
 </style>
+
+
+

@@ -230,7 +230,7 @@
 import { IonPage, IonContent } from '@ionic/vue'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -261,7 +261,7 @@ const guardandoPedido = ref(false)
 const cargandoEdicion = ref(false)
 
 const cargarCategorias = async () => {
-  const res = await fetch('http://localhost:3000/categorias')
+  const res = await fetch('https://superbarbaro.onrender.com/categorias')
   categorias.value = await res.json()
 
   if (categorias.value.length > 0 && !categoriaSeleccionada.value) {
@@ -270,7 +270,7 @@ const cargarCategorias = async () => {
 }
 
 const cargarMenuCompleto = async () => {
-  const res = await fetch('http://localhost:3000/menu')
+  const res = await fetch('https://superbarbaro.onrender.com/menu')
   menuCompleto.value = await res.json()
 }
 
@@ -278,7 +278,7 @@ const seleccionarCategoria = async (categoria) => {
   categoriaSeleccionada.value = categoria
   busqueda.value = ''
 
-  const res = await fetch(`http://localhost:3000/menu/${categoria.id}`)
+  const res = await fetch(`https://superbarbaro.onrender.com/menu/${categoria.id}`)
   menu.value = await res.json()
 
   inicializarCantidades()
@@ -292,7 +292,7 @@ const cargarPedidoEdicion = async () => {
   cargandoEdicion.value = true
 
   try {
-    const res = await fetch(`http://localhost:3000/pedidos/${pedidoId.value}`)
+    const res = await fetch(`https://superbarbaro.onrender.com/pedidos/${pedidoId.value}`)
     const data = await res.json()
 
     if (!res.ok) {
@@ -421,7 +421,7 @@ const eliminarDelPedido = (lineaId) => {
 const cargarAdicionesCategoria = async (categoriaId) => {
   if (adicionesDisponibles.value[categoriaId]) return
   try {
-    const res = await fetch(`http://localhost:3000/productos/${categoriaId}`)
+    const res = await fetch(`https://superbarbaro.onrender.com/productos/${categoriaId}`)
     const productosCategoria = await res.json()
     adicionesDisponibles.value = {
       ...adicionesDisponibles.value,
@@ -435,7 +435,7 @@ const cargarAdicionesCategoria = async (categoriaId) => {
 const cargarIngredientesMenu = async (menuId) => {
   if (ingredientesBaseDisponibles.value[menuId]) return
   try {
-    const res = await fetch(`http://localhost:3000/menu-item/${menuId}/ingredientes`)
+    const res = await fetch(`https://superbarbaro.onrender.com/menu-item/${menuId}/ingredientes`)
     const ingredientes = await res.json()
     ingredientesBaseDisponibles.value = {
       ...ingredientesBaseDisponibles.value,
@@ -562,7 +562,7 @@ const seleccion = async () => {
   guardandoPedido.value = true
 
   const esEdicion = !!pedidoId.value
-  const url = esEdicion ? `http://localhost:3000/pedidos/${pedidoId.value}` : 'http://localhost:3000/pedidos'
+  const url = esEdicion ? `https://superbarbaro.onrender.com/pedidos/${pedidoId.value}` : 'https://superbarbaro.onrender.com/pedidos'
   const method = esEdicion ? 'PUT' : 'POST'
 
   try {
@@ -656,3 +656,6 @@ select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none
 @media (max-width: 1100px) { .layout-ventas { grid-template-columns: 1fr; } .panel { min-height: auto; } }
 @media (max-width: 768px) { .contenedor-formulario { grid-template-columns: 1fr; } .encabezado-menu { flex-direction: column; align-items: stretch; } .buscador-menu, .grid-productos { max-width: none; grid-template-columns: 1fr; } }
 </style>
+
+
+

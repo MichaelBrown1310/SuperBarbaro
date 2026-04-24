@@ -5,7 +5,6 @@
     <ion-content class="fondo">
       <div class="contenedor">
         <div v-if="cargando" class="estado">Cargando pedido...</div>
-
         <div v-else-if="!pedido" class="estado">No se encontro el pedido</div>
 
         <div v-else class="detalle">
@@ -14,7 +13,7 @@
             <p><strong>Cliente:</strong> {{ pedido.cliente_nombre || 'Sin nombre' }}</p>
             <p><strong>Telefono:</strong> {{ pedido.cliente_telefono || 'Sin telefono' }}</p>
             <p><strong>Servicio:</strong> {{ formatearServicio(pedido.tipo_servicio) }}</p>
-            <p><strong>Estado:</strong> {{ formatearEstado(pedido.estado) }}</p>
+            <p><strong>Estado:</strong> <PedidoEstadoChip class="estado-inline" :estado="pedido.estado" /></p>
             <p><strong>Hora:</strong> {{ formatearHora(pedido.fecha_creacion) }}</p>
           </div>
 
@@ -53,11 +52,7 @@
               {{ pedido.estado === 'pendiente' ? 'Editar pedido' : 'No editable' }}
             </button>
 
-            <button
-              v-else-if="textoBotonCocina"
-              class="boton-cocina"
-              @click="cambiarEstadoPedido"
-            >
+            <button v-else-if="textoBotonCocina" class="boton-cocina" @click="cambiarEstadoPedido">
               {{ textoBotonCocina }}
             </button>
           </div>
@@ -71,7 +66,8 @@
 import { IonPage, IonContent, onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
+import PedidoEstadoChip from '@/components/PedidoEstadoChip.vue'
 import { socket } from '@/utils/socket'
 
 const route = useRoute()
@@ -92,7 +88,7 @@ const cargarPedido = async () => {
   cargando.value = true
 
   try {
-    const res = await fetch(`http://localhost:3000/pedidos/${route.params.id}`)
+    const res = await fetch(`https://superbarbaro.onrender.com/pedidos/${route.params.id}`)
     if (!res.ok) {
       pedido.value = null
       return
@@ -153,7 +149,7 @@ const cambiarEstadoPedido = async () => {
   }
 
   const mensaje = siguienteEstadoCocina.value === 'en_preparacion'
-    ? '¿Quieres cambiar el pedido a En preparacion?'
+    ? '¿Quieres cambiar el pedido a En preparación?'
     : '¿Quieres cambiar el pedido a Listo?'
 
   if (!window.confirm(mensaje)) {
@@ -161,7 +157,7 @@ const cambiarEstadoPedido = async () => {
   }
 
   try {
-    const res = await fetch(`http://localhost:3000/pedidos/${pedido.value.id}/estado`, {
+    const res = await fetch(`https://superbarbaro.onrender.com/pedidos/${pedido.value.id}/estado`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -186,12 +182,6 @@ const cambiarEstadoPedido = async () => {
 }
 
 const formatearServicio = (servicio) => servicio === 'comer aqui' ? 'Comer aqui' : 'Llevar'
-const formatearEstado = (estado) => ({
-  pendiente: 'Pendiente',
-  en_preparacion: 'En preparacion',
-  listo: 'Listo',
-  entregado: 'Entregado'
-}[estado] || estado)
 
 const formatearHora = (fecha) => {
   return new Date(fecha).toLocaleTimeString('es-CO', {
@@ -276,6 +266,10 @@ onIonViewWillLeave(() => {
   padding: 40px 0;
   text-align: center;
   font-weight: 700;
+}
+
+.estado-inline {
+  margin-left: 8px;
 }
 
 .boton-editar {

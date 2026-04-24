@@ -44,7 +44,7 @@
 import { IonPage, IonContent } from '@ionic/vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed } from 'vue'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { onIonViewWillEnter } from '@ionic/vue'
 import { esAdmin } from '@/utils/auth'
 
@@ -61,7 +61,7 @@ const productos = ref([])
 const busqueda = ref('')
 
 const cargarCategorias = async () => {
-  const res = await fetch('http://localhost:3000/categorias')
+  const res = await fetch('https://superbarbaro.onrender.com/categorias')
   categorias.value = await res.json()
 }
 
@@ -85,7 +85,7 @@ const cargar = async () => {
 
   nombreCategoria.value = cat.nombre
 
-  const res = await fetch(`http://localhost:3000/productos/${cat.id}`)
+  const res = await fetch(`https://superbarbaro.onrender.com/productos/${cat.id}`)
   productos.value = await res.json()
 }
 
@@ -181,3 +181,6 @@ const nuevo = () => {
   }
 }
 </style>
+
+
+

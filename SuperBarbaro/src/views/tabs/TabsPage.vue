@@ -148,3 +148,5 @@ const mostrarTabBar = computed(() => {
   color: #2c2c2c;
 }
 </style>
+
+

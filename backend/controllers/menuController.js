@@ -79,7 +79,7 @@ exports.createMenu = (req, res) => {
   let imagen = imagen_url || null
 
   if (req.file) {
-    imagen = `http://localhost:3000/uploads/${req.file.filename}`
+    imagen = `https://superbarbaro.onrender.com/uploads/${req.file.filename}`
   }
 
   const sql = `
@@ -101,7 +101,7 @@ exports.updateMenu = (req, res) => {
   let imagen = imagen_url || null
 
   if (req.file) {
-    imagen = `http://localhost:3000/uploads/${req.file.filename}`
+    imagen = `https://superbarbaro.onrender.com/uploads/${req.file.filename}`
   }
 
   const sql = `

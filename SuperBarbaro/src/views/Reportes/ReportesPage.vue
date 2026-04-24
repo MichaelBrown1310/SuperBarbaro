@@ -24,7 +24,7 @@
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
 import { addIcons } from 'ionicons'
 import { barChartOutline, analyticsOutline } from 'ionicons/icons'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { useRouter } from 'vue-router'
 
 addIcons({ 'bar-chart-outline': barChartOutline, 'analytics-outline': analyticsOutline })
@@ -77,3 +77,5 @@ const irEstimaciones = () => router.push('/tabs/reportes/estimaciones')
   font-size: 36px;
 }
 </style>
+
+

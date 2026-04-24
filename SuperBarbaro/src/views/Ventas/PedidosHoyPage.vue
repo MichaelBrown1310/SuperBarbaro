@@ -1,20 +1,14 @@
 <template>
   <ion-page>
-
     <AppHeader titulo="PEDIDOS DE HOY" :mostrarVolver="true" @volver="volver" />
 
     <ion-content class="fondo">
-
       <div class="contenedor">
-
-        <!-- ENCABEZADO -->
         <div class="titulo-dia">
-           {{ fechaHoy }}
+          {{ fechaHoy }}
         </div>
 
-        <!-- LISTA -->
         <div v-for="p in pedidos" :key="p.id" class="pedido">
-
           <div class="fila-top">
             <span class="numero">#{{ p.numero_pedido }}</span>
             <span class="hora">{{ formatearHora(p.fecha_creacion) }}</span>
@@ -26,22 +20,19 @@
           </div>
 
           <div class="fila-bottom">
-            <span class="estado">{{ p.estado }}</span>
+            <PedidoEstadoChip :estado="p.estado" />
             <span class="total">Total: ${{ p.total }}</span>
           </div>
-
         </div>
-
       </div>
-
     </ion-content>
-
   </ion-page>
 </template>
 
 <script setup>
 import { IonPage, IonContent } from '@ionic/vue'
 import AppHeader from '@/components/AppHeader.vue'
+import PedidoEstadoChip from '@/components/PedidoEstadoChip.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -53,7 +44,7 @@ onMounted(() => {
 })
 
 const cargarPedidosHoy = async () => {
-  const res = await fetch('http://localhost:3000/pedidos?hoy=true')
+  const res = await fetch('https://superbarbaro.onrender.com/pedidos?hoy=true')
   const data = await res.json()
   pedidos.value = data
 }
@@ -103,7 +94,6 @@ const formatearHora = (f) => {
   text-transform: capitalize;
 }
 
-/* CARDS */
 .pedido {
   border: 2px solid black;
   border-radius: 18px;
@@ -136,14 +126,6 @@ const formatearHora = (f) => {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
-}
-
-.estado {
-  font-size: 12px;
-  font-weight: bold;
-  border: 1px solid black;
-  padding: 4px 10px;
-  border-radius: 10px;
 }
 
 .total {

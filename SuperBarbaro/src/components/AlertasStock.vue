@@ -1,46 +1,35 @@
 <template>
-    <transition name="slide">
-        <div class="contenedor-alertas" :style="{ bottom: enTabs ? '90px' : '20px' }" v-if="alertas.length > 0 && !enLogin">
+  <transition name="slide">
+    <div class="contenedor-alertas" :style="{ bottom: enTabs ? '90px' : '20px' }" v-if="alertas.length > 0 && !enLogin">
+      <div class="alerta" v-for="a in alertas" :key="a.id">
+        <span>
+          ⚠️ {{ a.nombre }} bajo stock ({{ a.cantidad }})
+        </span>
 
-            <div class="alerta" v-for="a in alertas" :key="a.id">
-
-                <span>
-                    ⚠️ {{ a.nombre }} bajo stock ({{ a.cantidad }})
-                </span>
-
-                <button @click="cerrar(a.id)">✖</button>
-
-            </div>
-
-        </div>
-    </transition>
+        <button @click="cerrar(a.id)">✖</button>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
-
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
 
 const route = useRoute()
-
-const enLogin = computed(() => {
-  return route.path === '/login'
-})
-
-
 const alertas = ref([])
 const cerradas = ref([])
-let idsPrevios = [] // detectar nuevas alertas
+let idsPrevios = []
 
-// sonido
+const enLogin = computed(() => route.path === '/login')
+const enTabs = computed(() => route.path.startsWith('/tabs'))
+
 const beep = () => {
   const ctx = new (window.AudioContext || window.webkitAudioContext)()
   const osc = ctx.createOscillator()
 
   osc.type = 'sine'
   osc.frequency.setValueAtTime(800, ctx.currentTime)
-
   osc.connect(ctx.destination)
   osc.start()
 
@@ -50,13 +39,9 @@ const beep = () => {
   }, 200)
 }
 
-// cargar alertas
 const cargar = async () => {
-
-  const res = await fetch('http://localhost:3000/alertas-stock')
+  const res = await fetch('https://superbarbaro.onrender.com/alertas-stock')
   const data = await res.json()
-
-  // detectar nuevas alertas
   const nuevas = data.filter(a => !idsPrevios.includes(a.id))
 
   if (nuevas.length > 0) {
@@ -64,45 +49,27 @@ const cargar = async () => {
   }
 
   idsPrevios = data.map(a => a.id)
-
-  // filtrar cerradas
   alertas.value = data.filter(a => !cerradas.value.includes(a.id))
-
 }
 
-// cerrar alerta manual
 const cerrar = (id) => {
-
   cerradas.value.push(id)
   alertas.value = alertas.value.filter(a => a.id !== id)
-
 }
 
-const enTabs = computed(() => {
-  return route.path.startsWith('/tabs')
-})
-
-// recuperar cerradas
 onMounted(() => {
-
   cargar()
-
-  // refrescar cada 5 segundos
   setInterval(cargar, 5000)
-
 })
-
 </script>
 
 <style>
-
 .contenedor-alertas {
   position: fixed;
-  right: 15px;    /*  derecha */
-
+  right: 15px;
   width: 350px;
   z-index: 9999;
- text-align: right;
+  text-align: right;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -142,5 +109,4 @@ onMounted(() => {
 .slide-enter-active {
   transition: all 0.4s ease;
 }
-
 </style>

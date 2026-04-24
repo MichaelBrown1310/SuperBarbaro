@@ -1,45 +1,28 @@
 <template>
   <ion-page>
-
     <AppHeader titulo="EDITAR USUARIO" :mostrarVolver="true" @volver="volver" />
 
     <ion-content class="fondo">
       <div class="contenedor">
+        <UserPhotoPicker :image-src="foto" placeholder-text="AÑADIR&#10;IMAGEN" @select="cargarFoto" />
 
-        <!-- FOTO -->
-        <input type="file" ref="inputFoto" accept="image/*" style="display:none" @change="cargarFoto" />
-
-        <div class="foto" @click="abrirArchivos">
-          <img v-if="foto" :src="foto" />
-          <div v-else class="foto-placeholder">
-            <ion-icon :icon="person" class="icono" />
-            <span class="texto-foto">AÑADIR<br>IMAGEN</span>
-          </div>
-        </div>
-
-        <!-- ROL (solo admin editando otro usuario) -->
         <div v-if="esAdmin && editandoOtro" class="contenedor-rol">
-
-          <!-- Selector -->
           <div class="selector-rol" @click="toggleRoles">
             <span>{{ rol || 'Seleccionar rol' }}</span>
             <ion-icon :icon="chevronDownOutline" />
           </div>
 
-          <!-- Opciones -->
           <div v-if="mostrarRoles" class="opciones-rol">
             <div v-for="r in roles" :key="r" class="opcion" @click="seleccionarRol(r)">
               {{ r }}
             </div>
           </div>
-
         </div>
 
         <div v-else>
           <p class="etiqueta-rol">{{ rol }}</p>
         </div>
 
-        <!-- CAMPOS -->
         <input class="input" placeholder="Nombre" v-model="nombre" />
         <input class="input" placeholder="Apellido" v-model="apellido" />
         <input class="input" placeholder="Correo" v-model="correo" type="email" />
@@ -47,15 +30,12 @@
 
         <button class="boton-confirmar" @click="confirmar">Confirmar</button>
 
-        <!-- Eliminar solo si admin edita otro usuario -->
         <button v-if="esAdmin && editandoOtro" class="boton-eliminar" @click="mostrarConfirmarEliminar = true">
           Eliminar Usuario
         </button>
-
       </div>
     </ion-content>
 
-    <!-- MODAL CONFIRMAR ELIMINACIÓN -->
     <ion-modal :is-open="mostrarConfirmarEliminar" @did-dismiss="mostrarConfirmarEliminar = false" class="modal-centro">
       <div class="modal-contenido">
         <h2 class="modal-titulo">ELIMINAR</h2>
@@ -64,16 +44,14 @@
         <button class="boton-borde" @click="mostrarConfirmarEliminar = false">Cancelar</button>
       </div>
     </ion-modal>
-
   </ion-page>
 </template>
 
 <script setup>
-import {
-  IonPage, IonContent, IonIcon, IonModal
-} from '@ionic/vue'
-import { person, chevronDownOutline } from 'ionicons/icons'
+import { IonPage, IonContent, IonIcon, IonModal } from '@ionic/vue'
+import { chevronDownOutline } from 'ionicons/icons'
 import AppHeader from '@/components/AppHeader.vue'
+import UserPhotoPicker from '@/components/UserPhotoPicker.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -87,18 +65,12 @@ const telefono = ref('')
 const rol = ref('')
 const foto = ref(null)
 const fotoArchivo = ref(null)
-const inputFoto = ref(null)
 const mostrarConfirmarEliminar = ref(false)
-
 const mostrarRoles = ref(false)
 const roles = ['CAJERO', 'COCINERO', 'ADMINISTRADOR']
-
-
-// Datos del usuario logueado
 const usuarioLogueado = ref({})
 const usuarioAEditar = ref(null)
 
-// Si viene con ?usuario= edita otro; si no, edita su propio perfil
 const esAdmin = computed(() => usuarioLogueado.value.rol === 'ADMINISTRADOR')
 const editandoOtro = computed(() => !!usuarioAEditar.value)
 
@@ -115,7 +87,7 @@ onMounted(() => {
     correo.value = u.correo
     telefono.value = u.telefono
     rol.value = u.rol
-    foto.value = u.foto ? 'http://localhost:3000/' + u.foto : null
+    foto.value = u.foto ? 'https://superbarbaro.onrender.com/' + u.foto : null
   } else {
     const u = usuarioLogueado.value
     nombre.value = u.nombre
@@ -123,14 +95,11 @@ onMounted(() => {
     correo.value = u.correo
     telefono.value = u.telefono
     rol.value = u.rol
-    foto.value = u.foto ? 'http://localhost:3000/' + u.foto : null
+    foto.value = u.foto ? 'https://superbarbaro.onrender.com/' + u.foto : null
   }
 })
 
-const abrirArchivos = () => inputFoto.value.click()
-
-const cargarFoto = (event) => {
-  const file = event.target.files[0]
+const cargarFoto = (file) => {
   if (file) {
     fotoArchivo.value = file
     foto.value = URL.createObjectURL(file)
@@ -141,8 +110,8 @@ const toggleRoles = () => {
   mostrarRoles.value = !mostrarRoles.value
 }
 
-const seleccionarRol = (r) => {
-  rol.value = r
+const seleccionarRol = (nuevoRol) => {
+  rol.value = nuevoRol
   mostrarRoles.value = false
 }
 
@@ -158,7 +127,7 @@ const confirmar = async () => {
       rol: rol.value
     }
 
-    const res = await fetch(`http://localhost:3000/usuarios/${id}`, {
+    const res = await fetch(`https://superbarbaro.onrender.com/usuarios/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -183,7 +152,7 @@ const confirmar = async () => {
 const eliminar = async () => {
   const id = usuarioAEditar.value.codigo
   try {
-    const res = await fetch(`http://localhost:3000/usuarios/${id}`, { method: 'DELETE' })
+    const res = await fetch(`https://superbarbaro.onrender.com/usuarios/${id}`, { method: 'DELETE' })
     const data = await res.json()
     if (data.success) {
       alert('Usuario eliminado')
@@ -231,7 +200,6 @@ const volver = () => {
   border: 2px solid rgb(184, 184, 184);
   border-radius: 10px;
   background: white;
-  
 }
 
 .opcion {
@@ -248,47 +216,6 @@ const volver = () => {
   background: #f2f2f2;
 }
 
-/* ── Foto ── */
-.foto {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.foto img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.foto-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.icono {
-  font-size: 38px;
-  color: white;
-}
-
-.texto-foto {
-  font-size: 9px;
-  color: white;
-  text-align: center;
-  font-weight: bold;
-  line-height: 1.2;
-}
-
-/* ── Rol ── */
 .etiqueta-rol {
   width: 100%;
   text-align: center;
@@ -312,7 +239,6 @@ const volver = () => {
   color: black;
 }
 
-/* ── Inputs ── */
 .input {
   width: 85%;
   max-width: 340px;
@@ -326,7 +252,6 @@ const volver = () => {
   outline: none;
 }
 
-/* ── Botones ── */
 .boton-confirmar {
   width: 85%;
   max-width: 340px;
@@ -354,7 +279,6 @@ const volver = () => {
   text-decoration: underline;
 }
 
-/* ── Modal ── */
 .modal-centro {
   --height: auto;
   --border-radius: 20px;

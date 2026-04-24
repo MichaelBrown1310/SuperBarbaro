@@ -36,7 +36,7 @@
 <script setup>
 
 import { IonPage, IonContent } from '@ionic/vue'
-import AppHeader from '../../components/AppHeader.vue'
+import AppHeader from '@/components/AppHeader.vue'
 
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -85,7 +85,7 @@ const guardar = async () => {
 
   try {
 
-    const res = await fetch('http://localhost:3000/productos', {
+    const res = await fetch('https://superbarbaro.onrender.com/productos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -162,3 +162,6 @@ const guardar = async () => {
   background: white;
 }
 </style>
+
+
+
