@@ -63,16 +63,6 @@ const routes: Array<RouteRecordRaw> = [
         component: ReportesPage
       },
 
-      {
-        path: 'reportes/ventas-diarias',
-        component: () => import('@/views/Reportes/VentasDiariasPage.vue')
-      },
-
-      {
-        path: 'reportes/estimaciones',
-        component: () => import('@/views/Reportes/EstimacionesPage.vue')
-      },
-
       // PERFIL
 
       {
@@ -191,19 +181,33 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-  path: '/historial-ventas',
-  component: () => import('@/views/Ventas/HistorialVentasPage.vue'),
-  meta: {
+    path: '/historial-ventas',
+    component: () => import('@/views/Ventas/HistorialVentasPage.vue'),
+    meta: {
       requiresAuth: true,
       allowedRoles: ['ADMINISTRADOR']
     }
   },
   {
-  path: '/pedidos-hoy',
-  component: () => import('@/views/ventas/PedidosHoyPage.vue'),
-  meta: {
-    requiresAuth: true
-  }
+    path: '/pedidos-hoy',
+    component: () => import('@/views/ventas/PedidosHoyPage.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //reportes
+  {
+    path: '/reportes/ventas-diarias',
+    component: () => import('@/views/Reportes/VentasDiariasPage.vue')
+  },
+
+  {
+    path: '/reportes/estimaciones',
+    component: () => import('@/views/Reportes/EstimacionesPage.vue')
+  },
+  {
+    path: '/reportes/prediccion-insumos',
+    component: () => import('@/views/reportes/PrediccionInsumos.vue')
   }
 ]
 

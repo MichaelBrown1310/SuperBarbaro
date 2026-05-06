@@ -15,6 +15,11 @@
           <span>Estimaciones</span>
         </button>
 
+        <button class="boton-reporte" @click="irPrediccionInsumos">
+          <ion-icon name="trending-up-outline" class="icono-reporte" />
+          <span>Predicción de insumos</span>
+        </button>
+
       </div>
     </ion-content>
   </ion-page>
@@ -23,16 +28,17 @@
 <script setup>
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
 import { addIcons } from 'ionicons'
-import { barChartOutline, analyticsOutline } from 'ionicons/icons'
+import { barChartOutline, analyticsOutline, trendingUpOutline } from 'ionicons/icons'
 import AppHeader from '@/components/AppHeader.vue'
 import { useRouter } from 'vue-router'
 
-addIcons({ 'bar-chart-outline': barChartOutline, 'analytics-outline': analyticsOutline })
+addIcons({ 'bar-chart-outline': barChartOutline, 'analytics-outline': analyticsOutline, 'trending-up-outline': trendingUpOutline })
 
 const router = useRouter()
 
-const irVentasDiarias = () => router.push('/tabs/reportes/ventas-diarias')
-const irEstimaciones = () => router.push('/tabs/reportes/estimaciones')
+const irVentasDiarias = () => router.push('/reportes/ventas-diarias')
+const irEstimaciones = () => router.push('/reportes/estimaciones')
+const irPrediccionInsumos = () => router.push('/reportes/prediccion-insumos')
 </script>
 
 <style scoped>
@@ -77,5 +83,3 @@ const irEstimaciones = () => router.push('/tabs/reportes/estimaciones')
   font-size: 36px;
 }
 </style>
-
-

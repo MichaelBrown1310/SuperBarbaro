@@ -235,6 +235,7 @@ onMounted(cargar)
   padding: 16px;
   max-width: 480px;
   margin: 0 auto;
+  color: black;
 }
 
 /* ── Selector de semana ── */
