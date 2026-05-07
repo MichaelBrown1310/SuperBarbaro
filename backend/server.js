@@ -1,3 +1,6 @@
+const axios = require('axios')
+const fs = require('fs')
+const path = require('path')
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -30,6 +33,33 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/uploads', express.static('uploads'));
+
+async function descargarImagen(url) {
+
+  const nombre = Date.now() + '.jpg'
+
+  const ruta = path.join(__dirname, 'uploads', nombre)
+
+  const response = await axios({
+    url,
+    method: 'GET',
+    responseType: 'stream'
+  })
+
+  const writer = fs.createWriteStream(ruta)
+
+  response.data.pipe(writer)
+
+  return new Promise((resolve, reject) => {
+
+    writer.on('finish', () => {
+      resolve(nombre)
+    })
+
+    writer.on('error', reject)
+
+  })
+}
 
 app.use(usuariosRoutes);
 

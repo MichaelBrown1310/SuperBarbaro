@@ -51,7 +51,7 @@ router.get("/api/insumos/historico", async (req, res) => {
 router.get("/api/insumos/productos", async (req, res) => {
   try {
     const [rows] = await dbPromise.query(`
-      SELECT id, nombre, cantidad, minimo
+      SELECT id, nombre, cantidad, minimo, imagen
       FROM productos
     `);
 
