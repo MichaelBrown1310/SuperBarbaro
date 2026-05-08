@@ -208,6 +208,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/reportes/prediccion-insumos',
     component: () => import('@/views/reportes/PrediccionInsumos.vue')
+  },
+  {
+    path: '/reportes/prediccion-productos',
+    component: () => import('@/views/Reportes/PrediccionProductos.vue')
   }
 ]
 

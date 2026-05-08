@@ -1,105 +1,84 @@
 <template>
   <ion-page>
-    <AppHeader titulo="ANÁLISIS DE INSUMOS" />
+    <AppHeader titulo="ANALISIS DE PRODUCTOS" />
 
     <ion-content class="fondo">
-
-      <!-- RESUMEN -->
       <div class="resumen">
-
         <div class="card-resumen gris">
-          <p class="titulo">Consumo diario estimado</p>
+          <p class="titulo">Demanda diaria estimada</p>
           <h2>{{ demandaTotal }} und</h2>
           <span class="desc">
-            Promedio diario total basado en historial
+            Promedio diario total basado en pedidos
           </span>
         </div>
 
         <div class="card-resumen verde">
-          <p class="titulo">Salud inventario</p>
-          <h2>{{ porcentajeSalud }}%</h2>
+          <p class="titulo">Productos con demanda</p>
+          <h2>{{ porcentajeActivos }}%</h2>
           <span class="desc">
-            Productos con stock estable
+            Elementos del menu con historial
           </span>
         </div>
 
         <div class="card-resumen rojo">
-          <p class="titulo">Alertas</p>
-          <h2>{{ alertas }}</h2>
+          <p class="titulo">Alta rotacion</p>
+          <h2>{{ productosAltaRotacion }}</h2>
           <span class="desc">
-            Insumos que requieren atención
+            Productos con venta diaria destacada
           </span>
         </div>
-
       </div>
 
-      <!-- BUSCADOR -->
       <div class="top">
-        <input v-model="busqueda" placeholder="Buscar insumo..." />
+        <input v-model="busqueda" placeholder="Buscar producto..." />
       </div>
 
-      <!-- GRID -->
       <div class="grid">
-
         <div v-for="p in filtrados" :key="p.id" class="card" @click="seleccionar(p)">
-
           <img :src="p.imagen || 'https://via.placeholder.com/100'" />
 
           <h3>{{ p.nombre }}</h3>
 
           <div class="info">
-
             <p>
-              <strong>📦 Stock:</strong>
-              {{ p.cantidad }}
+              <strong>Precio:</strong>
+              ${{ formatearNumero(p.precio) }}
             </p>
 
             <p>
-              <strong>📉 Consumo:</strong>
-              {{ getConsumo(p) }} und/día
+              <strong>Consumo:</strong>
+              {{ getConsumo(p) }} und/dia
             </p>
 
             <p>
-              <strong>⏳ Duración:</strong>
-              {{ calcularDias(p) }} días
+              <strong>Proyeccion:</strong>
+              {{ calcularProyeccion(p) }} und/semana
             </p>
-
           </div>
 
-          <!-- BARRA -->
           <div class="barra">
-
             <div class="progreso" :class="estadoClase(p)" :style="{ width: anchoBarra(p) + '%' }"></div>
-
           </div>
 
-          <!-- BADGE -->
           <span class="badge" :class="estadoClase(p)">
             {{ recomendacion(p) }}
           </span>
-
         </div>
-
       </div>
 
-      <!-- DETALLE -->
       <div v-if="producto" class="detalle">
-
         <button class="volver" @click="producto = null">
-          ← Volver
+          <- Volver
         </button>
 
         <h2>{{ producto.nombre }}</h2>
 
-        <!-- GRAFICA -->
         <div class="grafica-container">
           <canvas ref="chart"></canvas>
         </div>
 
-        <!-- ANALISIS -->
         <div class="analisis">
-
-          <h3>📊 Análisis del insumo</h3>
+          <h3>Analisis del producto</h3>
 
           <p>
             <strong>Consumo promedio diario:</strong>
@@ -109,39 +88,29 @@
           <p>
             <strong>Tendencia:</strong>
 
-            <span :class="variacionTexto.includes('+')
-              ? 'rojo'
-              : 'verde'
-              ">
+            <span :class="variacionTexto.includes('+') ? 'rojo' : 'verde'">
               {{ variacionTexto }}
             </span>
           </p>
 
           <p>
-            <strong>Día con mayor consumo:</strong>
+            <strong>Dia con mayor consumo:</strong>
             {{ mejorDia }}
           </p>
 
           <p>
-            <strong>Duración estimada:</strong>
+            <strong>Demanda estimada semanal:</strong>
 
-            <span :class="Number(diasRestantes) < 3
-              ? 'rojo'
-              : 'verde'
-              ">
-              {{ diasRestantes }} días
+            <span :class="Number(demandaSemanal) >= 10 ? 'rojo' : 'verde'">
+              {{ demandaSemanal }} und
             </span>
           </p>
-
         </div>
 
-        <!-- INSIGHT -->
         <div class="insight" :class="claseInsight">
-          💡 {{ insight }}
+          {{ insight }}
         </div>
-
       </div>
-
     </ion-content>
   </ion-page>
 </template>
@@ -176,13 +145,14 @@ const chart = ref(null)
 
 let chartInstance = null
 
-// LIMPIAR TEXTO
 const limpiarTexto = (txt) =>
   String(txt || '')
     .trim()
     .toLowerCase()
 
-// FILTRO
+const formatearNumero = (valor) =>
+  Number(valor || 0).toLocaleString('es-CO')
+
 const filtrados = computed(() =>
   productos.value.filter(p =>
     limpiarTexto(p.nombre)
@@ -192,38 +162,17 @@ const filtrados = computed(() =>
   )
 )
 
-// ESTADO
-const estadoClase = (p) => {
-
-  const dias = Number(calcularDias(p))
-
-  if (isNaN(dias))
-    return 'gris'
-
-  if (dias < 2)
-    return 'rojo'
-
-  if (dias < 5)
-    return 'amarillo'
-
-  return 'verde'
-}
-
-// DATOS DEL PRODUCTO
 const datos = computed(() => {
-
   if (!producto.value)
     return []
 
   return historico.value.filter(h =>
-    limpiarTexto(h.insumo) ===
+    limpiarTexto(h.producto) ===
     limpiarTexto(producto.value.nombre)
   )
 })
 
-// PROMEDIO
 const promedioConsumo = computed(() => {
-
   const vals = datos.value
     .map(d => Number(d.consumo_dia))
     .filter(v => !isNaN(v))
@@ -238,9 +187,7 @@ const promedioConsumo = computed(() => {
   return promedio.toFixed(1)
 })
 
-// VARIACIÓN
 const variacionTexto = computed(() => {
-
   const d = datos.value
     .map(x => Number(x.consumo_dia))
     .filter(v => !isNaN(v))
@@ -255,31 +202,27 @@ const variacionTexto = computed(() => {
     ((d[d.length - 1] - d[0]) / d[0]) * 100
 
   return cambio > 0
-    ? `+${cambio.toFixed(0)}% 📈`
-    : `${cambio.toFixed(0)}% 📉`
+    ? `+${cambio.toFixed(0)}%`
+    : `${cambio.toFixed(0)}%`
 })
 
-// DÍAS
 const diasSemana = [
   'Domingo',
   'Lunes',
   'Martes',
-  'Miércoles',
+  'Miercoles',
   'Jueves',
   'Viernes',
-  'Sábado'
+  'Sabado'
 ]
 
-// MEJOR DÍA
 const mejorDia = computed(() => {
-
   if (!datos.value.length)
     return 'Sin registros'
 
   const mapa = Array(7).fill(0)
 
   datos.value.forEach(d => {
-
     const fecha = new Date(d.fecha)
 
     if (isNaN(fecha))
@@ -301,15 +244,7 @@ const mejorDia = computed(() => {
   ]
 })
 
-// DURACIÓN
-const diasRestantes = computed(() => {
-
-  if (!producto.value)
-    return 'Sin datos'
-
-  const stock =
-    Number(producto.value.cantidad)
-
+const demandaSemanal = computed(() => {
   const consumo =
     Number(promedioConsumo.value)
 
@@ -319,54 +254,168 @@ const diasRestantes = computed(() => {
   )
     return 'Sin datos'
 
-  return (stock / consumo).toFixed(1)
+  return (consumo * 7).toFixed(0)
 })
 
-// INSIGHT
 const insight = computed(() => {
-
   if (!producto.value)
     return ''
 
-  const dias =
-    Number(diasRestantes.value)
+  const demanda =
+    Number(demandaSemanal.value)
 
-  if (isNaN(dias))
-    return 'No hay suficiente historial registrado para generar análisis.'
+  if (isNaN(demanda))
+    return 'No hay suficiente historial registrado para generar analisis.'
 
-  if (dias < 2)
-    return 'Inventario crítico. El stock podría agotarse muy pronto.'
+  if (demanda >= 20)
+    return 'Producto de alta demanda. Conviene priorizar inventario y disponibilidad.'
 
-  if (dias < 5)
-    return 'Stock bajo. Se recomienda reabastecer pronto.'
+  if (demanda >= 10)
+    return 'Producto con demanda estable. Debe monitorearse durante la semana.'
 
-  if (dias < 10)
-    return 'Inventario estable, pero debe monitorearse.'
+  if (demanda > 0)
+    return 'Producto con demanda baja o moderada. Puede revisarse junto con promociones.'
 
-  return 'El inventario tiene una cobertura saludable.'
+  return 'Producto sin consumo registrado en el historial.'
 })
 
-// CLASE INSIGHT
 const claseInsight = computed(() => {
+  const demanda =
+    Number(demandaSemanal.value)
 
-  const dias =
-    Number(diasRestantes.value)
-
-  if (isNaN(dias))
+  if (isNaN(demanda))
     return 'gris'
 
-  if (dias < 2)
+  if (demanda >= 20)
     return 'rojo'
 
-  if (dias < 5)
+  if (demanda >= 10)
     return 'amarillo'
 
   return 'verde'
 })
 
-// GRAFICA
-const crearGrafica = async () => {
+const getConsumo = (p) => {
+  const d = historico.value.filter(h =>
+    limpiarTexto(h.producto) ===
+    limpiarTexto(p.nombre)
+  )
 
+  if (!d.length)
+    return 0
+
+  const vals = d
+    .map(x =>
+      Number(x.consumo_dia)
+    )
+    .filter(v =>
+      !isNaN(v)
+    )
+
+  if (!vals.length)
+    return 0
+
+  const promedio =
+    vals.reduce((a, b) => a + b, 0) /
+    vals.length
+
+  return Number(
+    promedio.toFixed(1)
+  )
+}
+
+const calcularProyeccion = (p) => {
+  const consumo = getConsumo(p)
+
+  if (!consumo)
+    return 'Sin datos'
+
+  return (consumo * 7).toFixed(0)
+}
+
+const estadoClase = (p) => {
+  const proyeccion = Number(calcularProyeccion(p))
+
+  if (isNaN(proyeccion))
+    return 'gris'
+
+  if (proyeccion >= 20)
+    return 'rojo'
+
+  if (proyeccion >= 10)
+    return 'amarillo'
+
+  return 'verde'
+}
+
+const anchoBarra = (p) => {
+  const proyeccion =
+    Number(calcularProyeccion(p))
+
+  if (isNaN(proyeccion))
+    return 0
+
+  return Math.min(
+    (proyeccion / 30) * 100,
+    100
+  )
+}
+
+const recomendacion = (p) => {
+  const proyeccion =
+    Number(calcularProyeccion(p))
+
+  if (isNaN(proyeccion))
+    return 'Sin datos'
+
+  if (proyeccion >= 20)
+    return 'Alta demanda'
+
+  if (proyeccion >= 10)
+    return 'Monitorear'
+
+  return 'Demanda estable'
+}
+
+const productosAltaRotacion = computed(() =>
+  productos.value.filter(p => {
+    const proyeccion =
+      Number(calcularProyeccion(p))
+
+    return !isNaN(proyeccion) && proyeccion >= 10
+  }).length
+)
+
+const demandaTotal = computed(() => {
+  const total = productos.value.reduce(
+    (acc, p) =>
+      acc + Number(
+        getConsumo(p)
+      ),
+    0
+  )
+
+  return total.toFixed(0)
+})
+
+const porcentajeActivos = computed(() => {
+  const total =
+    productos.value.length
+
+  if (!total)
+    return 0
+
+  const activos =
+    productos.value.filter(p =>
+      Number(getConsumo(p)) > 0
+    ).length
+
+  return (
+    (activos / total) * 100
+  ).toFixed(0)
+})
+
+const crearGrafica = async () => {
   await nextTick()
 
   if (!chart.value)
@@ -382,7 +431,6 @@ const crearGrafica = async () => {
     chartInstance.destroy()
 
   chartInstance = new Chart(chart.value, {
-
     type: 'line',
 
     data: {
@@ -398,11 +446,9 @@ const crearGrafica = async () => {
     },
 
     options: {
-
       responsive: true,
 
       plugins: {
-
         legend: {
           display: true
         }
@@ -411,172 +457,31 @@ const crearGrafica = async () => {
   })
 }
 
-// SELECCIONAR
 const seleccionar = async (p) => {
-
   producto.value = p
 
   await crearGrafica()
 }
 
-// LOAD
 onMounted(async () => {
-
   try {
-
     const p = await axios.get(
-      `${API_URL}/api/insumos/productos`
+      `${API_URL}/api/productos-menu/productos`
     )
 
     const h = await axios.get(
-      `${API_URL}/api/insumos/historico`
+      `${API_URL}/api/productos-menu/historico`
     )
 
     productos.value = p.data || []
-    console.log(productos.value)
     historico.value = h.data || []
-
   } catch (error) {
-
     console.error(
       'Error cargando datos:',
       error
     )
   }
 })
-
-// CONSUMO
-const getConsumo = (p) => {
-
-  const d = historico.value.filter(h =>
-
-    limpiarTexto(h.insumo) ===
-    limpiarTexto(p.nombre)
-  )
-
-  if (!d.length)
-    return 0
-
-  const vals = d
-
-    .map(x =>
-      Number(x.consumo_dia)
-    )
-
-    .filter(v =>
-      !isNaN(v)
-    )
-
-  if (!vals.length)
-    return 0
-
-  const promedio =
-
-    vals.reduce((a, b) => a + b, 0) /
-    vals.length
-
-  return Number(
-    promedio.toFixed(1)
-  )
-}
-
-// DIAS ESTIMADOS
-const calcularDias = (p) => {
-
-  const consumo = getConsumo(p)
-
-  if (!consumo)
-    return 'Sin datos'
-
-  return (
-    p.cantidad / consumo
-  ).toFixed(1)
-}
-
-// BARRA
-const anchoBarra = (p) => {
-
-  const dias =
-    Number(calcularDias(p))
-
-  if (isNaN(dias))
-    return 0
-
-  return Math.min(
-    (dias / 15) * 100,
-    100
-  )
-}
-
-// ALERTAS
-const alertas = computed(() =>
-
-  productos.value.filter(p => {
-
-    const dias =
-      Number(calcularDias(p))
-
-    return !isNaN(dias) && dias < 5
-
-  }).length
-)
-
-// DEMANDA
-const demandaTotal = computed(() => {
-
-  const total = productos.value.reduce(
-    (acc, p) =>
-
-      acc + Number(
-        getConsumo(p)
-      ),
-
-    0
-  )
-
-  return total.toFixed(0)
-})
-
-// SALUD
-const porcentajeSalud = computed(() => {
-
-  const total =
-    productos.value.length
-
-  if (!total)
-    return 0
-
-  const saludables =
-    productos.value.filter(p => {
-
-      const dias =
-        Number(calcularDias(p))
-
-      return dias >= 5
-    }).length
-
-  return (
-    (saludables / total) * 100
-  ).toFixed(0)
-})
-
-// RECOMENDACIÓN
-const recomendacion = (p) => {
-
-  const dias =
-    Number(calcularDias(p))
-
-  if (isNaN(dias))
-    return 'Sin datos'
-
-  if (dias < 2)
-    return 'Urgente'
-
-  if (dias < 5)
-    return 'Reponer'
-
-  return 'Stock OK'
-}
 </script>
 
 <style scoped>
@@ -584,8 +489,6 @@ const recomendacion = (p) => {
   --background: #f4f6f9;
   color: #111;
 }
-
-/* RESUMEN */
 
 .resumen {
   display: flex;
@@ -632,8 +535,6 @@ const recomendacion = (p) => {
   border-top: 4px solid #f44336;
 }
 
-/* BUSCADOR */
-
 .top {
   padding: 10px;
 }
@@ -648,8 +549,6 @@ input {
   font-size: 14px;
 }
 
-/* GRID */
-
 .grid {
   display: grid;
   grid-template-columns:
@@ -657,8 +556,6 @@ input {
   gap: 14px;
   padding: 12px;
 }
-
-/* CARD */
 
 .card {
   background: white;
@@ -688,14 +585,10 @@ input {
   font-weight: 700;
 }
 
-/* INFO */
-
 .info p {
   margin: 4px 0;
   font-size: 13px;
 }
-
-/* BARRA */
 
 .barra {
   height: 7px;
@@ -725,8 +618,6 @@ input {
   background: #9e9e9e;
 }
 
-/* BADGE */
-
 .badge {
   display: inline-block;
   padding: 5px 10px;
@@ -754,8 +645,6 @@ input {
   background: #eeeeee;
   color: #616161;
 }
-
-/* DETALLE */
 
 .detalle {
   padding: 14px;
@@ -810,8 +699,6 @@ input {
   background: #eeeeee;
   color: #616161;
 }
-
-/* GENERALES */
 
 .rojo {
   color: #e53935;

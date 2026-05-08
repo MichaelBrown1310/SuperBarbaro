@@ -13,6 +13,7 @@ const menuRoutes = require("./routes/menuRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const alertasRoutes = require("./routes/alertasRoutes");
 const insumosRoutes = require("./routes/insumosRoutes");
+const productosMenuRoutes = require("./routes/productosMenuRoutes");
 
 const usuariosController = require("./controllers/usuariosController");
 const pedidosController = require("./controllers/pedidosController");
@@ -70,6 +71,7 @@ app.use(menuRoutes);
 app.use(pedidosRoutes);
 app.use(alertasRoutes);
 app.use(insumosRoutes);
+app.use(productosMenuRoutes);
 
 io.on('connection', () => {
   console.log('Cliente conectado por socket');

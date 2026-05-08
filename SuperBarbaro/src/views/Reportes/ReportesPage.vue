@@ -20,6 +20,11 @@
           <span>Predicción de insumos</span>
         </button>
 
+        <button class="boton-reporte" @click="irPrediccionProductos">
+          <ion-icon name="fast-food-outline" class="icono-reporte" />
+          <span>Prediccion de productos</span>
+        </button>
+
       </div>
     </ion-content>
   </ion-page>
@@ -28,17 +33,18 @@
 <script setup>
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
 import { addIcons } from 'ionicons'
-import { barChartOutline, analyticsOutline, trendingUpOutline } from 'ionicons/icons'
+import { barChartOutline, analyticsOutline, trendingUpOutline, fastFoodOutline } from 'ionicons/icons'
 import AppHeader from '@/components/AppHeader.vue'
 import { useRouter } from 'vue-router'
 
-addIcons({ 'bar-chart-outline': barChartOutline, 'analytics-outline': analyticsOutline, 'trending-up-outline': trendingUpOutline })
+addIcons({ 'bar-chart-outline': barChartOutline, 'analytics-outline': analyticsOutline, 'trending-up-outline': trendingUpOutline, 'fast-food-outline': fastFoodOutline })
 
 const router = useRouter()
 
 const irVentasDiarias = () => router.push('/reportes/ventas-diarias')
 const irEstimaciones = () => router.push('/reportes/estimaciones')
 const irPrediccionInsumos = () => router.push('/reportes/prediccion-insumos')
+const irPrediccionProductos = () => router.push('/reportes/prediccion-productos')
 </script>
 
 <style scoped>
