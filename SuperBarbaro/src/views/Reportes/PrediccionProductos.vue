@@ -1,332 +1,721 @@
 <template>
   <ion-page>
-    <AppHeader titulo="PREDICCIÓN DE PRODUCTOS" :mostrarVolver="true" />
+    <AppHeader titulo="ANALISIS DE PRODUCTOS" />
 
     <ion-content class="fondo">
-      <div class="contenedor">
-
-        <!-- KPIs -->
-        <div class="kpis">
-          <div class="kpi-card gris">
-            <span class="kpi-icono">📈</span>
-            <span class="kpi-label">Demanda diaria est.</span>
-            <span class="kpi-valor">{{ demandaTotal }} und</span>
-            <span class="kpi-sub">Promedio basado en pedidos</span>
-          </div>
-          <div class="kpi-card verde">
-            <span class="kpi-icono">🍔</span>
-            <span class="kpi-label">Con demanda</span>
-            <span class="kpi-valor">{{ porcentajeActivos }}%</span>
-            <span class="kpi-sub">Productos del menú con historial</span>
-          </div>
-          <div class="kpi-card naranja">
-            <span class="kpi-icono">🔥</span>
-            <span class="kpi-label">Alta rotación</span>
-            <span class="kpi-valor">{{ productosAltaRotacion }}</span>
-            <span class="kpi-sub">Venta diaria destacada</span>
-          </div>
+      <div class="resumen">
+        <div class="card-resumen gris">
+          <p class="titulo">Demanda diaria estimada</p>
+          <h2>{{ demandaTotal }} und</h2>
+          <span class="desc">
+            Promedio diario total basado en pedidos
+          </span>
         </div>
 
-        <!-- BUSCADOR + EXPORTAR -->
-        <div class="barra-acciones">
-          <div class="buscador-wrap">
-            <ion-icon name="search-outline" class="search-icon" />
-            <input v-model="busqueda" placeholder="Buscar producto..." />
-          </div>
-          <button class="btn-exportar" @click="exportarPDF" :disabled="exportando">
+        <div class="card-resumen verde">
+          <p class="titulo">Productos con demanda</p>
+          <h2>{{ porcentajeActivos }}%</h2>
+          <span class="desc">
+            Elementos del menu con historial
+          </span>
+        </div>
+
+        <div class="card-resumen rojo">
+          <p class="titulo">Alta rotacion</p>
+          <h2>{{ productosAltaRotacion }}</h2>
+          <span class="desc">
+            Productos con venta diaria destacada
+          </span>
+        </div>
+      </div>
+
+      <div class="top">
+        <input v-model="busqueda" placeholder="Buscar producto..." />
+
+        <div class="dropdown-exportar">
+          <button class="btn-exportar" @click="mostrarMenu = !mostrarMenu" :disabled="exportando">
             <ion-icon name="document-text-outline" />
-            <span>{{ exportando ? 'Generando...' : 'PDF' }}</span>
+            <span>{{ exportando ? 'Generando...' : 'Exportar ▾' }}</span>
           </button>
-        </div>
 
-        <!-- GRID -->
-        <div class="grid" v-if="!producto">
-          <div v-for="p in filtrados" :key="p.id" class="card" @click="seleccionar(p)">
-            <div class="card-header">
-              <img :src="p.imagen || 'https://placehold.co/80x80/f0f0f0/999?text=🍔'" />
-              <span class="badge" :class="estadoClase(p)">{{ recomendacion(p) }}</span>
-            </div>
-            <h3>{{ p.nombre }}</h3>
-            <div class="precio-tag">${{ formatearNumero(p.precio) }}</div>
-            <div class="info">
-              <div class="info-fila">
-                <span class="info-label">Consumo/día</span>
-                <span class="info-val">{{ getConsumo(p) }} und</span>
-              </div>
-              <div class="info-fila">
-                <span class="info-label">Proyección semanal</span>
-                <span class="info-val" :class="estadoClase(p)">{{ calcularProyeccion(p) }} und</span>
-              </div>
-            </div>
-            <div class="barra-wrap">
-              <div class="barra-progreso" :class="estadoClase(p)" :style="{ width: anchoBarra(p) + '%' }" />
-            </div>
+          <div v-if="mostrarMenu" class="menu-exportar">
+            <button @click="exportarArchivo('pdf')">📄 PDF</button>
+            <button @click="exportarArchivo('excel')">📊 Excel</button>
+            <button @click="exportarArchivo('word')">📝 Word</button>
+            <button @click="exportarArchivo('csv')">📑 CSV</button>
           </div>
         </div>
+      </div>
 
-        <!-- DETALLE -->
-        <div v-if="producto" class="detalle">
-          <div class="detalle-header">
-            <button class="btn-volver" @click="producto = null">
-              <ion-icon name="arrow-back-outline" /> Volver
-            </button>
+      <div class="grid">
+        <div v-for="p in filtrados" :key="p.id" class="card" @click="seleccionar(p)">
+          <img :src="p.imagen || 'https://via.placeholder.com/100'" />
+
+          <h3>{{ p.categoria }}: {{ p.nombre }}</h3>
+
+          <div class="info">
+            <p>
+              <strong>Precio:</strong>
+              ${{ formatearNumero(p.precio) }}
+            </p>
+
+            <p>
+              <strong>Consumo:</strong>
+              {{ getConsumo(p) }} und/dia
+            </p>
+
+            <p>
+              <strong>Proyeccion:</strong>
+              {{ calcularProyeccion(p) }} und/semana
+            </p>
           </div>
 
-          <div class="detalle-card">
-            <h2 class="detalle-nombre">{{ producto.nombre }}</h2>
+          <div class="barra">
+            <div class="progreso" :class="estadoClase(p)" :style="{ width: anchoBarra(p) + '%' }"></div>
+          </div>
+
+          <span class="badge" :class="estadoClase(p)">
+            {{ recomendacion(p) }}
+          </span>
+
+        </div>
+
+      </div>
+
+      <div v-if="producto" class="detalle">
+        <button class="volver" @click="producto = null">
+          <- Volver </button>
+
+            <h2>{{ producto.nombre }}</h2>
+
             <div class="grafica-container">
               <canvas ref="chart"></canvas>
             </div>
-            <div class="analisis-grid">
-              <div class="analisis-item">
-                <span class="analisis-label">Consumo promedio</span>
-                <span class="analisis-val">{{ promedioConsumo }} und/día</span>
-              </div>
-              <div class="analisis-item">
-                <span class="analisis-label">Tendencia</span>
-                <span class="analisis-val" :class="variacionTexto.includes('+') ? 'color-rojo' : 'color-verde'">
+
+            <div class="analisis">
+              <h3>Analisis del producto</h3>
+
+              <p>
+                <strong>Consumo promedio diario:</strong>
+                {{ promedioConsumo }} und
+              </p>
+
+              <p>
+                <strong>Tendencia:</strong>
+
+                <span :class="variacionTexto.includes('+') ? 'rojo' : 'verde'">
                   {{ variacionTexto }}
                 </span>
-              </div>
-              <div class="analisis-item">
-                <span class="analisis-label">Mayor consumo</span>
-                <span class="analisis-val">{{ mejorDia }}</span>
-              </div>
-              <div class="analisis-item">
-                <span class="analisis-label">Demanda semanal</span>
-                <span class="analisis-val" :class="Number(demandaSemanal) >= 10 ? 'color-rojo' : 'color-verde'">
+              </p>
+
+              <p>
+                <strong>Dia con mayor consumo:</strong>
+                {{ mejorDia }}
+              </p>
+
+              <p>
+                <strong>Demanda estimada semanal:</strong>
+
+                <span :class="Number(demandaSemanal) >= 10 ? 'rojo' : 'verde'">
                   {{ demandaSemanal }} und
                 </span>
-              </div>
+              </p>
             </div>
-            <div class="insight-box" :class="claseInsight">
+
+            <div class="insight" :class="claseInsight">
               {{ insight }}
             </div>
-          </div>
-        </div>
-
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  nextTick
+} from 'vue'
+
 import axios from 'axios'
 import Chart from 'chart.js/auto'
-import { IonPage, IonContent, IonIcon } from '@ionic/vue'
-import { addIcons } from 'ionicons'
-import { searchOutline, documentTextOutline, arrowBackOutline } from 'ionicons/icons'
-import AppHeader from '@/components/AppHeader.vue'
 
-addIcons({
-  'search-outline': searchOutline,
-  'document-text-outline': documentTextOutline,
-  'arrow-back-outline': arrowBackOutline
-})
+import {
+  IonPage,
+  IonContent
+} from '@ionic/vue'
+
+import AppHeader from '@/components/AppHeader.vue'
 
 const API_URL = 'https://superbarbaro.onrender.com'
 
 const productos = ref([])
 const historico = ref([])
+
 const busqueda = ref('')
 const producto = ref(null)
+
 const chart = ref(null)
+
 const exportando = ref(false)
+const mostrarMenu = ref(false)
+
 let chartInstance = null
 
-const limpiarTexto = (txt) => String(txt || '').trim().toLowerCase()
-const formatearNumero = (valor) => Number(valor || 0).toLocaleString('es-CO')
+const limpiarTexto = (txt) =>
+  String(txt || '')
+    .trim()
+    .toLowerCase()
+
+const formatearNumero = (valor) =>
+  Number(valor || 0).toLocaleString('es-CO')
+
+const formatearFecha = (valor) => {
+  const fecha = new Date(valor)
+
+  if (isNaN(fecha))
+    return valor
+
+  return fecha.toLocaleDateString('es-CO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
 
 const filtrados = computed(() =>
-  productos.value.filter(p => limpiarTexto(p.nombre).includes(limpiarTexto(busqueda.value)))
+  productos.value.filter(p =>
+    limpiarTexto(p.nombre)
+      .includes(
+        limpiarTexto(busqueda.value)
+      )
+  )
 )
 
 const datos = computed(() => {
-  if (!producto.value) return []
-  return historico.value.filter(h => limpiarTexto(h.producto) === limpiarTexto(producto.value.nombre))
+  if (!producto.value)
+    return []
+
+  return historico.value.filter(h =>
+    limpiarTexto(h.producto) ===
+    limpiarTexto(producto.value.nombre)
+  )
 })
 
 const promedioConsumo = computed(() => {
-  const vals = datos.value.map(d => Number(d.consumo_dia)).filter(v => !isNaN(v))
-  if (!vals.length) return 'Sin datos'
-  return (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)
+  const vals = datos.value
+    .map(d => Number(d.consumo_dia))
+    .filter(v => !isNaN(v))
+
+  if (!vals.length)
+    return 'Sin datos'
+
+  const promedio =
+    vals.reduce((a, b) => a + b, 0) /
+    vals.length
+
+  return promedio.toFixed(1)
 })
 
 const variacionTexto = computed(() => {
-  const d = datos.value.map(x => Number(x.consumo_dia)).filter(v => !isNaN(v))
-  if (d.length < 2 || d[0] === 0) return 'Sin datos'
-  const cambio = ((d[d.length - 1] - d[0]) / d[0]) * 100
-  return cambio > 0 ? `+${cambio.toFixed(0)}%` : `${cambio.toFixed(0)}%`
+  const d = datos.value
+    .map(x => Number(x.consumo_dia))
+    .filter(v => !isNaN(v))
+
+  if (d.length < 2)
+    return 'Sin datos'
+
+  if (d[0] === 0)
+    return 'Sin datos'
+
+  const cambio =
+    ((d[d.length - 1] - d[0]) / d[0]) * 100
+
+  return cambio > 0
+    ? `+${cambio.toFixed(0)}%`
+    : `${cambio.toFixed(0)}%`
 })
 
-const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+const diasSemana = [
+  'Domingo',
+  'Lunes',
+  'Martes',
+  'Miercoles',
+  'Jueves',
+  'Viernes',
+  'Sabado'
+]
 
 const mejorDia = computed(() => {
-  if (!datos.value.length) return 'Sin registros'
+  if (!datos.value.length)
+    return 'Sin registros'
+
   const mapa = Array(7).fill(0)
+
   datos.value.forEach(d => {
     const fecha = new Date(d.fecha)
-    if (!isNaN(fecha)) mapa[fecha.getDay()] += Number(d.consumo_dia) || 0
+
+    if (isNaN(fecha))
+      return
+
+    const dia = fecha.getDay()
+
+    mapa[dia] +=
+      Number(d.consumo_dia) || 0
   })
+
   const max = Math.max(...mapa)
-  return max <= 0 ? 'Sin consumo' : diasSemana[mapa.indexOf(max)]
+
+  if (max <= 0)
+    return 'Sin consumo'
+
+  return diasSemana[
+    mapa.indexOf(max)
+  ]
 })
 
 const demandaSemanal = computed(() => {
-  const consumo = Number(promedioConsumo.value)
-  if (!consumo || isNaN(consumo)) return 'Sin datos'
+  const consumo =
+    Number(promedioConsumo.value)
+
+  if (
+    !consumo ||
+    isNaN(consumo)
+  )
+    return 'Sin datos'
+
   return (consumo * 7).toFixed(0)
 })
 
 const insight = computed(() => {
-  const demanda = Number(demandaSemanal.value)
-  if (isNaN(demanda)) return 'No hay suficiente historial para generar análisis.'
-  if (demanda >= 20) return '🔥 Producto de alta demanda. Priorizar inventario y disponibilidad.'
-  if (demanda >= 10) return '📊 Producto con demanda estable. Monitorear durante la semana.'
-  if (demanda > 0) return '📉 Demanda baja o moderada. Puede revisarse junto con promociones.'
-  return 'Sin consumo registrado en el historial.'
+  if (!producto.value)
+    return ''
+
+  const demanda =
+    Number(demandaSemanal.value)
+
+  if (isNaN(demanda))
+    return 'No hay suficiente historial registrado para generar analisis.'
+
+  if (demanda >= 20)
+    return 'Producto de alta demanda. Conviene priorizar inventario y disponibilidad.'
+
+  if (demanda >= 10)
+    return 'Producto con demanda estable. Debe monitorearse durante la semana.'
+
+  if (demanda > 0)
+    return 'Producto con demanda baja o moderada. Puede revisarse junto con promociones.'
+
+  return 'Producto sin consumo registrado en el historial.'
 })
 
 const claseInsight = computed(() => {
-  const demanda = Number(demandaSemanal.value)
-  if (isNaN(demanda)) return 'gris'
-  if (demanda >= 20) return 'rojo'
-  if (demanda >= 10) return 'amarillo'
+  const demanda =
+    Number(demandaSemanal.value)
+
+  if (isNaN(demanda))
+    return 'gris'
+
+  if (demanda >= 20)
+    return 'rojo'
+
+  if (demanda >= 10)
+    return 'amarillo'
+
   return 'verde'
 })
 
 const getConsumo = (p) => {
-  const d = historico.value.filter(h => limpiarTexto(h.producto) === limpiarTexto(p.nombre))
-  const vals = d.map(x => Number(x.consumo_dia)).filter(v => !isNaN(v))
-  if (!vals.length) return 0
-  return Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1))
+  const d = historico.value.filter(h =>
+    limpiarTexto(h.producto) ===
+    limpiarTexto(p.nombre)
+  )
+
+  if (!d.length)
+    return 0
+
+  const vals = d
+    .map(x =>
+      Number(x.consumo_dia)
+    )
+    .filter(v =>
+      !isNaN(v)
+    )
+
+  if (!vals.length)
+    return 0
+
+  const promedio =
+    vals.reduce((a, b) => a + b, 0) /
+    vals.length
+
+  return Number(
+    promedio.toFixed(1)
+  )
 }
 
 const calcularProyeccion = (p) => {
   const consumo = getConsumo(p)
-  if (!consumo) return 'Sin datos'
+
+  if (!consumo)
+    return 'Sin datos'
+
   return (consumo * 7).toFixed(0)
 }
 
 const estadoClase = (p) => {
   const proyeccion = Number(calcularProyeccion(p))
-  if (isNaN(proyeccion)) return 'gris'
-  if (proyeccion >= 20) return 'rojo'
-  if (proyeccion >= 10) return 'amarillo'
+
+  if (isNaN(proyeccion))
+    return 'gris'
+
+  if (proyeccion >= 20)
+    return 'rojo'
+
+  if (proyeccion >= 10)
+    return 'amarillo'
+
   return 'verde'
 }
 
 const anchoBarra = (p) => {
-  const proyeccion = Number(calcularProyeccion(p))
-  return isNaN(proyeccion) ? 0 : Math.min((proyeccion / 30) * 100, 100)
+  const proyeccion =
+    Number(calcularProyeccion(p))
+
+  if (isNaN(proyeccion))
+    return 0
+
+  return Math.min(
+    (proyeccion / 30) * 100,
+    100
+  )
 }
 
 const recomendacion = (p) => {
-  const proyeccion = Number(calcularProyeccion(p))
-  if (isNaN(proyeccion)) return 'Sin datos'
-  if (proyeccion >= 20) return 'Alta demanda'
-  if (proyeccion >= 10) return 'Monitorear'
-  return 'Estable'
+  const proyeccion =
+    Number(calcularProyeccion(p))
+
+  if (isNaN(proyeccion))
+    return 'Sin datos'
+
+  if (proyeccion >= 20)
+    return 'Alta demanda'
+
+  if (proyeccion >= 10)
+    return 'Monitorear'
+
+  return 'Demanda estable'
 }
 
 const productosAltaRotacion = computed(() =>
-  productos.value.filter(p => Number(calcularProyeccion(p)) >= 10).length
+  productos.value.filter(p => {
+    const proyeccion =
+      Number(calcularProyeccion(p))
+
+    return !isNaN(proyeccion) && proyeccion >= 10
+  }).length
 )
 
-const demandaTotal = computed(() =>
-  productos.value.reduce((acc, p) => acc + Number(getConsumo(p)), 0).toFixed(0)
-)
+const demandaTotal = computed(() => {
+  const total = productos.value.reduce(
+    (acc, p) =>
+      acc + Number(
+        getConsumo(p)
+      ),
+    0
+  )
+
+  return total.toFixed(0)
+})
 
 const porcentajeActivos = computed(() => {
-  const total = productos.value.length
-  if (!total) return 0
-  return ((productos.value.filter(p => Number(getConsumo(p)) > 0).length / total) * 100).toFixed(0)
+  const total =
+    productos.value.length
+
+  if (!total)
+    return 0
+
+  const activos =
+    productos.value.filter(p =>
+      Number(getConsumo(p)) > 0
+    ).length
+
+  return (
+    (activos / total) * 100
+  ).toFixed(0)
 })
 
 const crearGrafica = async () => {
   await nextTick()
-  if (!chart.value) return
-  if (chartInstance) chartInstance.destroy()
+
+  if (!chart.value)
+    return
+
+  const labels = datos.value.map(d => formatearFecha(d.fecha))
+
+  const valores = datos.value.map(d =>
+    Number(d.consumo_dia)
+  )
+
+  if (chartInstance)
+    chartInstance.destroy()
+
   chartInstance = new Chart(chart.value, {
     type: 'line',
+
     data: {
-      labels: datos.value.map(d => d.fecha),
+      labels,
+
       datasets: [{
         label: 'Consumo diario',
-        data: datos.value.map(d => Number(d.consumo_dia)),
+        data: valores,
         fill: true,
         tension: 0.4,
-        borderWidth: 3,
-        borderColor: '#ff7a00',
-        backgroundColor: 'rgba(255,122,0,0.1)'
+        borderWidth: 3
       }]
     },
-    options: { responsive: true, plugins: { legend: { display: true } } }
+
+    options: {
+      responsive: true,
+
+      plugins: {
+        legend: {
+          display: true
+        }
+      }
+    }
   })
 }
 
 const seleccionar = async (p) => {
   producto.value = p
+
   await crearGrafica()
 }
 
-// ── EXPORTAR PDF ──
-const exportarPDF = async () => {
-  exportando.value = true
-  try {
-    const fecha = new Date().toLocaleDateString('es-CO')
-    const colorEstado = (p) => {
-      const e = estadoClase(p)
-      return e === 'rojo' ? '#e53935' : e === 'amarillo' ? '#f9a825' : '#43a047'
-    }
-    const filas = filtrados.value.map(p => `
-      <tr>
-        <td>${p.nombre}</td>
-        <td>$${formatearNumero(p.precio)}</td>
-        <td>${getConsumo(p)} und/día</td>
-        <td>${calcularProyeccion(p)} und</td>
-        <td style="color:${colorEstado(p)};font-weight:700">${recomendacion(p)}</td>
-      </tr>
-    `).join('')
+// Se ejecuta al seleccionar una opción del menú
+const exportarArchivo = async (tipo) => {
+  // Cerrar el menú
+  mostrarMenu.value = false
 
-    const html = `
-      <!DOCTYPE html><html><head><meta charset="UTF-8">
-      <style>
-        body { font-family: Arial, sans-serif; padding: 30px; color: #111; }
-        h1 { font-size: 22px; margin-bottom: 4px; }
-        .sub { color: #888; font-size: 13px; margin-bottom: 20px; }
-        .kpis { display: flex; gap: 16px; margin-bottom: 24px; }
-        .kpi { flex:1; border: 2px solid #eee; border-radius: 12px; padding: 12px; text-align: center; }
-        .kpi h2 { margin: 4px 0; font-size: 24px; }
-        .kpi p { margin: 0; font-size: 12px; color: #888; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: #1a1a1a; color: white; padding: 10px 12px; text-align: left; }
-        td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; }
-        tr:nth-child(even) td { background: #fafafa; }
-        .footer { margin-top: 30px; font-size: 11px; color: #aaa; text-align: center; }
-        .acento { color: #ff7a00; font-weight: 800; }
-      </style></head><body>
-      <h1>🍔 <span class="acento">SuperBárbaro</span> — Reporte de Productos del Menú</h1>
-      <p class="sub">Generado el ${fecha} · Consumo diario y proyección semanal de demanda</p>
-      <div class="kpis">
-        <div class="kpi"><p>Demanda diaria total</p><h2>${demandaTotal.value} und</h2></div>
-        <div class="kpi"><p>Productos con historial</p><h2>${porcentajeActivos.value}%</h2></div>
-        <div class="kpi"><p>Alta rotación</p><h2 style="color:#ff7a00">${productosAltaRotacion.value}</h2></div>
-      </div>
-      <table>
-        <thead><tr><th>Producto</th><th>Precio</th><th>Consumo/día</th><th>Proyección semanal</th><th>Estado</th></tr></thead>
-        <tbody>${filas}</tbody>
-      </table>
-      <p class="footer">SuperBárbaro · Sistema de gestión de food truck · ${fecha}</p>
-      </body></html>
+  // Llamar a la función de exportación con el tipo seleccionado
+  await exportarPDF(tipo)
+}
+
+// ── EXPORTAR ARCHIVOS (PDF, CSV, EXCEL, WORD) ──
+const exportarPDF = async (tipo = 'pdf') => {
+  exportando.value = true
+
+  try {
+    const filas = productos.value.map(p => ({
+      nombre: p.nombre,
+      stock: p.cantidad,
+      consumoDiario: getConsumo(p),
+      diasEstimados: calcularDias(p),
+      estado: recomendacion(p)
+    }))
+
+    // Fecha para el nombre del archivo
+    const fecha = new Date().toISOString().slice(0, 10)
+
+    // Función auxiliar para descargar
+    const descargarArchivo = (contenido, nombre, mimeType) => {
+      const blob = new Blob([contenido], { type: mimeType })
+      const url = URL.createObjectURL(blob)
+
+      const enlace = document.createElement('a')
+      enlace.href = url
+      enlace.download = nombre
+      enlace.style.display = 'none'
+
+      document.body.appendChild(enlace)
+      enlace.click()
+      document.body.removeChild(enlace)
+
+      URL.revokeObjectURL(url)
+    }
+
+    // CSV
+    if (tipo === 'csv') {
+      let csv = 'Insumo,Stock,Consumo Diario,Días Estimados,Estado\n'
+
+      filas.forEach(f => {
+        csv += `"${f.nombre}",${f.stock},${f.consumoDiario},${f.diasEstimados},"${f.estado}"\n`
+      })
+
+      descargarArchivo(
+        csv,
+        `analisis_insumos_${fecha}.csv`,
+        'text/csv;charset=utf-8;'
+      )
+
+      return
+    }
+
+    // EXCEL (.xls)
+    if (tipo === 'excel') {
+      let tabla = `
+        <table border="1">
+          <tr>
+            <th>Insumo</th>
+            <th>Stock</th>
+            <th>Consumo Diario</th>
+            <th>Días Estimados</th>
+            <th>Estado</th>
+          </tr>
+      `
+
+      filas.forEach(f => {
+        tabla += `
+          <tr>
+            <td>${f.nombre}</td>
+            <td>${f.stock}</td>
+            <td>${f.consumoDiario}</td>
+            <td>${f.diasEstimados}</td>
+            <td>${f.estado}</td>
+          </tr>
+        `
+      })
+
+      tabla += '</table>'
+
+      descargarArchivo(
+        tabla,
+        `analisis_insumos_${fecha}.xls`,
+        'application/vnd.ms-excel'
+      )
+
+      return
+    }
+
+    // WORD (.doc)
+    if (tipo === 'word') {
+      let htmlWord = `
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Análisis de Insumos</title>
+        </head>
+        <body>
+          <h1>Análisis de Insumos</h1>
+          <table border="1" cellspacing="0" cellpadding="6">
+            <tr>
+              <th>Insumo</th>
+              <th>Stock</th>
+              <th>Consumo Diario</th>
+              <th>Días Estimados</th>
+              <th>Estado</th>
+            </tr>
+      `
+
+      filas.forEach(f => {
+        htmlWord += `
+          <tr>
+            <td>${f.nombre}</td>
+            <td>${f.stock}</td>
+            <td>${f.consumoDiario}</td>
+            <td>${f.diasEstimados}</td>
+            <td>${f.estado}</td>
+          </tr>
+        `
+      })
+
+      htmlWord += `
+          </table>
+        </body>
+        </html>
+      `
+
+      descargarArchivo(
+        htmlWord,
+        `analisis_insumos_${fecha}.doc`,
+        'application/msword'
+      )
+
+      return
+    }
+
+    // PDF (descarga como HTML listo para imprimir
+    let htmlPdf = `
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Análisis de Insumos</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+          }
+
+          h1 {
+            text-align: center;
+            color: #2e7d32;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+
+          th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+          }
+
+          th {
+            background: #2e7d32;
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Análisis de Insumos</h1>
+        <p>Fecha: ${new Date().toLocaleDateString('es-CO')}</p>
+
+        <table>
+          <tr>
+            <th>Insumo</th>
+            <th>Stock</th>
+            <th>Consumo Diario</th>
+            <th>Días Estimados</th>
+            <th>Estado</th>
+          </tr>
     `
 
-    const ventana = window.open('', '_blank')
-    ventana.document.write(html)
-    ventana.document.close()
-    ventana.focus()
-    setTimeout(() => { ventana.print(); ventana.close() }, 500)
+    filas.forEach(f => {
+      htmlPdf += `
+        <tr>
+          <td>${f.nombre}</td>
+          <td>${f.stock}</td>
+          <td>${f.consumoDiario}</td>
+          <td>${f.diasEstimados}</td>
+          <td>${f.estado}</td>
+        </tr>
+      `
+    })
+
+    htmlPdf += `
+        </table>
+      </body>
+      </html>
+    `
+
+    descargarArchivo(
+      htmlPdf,
+      `analisis_insumos_${fecha}.html`,
+      'text/html;charset=utf-8;'
+    )
+
+    alert(
+      'Se descargó un archivo HTML. Ábrelo en tu navegador y selecciona "Imprimir > Guardar como PDF".'
+    )
+
+  } catch (error) {
+    console.error('Error al exportar:', error)
+    alert('Ocurrió un error al exportar el archivo.')
   } finally {
     exportando.value = false
   }
@@ -334,239 +723,355 @@ const exportarPDF = async () => {
 
 onMounted(async () => {
   try {
-    const p = await axios.get(`${API_URL}/api/productos-menu/productos`)
-    const h = await axios.get(`${API_URL}/api/productos-menu/historico`)
+    const p = await axios.get(
+      `${API_URL}/api/productos-menu/productos`
+    )
+
+    const h = await axios.get(
+      `${API_URL}/api/productos-menu/historico`
+    )
+
     productos.value = p.data || []
     historico.value = h.data || []
-  } catch {}
+  } catch (error) {
+    console.error(
+      'Error cargando datos:',
+      error
+    )
+  }
 })
 </script>
 
 <style scoped>
 .fondo {
-  --background: #f7f7f7;
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
+  --background: #f4f6f9;
+  color: #111;
 }
 
-.contenedor {
-  padding: 12px;
-  width: 100%;
-  box-sizing: border-box;
+.resumen {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  padding: 10px;
 }
 
-.kpis { display: flex; gap: 10px; }
-
-.kpi-card {
+.card-resumen {
   flex: 1;
   background: white;
-  border-radius: 14px;
-  padding: 12px 10px;
+  color: black;
+  border-radius: 16px;
+  padding: 14px;
   text-align: center;
-  border: 2px solid transparent;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.kpi-card.gris   { border-color: #757575; }
-.kpi-card.verde  { border-color: #4caf50; }
-.kpi-card.naranja{ border-color: #ff7a00; }
+.card-resumen h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 6px 0;
+}
 
-.kpi-icono { font-size: 18px; }
-.kpi-label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #888; letter-spacing: 0.5px; }
-.kpi-valor { font-size: 20px; font-weight: 900; color: black; }
-.kpi-sub   { font-size: 9px; color: #bbb; line-height: 1.3; }
+.card-resumen .titulo {
+  font-size: 13px;
+  color: #666;
+}
 
-.barra-acciones { display: flex; gap: 10px; align-items: center; }
+.card-resumen .desc {
+  font-size: 11px;
+  color: #999;
+}
 
-.buscador-wrap {
-  flex: 1;
+.card-resumen.gris {
+  border-top: 4px solid #757575;
+}
+
+.card-resumen.verde {
+  border-top: 4px solid #4caf50;
+}
+
+.card-resumen.rojo {
+  border-top: 4px solid #f44336;
+}
+
+.top {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: white;
-  border: 2px solid black;
-  border-radius: 14px;
-  padding: 10px 14px;
+  gap: 12px;
+  padding: 20px;
+  position: relative;
 }
 
-.search-icon { font-size: 16px; color: #888; flex-shrink: 0; }
-
-.buscador-wrap input {
-  border: none;
-  outline: none;
-  font-size: 14px;
-  width: 100%;
-  background: transparent;
-  color: black;
+/* CONTENEDOR DEL DROPDOWN */
+.dropdown-exportar {
+  position: relative;
+  flex-shrink: 0;
 }
 
+/* BOTÓN EXPORTAR */
 .btn-exportar {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #ff7a00;
-  color: white;
+  padding: 12px 16px;
   border: none;
   border-radius: 14px;
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 800;
+  background: #2e7d32;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: 0.2s;
 }
 
-.btn-exportar:disabled { opacity: 0.6; }
+.btn-exportar:hover {
+  background: #256428;
+  transform: translateY(-1px);
+}
+
+.btn-exportar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* MENÚ DESPLEGABLE */
+.menu-exportar {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* OPCIONES DEL MENÚ */
+.menu-exportar button {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: white;
+  color: #222;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-exportar button:hover {
+  background: #f5f5f5;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 14px;
+  border: 1px solid #044e008f;
+  background: rgb(247, 255, 241);
+  color: black;
+  font-size: 14px;
+}
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  grid-template-columns:
+    repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  padding: 12px;
 }
 
 .card {
   background: white;
-  border: 2px solid black;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 14px;
-  cursor: pointer;
-  transition: transform 0.1s;
+  color: black;
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.08);
+  transition: 0.2s;
 }
 
-.card:active { transform: scale(0.97); }
+.card:hover {
+  transform: translateY(-4px);
+}
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.card img {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 12px;
   margin-bottom: 10px;
 }
 
-.card-header img {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.badge {
-  font-size: 10px;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 20px;
-}
-
-.badge.verde   { background: #e8f5e9; color: #43a047; }
-.badge.amarillo{ background: #fff8e1; color: #f9a825; }
-.badge.rojo    { background: #ffebee; color: #e53935; }
-.badge.gris    { background: #eeeeee; color: #757575; }
-
-.card h3 { font-size: 13px; font-weight: 800; margin-bottom: 4px; color: black; }
-
-.precio-tag {
-  font-size: 12px;
-  font-weight: 700;
-  color: #ff7a00;
+.card h3 {
   margin-bottom: 8px;
-}
-
-.info { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-
-.info-fila { display: flex; justify-content: space-between; font-size: 11px; }
-.info-label { color: #999; }
-.info-val   { font-weight: 700; color: #333; }
-.info-val.verde   { color: #43a047; }
-.info-val.amarillo{ color: #f9a825; }
-.info-val.rojo    { color: #e53935; }
-
-.barra-wrap {
-  height: 6px;
-  background: #f0f0f0;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.barra-progreso {
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.4s ease;
-}
-
-.barra-progreso.verde   { background: #4caf50; }
-.barra-progreso.amarillo{ background: #fbc02d; }
-.barra-progreso.rojo    { background: #ff7a00; }
-.barra-progreso.gris    { background: #9e9e9e; }
-
-.detalle { display: flex; flex-direction: column; gap: 14px; }
-
-.btn-volver {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: 2px solid black;
-  border-radius: 12px;
-  padding: 8px 14px;
+  font-size: 18px;
   font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  color: black;
-  width: fit-content;
 }
 
-.detalle-card {
-  background: white;
-  border: 2px solid black;
-  border-radius: 16px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.detalle-nombre { font-size: 18px; font-weight: 900; margin: 0; }
-
-.grafica-container {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 10px;
-}
-
-.analisis-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.analisis-item {
-  background: #f7f7f7;
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.analisis-label { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
-.analisis-val   { font-size: 14px; font-weight: 800; color: black; }
-.color-verde { color: #43a047; }
-.color-rojo  { color: #e53935; }
-
-.insight-box {
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-weight: 600;
+.info p {
+  margin: 4px 0;
   font-size: 13px;
 }
 
-.insight-box.verde   { background: #e8f5e9; color: #2e7d32; }
-.insight-box.amarillo{ background: #fff8e1; color: #f57f17; }
-.insight-box.rojo    { background: #ffebee; color: #c62828; }
-.insight-box.gris    { background: #eeeeee; color: #616161; }
+.barra {
+  height: 7px;
+  background: #ececec;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.progreso {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.progreso.verde {
+  background: #4caf50;
+}
+
+.progreso.amarillo {
+  background: #fbc02d;
+}
+
+.progreso.rojo {
+  background: #f44336;
+}
+
+.progreso.gris {
+  background: #9e9e9e;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge.verde {
+  background: #e8f5e9;
+  color: #43a047;
+}
+
+.badge.amarillo {
+  background: #fff8e1;
+  color: #fbc02d;
+}
+
+.badge.rojo {
+  background: #ffebee;
+  color: #e53935;
+}
+
+.badge.gris {
+  background: #eeeeee;
+  color: #616161;
+}
+
+.detalle {
+  padding: 14px;
+  color: black;
+}
+
+.grafica-container {
+  background: white;
+  padding: 10px;
+  border-radius: 14px;
+  margin-top: 10px;
+}
+
+.analisis {
+  margin-top: 12px;
+  background: white;
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.analisis h3 {
+  margin-bottom: 10px;
+}
+
+.analisis p {
+  margin: 7px 0;
+}
+
+.insight {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.insight.rojo {
+  background: #ffebee;
+  color: #e53935;
+}
+
+.insight.amarillo {
+  background: #fff8e1;
+  color: #fbc02d;
+}
+
+.insight.verde {
+  background: #e8f5e9;
+  color: #43a047;
+}
+
+.insight.gris {
+  background: #eeeeee;
+  color: #616161;
+}
+
+.rojo {
+  color: #e53935;
+}
+
+.amarillo {
+  color: #fbc02d;
+}
+
+.verde {
+  color: #43a047;
+}
+
+.gris {
+  color: #757575;
+}
+
+.volver {
+  margin-bottom: 12px;
+  background: none;
+  border: none;
+  font-weight: 700;
+  color: #444;
+  font-size: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dropdown-exportar {
+    width: 100%;
+  }
+
+  .btn-exportar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .menu-exportar {
+    left: 0;
+    right: 0;
+    min-width: unset;
+  }
+}
 </style>
