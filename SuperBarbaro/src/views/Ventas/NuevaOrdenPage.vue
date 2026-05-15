@@ -67,7 +67,58 @@
         </section>
 
         <section class="panel panel-pedido">
-          <h2 class="titulo-seccion">Pedido</h2>
+          <div class="encabezado-pedido">
+            <h2 class="titulo-seccion">Pedido</h2>
+
+            <div class="acciones-audio">
+              <button
+                class="btn-audio"
+                :class="{ grabando: grabandoAudio }"
+                :disabled="!speechRecognitionDisponible"
+                @click="toggleGrabacionAudio"
+              >
+                {{ grabandoAudio ? 'Detener microfono' : 'Usar microfono' }}
+              </button>
+
+              <label class="btn-audio btn-audio-archivo">
+                {{ transcribiendoArchivo ? 'Transcribiendo audio...' : 'Cargar audio' }}
+                <input type="file" accept="audio/*" :disabled="transcribiendoArchivo" @change="manejarArchivoAudio" />
+              </label>
+            </div>
+          </div>
+
+          <div class="panel-audio">
+            <p class="texto-ayuda-audio">
+              Usa el microfono del navegador o carga un archivo de audio para tenerlo en la orden mientras pruebas desde PC.
+            </p>
+
+            <p v-if="!speechRecognitionDisponible" class="texto-ayuda-audio texto-ayuda-alerta">
+              Este navegador no soporta reconocimiento de voz en tiempo real. Puedes cargar el archivo, escucharlo y pegar o editar la transcripcion manualmente.
+            </p>
+
+            <div v-if="archivoAudioNombre" class="archivo-audio-info">
+              <p><strong>Audio cargado:</strong> {{ archivoAudioNombre }}</p>
+              <audio v-if="archivoAudioUrl" :src="archivoAudioUrl" controls class="reproductor-audio"></audio>
+            </div>
+
+            <textarea
+              class="input input-transcripcion"
+              v-model="transcripcionAudio"
+              placeholder="Aqui aparecera la transcripcion detectada. Tambien puedes editarla o escribirla manualmente."
+            />
+
+            <div class="acciones-transcripcion">
+              <button class="btn-secundario" @click="aplicarTranscripcionAlPedido">
+                Rellenar pedido desde audio
+              </button>
+
+              <button class="btn-borrar-linea" @click="limpiarEntradaAudio">
+                Limpiar audio
+              </button>
+            </div>
+
+            <p v-if="mensajeAudio" class="mensaje-audio">{{ mensajeAudio }}</p>
+          </div>
 
           <div v-if="pedido.length === 0" class="estado-vacio">
             Aun no has agregado elementos
@@ -259,6 +310,364 @@ const ingredientesBaseDisponibles = ref({})
 const siguienteLineaId = ref(1)
 const guardandoPedido = ref(false)
 const cargandoEdicion = ref(false)
+const transcripcionAudio = ref('')
+const mensajeAudio = ref('')
+const grabandoAudio = ref(false)
+const archivoAudioNombre = ref('')
+const archivoAudioUrl = ref('')
+const transcribiendoArchivo = ref(false)
+const recognition = ref(null)
+const transcripcionFinalMicrofono = ref('')
+const transcripcionParcialMicrofono = ref('')
+const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition
+const speechRecognitionDisponible = !!SpeechRecognitionApi
+const NUMEROS_TEXTO = {
+  un: 1,
+  uno: 1,
+  una: 1,
+  dos: 2,
+  tres: 3,
+  cuatro: 4,
+  cinco: 5,
+  seis: 6,
+  siete: 7,
+  ocho: 8,
+  nueve: 9,
+  diez: 10
+}
+
+const normalizarTexto = (texto = '') => texto
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .replace(/[^\w\s]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+
+const tokenizarTexto = (texto = '') => normalizarTexto(texto)
+  .split(' ')
+  .filter((token) => token && token.length > 1)
+
+const reemplazarNumerosTexto = (texto = '') => {
+  let salida = ` ${normalizarTexto(texto)} `
+
+  Object.entries(NUMEROS_TEXTO).forEach(([palabra, valor]) => {
+    salida = salida.replace(new RegExp(`\\b${palabra}\\b`, 'g'), ` ${valor} `)
+  })
+
+  return salida.replace(/\s+/g, ' ').trim()
+}
+
+const extraerCantidadSegmento = (segmento = '') => {
+  const texto = reemplazarNumerosTexto(segmento)
+  const match = texto.match(/\b(\d+)\b/)
+  return match ? Number(match[1]) : 1
+}
+
+const limpiarSegmentoProducto = (segmento = '') => {
+  const texto = reemplazarNumerosTexto(segmento)
+    .replace(/\bsin\b[\s\S]*$/, ' ')
+    .replace(/\bcon\b[\s\S]*$/, ' ')
+    .replace(/\b(\d+)\b/g, ' ')
+    .replace(/\b(perro|perros|hamburguesa|hamburguesas|pedido|orden|quiero|me|das|dame|para|porfavor|por|favor)\b/g, ' ')
+
+  return texto.replace(/\s+/g, ' ').trim()
+}
+
+const extraerRemocionesSegmento = (segmento = '') => {
+  const texto = normalizarTexto(segmento)
+  const match = texto.match(/\bsin\b(.+)$/)
+  if (!match) {
+    return []
+  }
+
+  return match[1]
+    .split(/\b(?: y | e |,)\b/g)
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+const puntuarCoincidenciaMenu = (itemMenu, textoSegmento) => {
+  const tokensMenu = tokenizarTexto(itemMenu.nombre)
+  const tokensSegmento = tokenizarTexto(textoSegmento)
+  const coincidencias = tokensMenu.filter((token) => tokensSegmento.includes(token)).length
+
+  if (coincidencias === 0) {
+    return 0
+  }
+
+  const nombreNormalizado = normalizarTexto(itemMenu.nombre)
+  const segmentoNormalizado = normalizarTexto(textoSegmento)
+  const bonusContiene = segmentoNormalizado.includes(nombreNormalizado) ? 3 : 0
+  return coincidencias + bonusContiene
+}
+
+const buscarMenuPorTexto = (segmento = '') => {
+  const textoProducto = limpiarSegmentoProducto(segmento)
+  if (!textoProducto) {
+    return null
+  }
+
+  let mejorCoincidencia = null
+  let mejorPuntaje = 0
+
+  menuCompleto.value.forEach((itemMenu) => {
+    const puntaje = puntuarCoincidenciaMenu(itemMenu, textoProducto)
+    if (puntaje > mejorPuntaje) {
+      mejorPuntaje = puntaje
+      mejorCoincidencia = itemMenu
+    }
+  })
+
+  return mejorPuntaje > 0 ? mejorCoincidencia : null
+}
+
+const buscarIngredientePorTexto = (ingredientes = [], texto = '') => {
+  const textoNormalizado = normalizarTexto(texto)
+  return ingredientes.find((ingrediente) => {
+    const nombreIngrediente = normalizarTexto(ingrediente.nombre)
+    return textoNormalizado.includes(nombreIngrediente) || nombreIngrediente.includes(textoNormalizado)
+  }) || null
+}
+
+const agregarLineaPedido = (itemMenu, cantidad = 1, remociones = []) => {
+  cargarAdicionesCategoria(itemMenu.categoria_id)
+  cargarIngredientesMenu(itemMenu.id)
+
+  pedido.value.push({
+    ...itemMenu,
+    precio: Number(itemMenu.precio),
+    cantidad,
+    lineaId: siguienteLineaId.value,
+    adiciones: [],
+    remociones,
+    mostrarAdiciones: false,
+    mostrarRemociones: false
+  })
+
+  siguienteLineaId.value += 1
+}
+
+const crearReconocimiento = () => {
+  if (!SpeechRecognitionApi) {
+    mensajeAudio.value = 'El navegador no soporta reconocimiento de voz en tiempo real.'
+    return null
+  }
+
+  const instancia = new SpeechRecognitionApi()
+  instancia.lang = 'es-CO'
+  instancia.continuous = true
+  instancia.interimResults = true
+  instancia.maxAlternatives = 1
+
+  instancia.onstart = () => {
+    grabandoAudio.value = true
+    mensajeAudio.value = 'Escuchando... habla ahora para llenar la orden.'
+  }
+
+  instancia.onresult = (event) => {
+    let resultadoFinal = ''
+    let resultadoParcial = ''
+
+    for (let i = 0; i < event.results.length; i += 1) {
+      const texto = `${event.results[i][0].transcript} `.trim()
+
+      if (event.results[i].isFinal) {
+        resultadoFinal += `${texto} `
+      } else {
+        resultadoParcial += `${texto} `
+      }
+    }
+
+    transcripcionFinalMicrofono.value = resultadoFinal.trim()
+    transcripcionParcialMicrofono.value = resultadoParcial.trim()
+    transcripcionAudio.value = `${transcripcionFinalMicrofono.value} ${transcripcionParcialMicrofono.value}`.trim()
+  }
+
+  instancia.onerror = (event) => {
+    grabandoAudio.value = false
+    if (event.error === 'not-allowed') {
+      mensajeAudio.value = 'El navegador bloqueo el permiso del microfono. Debes habilitarlo para esta pagina.'
+      return
+    }
+
+    if (event.error === 'no-speech') {
+      mensajeAudio.value = 'No se detecto voz. Intenta hablar mas cerca del microfono y espera un momento antes de detener.'
+      return
+    }
+
+    if (event.error === 'audio-capture') {
+      mensajeAudio.value = 'No se encontro un microfono disponible en el equipo.'
+      return
+    }
+
+    mensajeAudio.value = `No se pudo capturar el audio del microfono (${event.error || 'error desconocido'}).`
+  }
+
+  instancia.onend = () => {
+    grabandoAudio.value = false
+    recognition.value = null
+
+    if (!transcripcionAudio.value.trim()) {
+      mensajeAudio.value = 'La grabacion termino, pero el navegador no devolvio texto. Revisa permisos, habla mas despacio o prueba con Chrome.'
+      return
+    }
+
+    mensajeAudio.value = 'Grabacion detenida. Revisa el texto antes de rellenar el pedido.'
+  }
+
+  return instancia
+}
+
+const toggleGrabacionAudio = () => {
+  if (!speechRecognitionDisponible) {
+    mensajeAudio.value = 'El navegador no soporta reconocimiento de voz en tiempo real.'
+    return
+  }
+
+  if (grabandoAudio.value) {
+    recognition.value?.stop()
+    return
+  }
+
+  transcripcionFinalMicrofono.value = ''
+  transcripcionParcialMicrofono.value = ''
+  transcripcionAudio.value = ''
+
+  try {
+    recognition.value?.abort()
+    recognition.value = crearReconocimiento()
+
+    if (!recognition.value) {
+      return
+    }
+
+    recognition.value.start()
+  } catch (error) {
+    grabandoAudio.value = false
+    recognition.value = null
+    mensajeAudio.value = `No se pudo iniciar el microfono. Prueba en Chrome o Edge y verifica el permiso del microfono. ${error?.name ? `(${error.name})` : ''}`.trim()
+    console.error('Error iniciando reconocimiento de voz', error)
+  }
+}
+
+const manejarArchivoAudio = (event) => {
+  const archivo = event.target.files?.[0]
+  if (!archivo) {
+    return
+  }
+
+  procesarArchivoAudio(archivo)
+  event.target.value = ''
+}
+
+const procesarArchivoAudio = async (archivo) => {
+  if (archivoAudioUrl.value) {
+    URL.revokeObjectURL(archivoAudioUrl.value)
+  }
+
+  archivoAudioNombre.value = archivo.name
+  archivoAudioUrl.value = URL.createObjectURL(archivo)
+  mensajeAudio.value = 'Audio cargado. Iniciando transcripcion...'
+
+  transcribiendoArchivo.value = true
+
+  try {
+    const formData = new FormData()
+    formData.append('audio', archivo)
+
+    const res = await fetch('https://superbarbaro.onrender.com/audio/transcribir', {
+      method: 'POST',
+      body: formData
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'No se pudo transcribir el audio')
+    }
+
+    transcripcionAudio.value = data.texto || ''
+    mensajeAudio.value = 'Audio transcrito. Revisa el texto y luego rellena la orden.'
+  } catch (error) {
+    console.error('Error transcribiendo archivo de audio', error)
+    mensajeAudio.value = error.message || 'No se pudo transcribir el archivo. Puedes escuchar el audio y escribir la transcripcion manualmente.'
+  } finally {
+    transcribiendoArchivo.value = false
+  }
+}
+
+const limpiarEntradaAudio = () => {
+  transcripcionAudio.value = ''
+  mensajeAudio.value = ''
+  archivoAudioNombre.value = ''
+  if (archivoAudioUrl.value) {
+    URL.revokeObjectURL(archivoAudioUrl.value)
+    archivoAudioUrl.value = ''
+  }
+}
+
+const aplicarTranscripcionAlPedido = async () => {
+  const texto = transcripcionAudio.value.trim()
+
+  if (!texto) {
+    window.alert('Debes tener una transcripcion antes de rellenar el pedido')
+    return
+  }
+
+  const segmentos = texto
+    .split(/\b(?: y | e )\b/gi)
+    .map((segmento) => segmento.trim())
+    .filter(Boolean)
+
+  if (segmentos.length === 0) {
+    window.alert('No se pudieron detectar elementos del pedido en el audio')
+    return
+  }
+
+  const lineasDetectadas = []
+  const segmentosSinCoincidencia = []
+
+  for (const segmento of segmentos) {
+    const itemMenu = buscarMenuPorTexto(segmento)
+
+    if (!itemMenu) {
+      segmentosSinCoincidencia.push(segmento)
+      continue
+    }
+
+    await cargarIngredientesMenu(itemMenu.id)
+    const ingredientes = ingredientesBaseDisponibles.value[itemMenu.id] || []
+    const remocionesTexto = extraerRemocionesSegmento(segmento)
+    const remociones = remocionesTexto
+      .map((textoRemocion) => buscarIngredientePorTexto(ingredientes, textoRemocion))
+      .filter(Boolean)
+      .map((ingrediente) => ({ id: ingrediente.id, nombre: ingrediente.nombre }))
+
+    lineasDetectadas.push({
+      itemMenu,
+      cantidad: extraerCantidadSegmento(segmento),
+      remociones
+    })
+  }
+
+  if (lineasDetectadas.length === 0) {
+    window.alert('No se pudo asociar la transcripcion con productos del menu')
+    return
+  }
+
+  pedido.value = []
+  siguienteLineaId.value = 1
+
+  lineasDetectadas.forEach(({ itemMenu, cantidad, remociones }) => {
+    agregarLineaPedido(itemMenu, cantidad, remociones)
+  })
+
+  const mensajeBase = 'La orden fue rellenada con el audio. Revisa y corrige antes de guardar.'
+  mensajeAudio.value = segmentosSinCoincidencia.length > 0
+    ? `${mensajeBase} Segmentos sin interpretar: ${segmentosSinCoincidencia.join(' | ')}`
+    : mensajeBase
+}
 
 const cargarCategorias = async () => {
   const res = await fetch('https://superbarbaro.onrender.com/categorias')
@@ -609,9 +1018,11 @@ onMounted(async () => {
 .panel { background: #fffdf7; border: 2px solid #1f1f1f; border-radius: 18px; padding: 16px; min-height: 520px; min-width: 0; overflow: hidden; color: #1f1f1f;}
 .titulo-seccion { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
 .input { width: 100%; min-width: 0; padding: 10px; border: 1px solid black; border-radius: 10px; background: white; display: block; }
+.input-transcripcion { min-height: 110px; resize: vertical; }
 select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; background-size: 16px; }
 .lista-categorias { display: grid; gap: 12px; }
 .encabezado-menu { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; min-width: 0; }
+.encabezado-pedido { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 .buscador-menu { max-width: 260px; width: 100%; }
 .grid-productos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; min-width: 0; }
 .card-categoria, .card-producto { border: 2px solid black; border-radius: 15px; padding: 12px; background: white; color: #1f1f1f; min-width: 0; }
@@ -623,6 +1034,7 @@ select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none
 .descripcion-producto { min-height: 36px; }
 .precio-producto { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
 .acciones-producto, .controles-pedido { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.acciones-audio, .acciones-transcripcion { display: flex; gap: 10px; flex-wrap: wrap; }
 .contador { display: flex; align-items: center; gap: 10px; }
 .btn-cantidad, .btn-agregar, .btn-eliminar, .btn-secundario { border: none; border-radius: 10px; font-weight: 700; }
 .btn-cantidad { width: 32px; height: 32px; background: #1f1f1f; color: white; }
@@ -630,7 +1042,17 @@ select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none
 .btn-agregar { padding: 10px 14px; background: #d96c06; color: white; }
 .btn-eliminar { padding: 8px 12px; background: #c62828; color: white; }
 .btn-secundario { padding: 8px 12px; background: #f0c14b; color: #1f1f1f; }
+.btn-audio { padding: 10px 14px; border: none; border-radius: 10px; background: #1f1f1f; color: white; font-weight: 700; cursor: pointer; }
+.btn-audio.grabando { background: #c62828; }
+.btn-audio:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-audio-archivo { display: inline-flex; align-items: center; }
+.btn-audio-archivo input { display: none; }
 .btn-borrar-linea { padding: 8px 12px; border: none; border-radius: 10px; font-weight: 700; background: #6b7280; color: white; }
+.panel-audio { margin-bottom: 16px; padding: 14px; border: 1px dashed #1f1f1f; border-radius: 14px; background: #fff7e8; display: grid; gap: 10px; }
+.texto-ayuda-audio { margin: 0; font-size: 14px; }
+.texto-ayuda-alerta { color: #8a4b08; }
+.archivo-audio-info p, .mensaje-audio { margin: 0; }
+.reproductor-audio { width: 100%; }
 .lista-pedido { display: grid; gap: 12px; }
 .item-pedido { border: 1px solid #1f1f1f; border-radius: 14px; padding: 12px; background: white; color: #1f1f1f; min-width: 0; }
 .item-pedido-personalizado { background: #dff5df; }
@@ -654,7 +1076,7 @@ select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none
 .boton-registrar { width: 100%; padding: 14px; border-radius: 12px; border: none; background: black; color: white; font-weight: bold; margin-top: 12px; }
 .boton-registrar:disabled { opacity: 0.7; }
 @media (max-width: 1100px) { .layout-ventas { grid-template-columns: 1fr; } .panel { min-height: auto; } }
-@media (max-width: 768px) { .contenedor-formulario { grid-template-columns: 1fr; } .encabezado-menu { flex-direction: column; align-items: stretch; } .buscador-menu, .grid-productos { max-width: none; grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .contenedor-formulario { grid-template-columns: 1fr; } .encabezado-menu, .encabezado-pedido { flex-direction: column; align-items: stretch; } .buscador-menu, .grid-productos { max-width: none; grid-template-columns: 1fr; } }
 </style>
 
 

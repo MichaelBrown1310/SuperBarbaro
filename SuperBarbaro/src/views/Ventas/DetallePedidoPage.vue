@@ -125,7 +125,7 @@ const siguienteEstadoCocina = computed(() => {
   }
 
   if (pedido.value.estado === 'en_preparacion') {
-    return 'listo'
+    return 'completado'
   }
 
   return null
@@ -136,8 +136,8 @@ const textoBotonCocina = computed(() => {
     return 'Pasar a preparacion'
   }
 
-  if (siguienteEstadoCocina.value === 'listo') {
-    return 'Marcar como listo'
+  if (siguienteEstadoCocina.value === 'completado') {
+    return 'Marcar como completado'
   }
 
   return ''
@@ -149,8 +149,8 @@ const cambiarEstadoPedido = async () => {
   }
 
   const mensaje = siguienteEstadoCocina.value === 'en_preparacion'
-    ? '¿Quieres cambiar el pedido a En preparación?'
-    : '¿Quieres cambiar el pedido a Listo?'
+    ? 'Quieres cambiar el pedido a En preparacion?'
+    : 'Quieres cambiar el pedido a Completado?'
 
   if (!window.confirm(mensaje)) {
     return
