@@ -14,6 +14,7 @@ const pedidosRoutes = require("./routes/pedidosRoutes");
 const alertasRoutes = require("./routes/alertasRoutes");
 const insumosRoutes = require("./routes/insumosRoutes");
 const productosMenuRoutes = require("./routes/productosMenuRoutes");
+const audioRoutes = require("./routes/audioRoutes");
 
 const usuariosController = require("./controllers/usuariosController");
 const pedidosController = require("./controllers/pedidosController");
@@ -72,6 +73,7 @@ app.use(pedidosRoutes);
 app.use(alertasRoutes);
 app.use(insumosRoutes);
 app.use(productosMenuRoutes);
+app.use(audioRoutes);
 
 io.on('connection', () => {
   console.log('Cliente conectado por socket');
