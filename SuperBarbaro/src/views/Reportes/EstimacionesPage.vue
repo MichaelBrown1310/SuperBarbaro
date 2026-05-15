@@ -57,17 +57,21 @@
               <div class="grafica-barras">
                 <div class="barra-grupo" v-for="(dia, i) in graficaDias" :key="i">
                   <div class="barras-stack">
-                    <div class="barra proteinas" :style="{ height: dia.proteinas * 0.9 + 'px' }" />
-                    <div class="barra panes"     :style="{ height: dia.panes * 0.9 + 'px' }" />
-                    <div class="barra bebidas"   :style="{ height: dia.bebidas * 0.9 + 'px' }" />
+                    <div
+                      v-for="cat in categoriasGrafica"
+                      :key="cat"
+                      class="barra"
+                      :style="{ height: ((dia[cat] || 0) / maxGrafica * 120) + 'px', background: COLORES_CATEGORIAS[cat] || '#ccc' }"
+                    />
                   </div>
                   <span class="dia-label">{{ dia.nombre }}</span>
                 </div>
               </div>
               <div class="leyenda">
-                <span class="leyenda-item"><span class="dot proteinas"></span> Proteínas</span>
-                <span class="leyenda-item"><span class="dot panes"></span> Panes</span>
-                <span class="leyenda-item"><span class="dot bebidas"></span> Bebidas</span>
+                <span class="leyenda-item" v-for="cat in categoriasGrafica" :key="'ley-' + cat">
+                  <span class="dot" :style="{ background: COLORES_CATEGORIAS[cat] || '#ccc', border: cat === 'arepas' ? '1px solid #ccc' : 'none' }"></span>
+                  {{ cat.charAt(0).toUpperCase() + cat.slice(1) }}
+                </span>
               </div>
             </div>
 
@@ -219,16 +223,82 @@ const cargando = ref(true)
 const productos = ref([])
 const categoriaFiltro = ref('Todas')
 const ventasReales = ref([])
+const categoriasRaw = ref([])
 
-const graficaDias = ref([
-  { nombre: 'Lun', proteinas: 45, panes: 30, bebidas: 20 },
-  { nombre: 'Mar', proteinas: 55, panes: 40, bebidas: 25 },
-  { nombre: 'Mié', proteinas: 60, panes: 45, bebidas: 30 },
-  { nombre: 'Jue', proteinas: 70, panes: 55, bebidas: 35 },
-  { nombre: 'Vie', proteinas: 90, panes: 70, bebidas: 50 },
-  { nombre: 'Sáb', proteinas: 120, panes: 95, bebidas: 70 },
-  { nombre: 'Dom', proteinas: 110, panes: 85, bebidas: 65 },
-])
+// Colores fijos por categoría real del inventario
+const COLORES_CATEGORIAS = {
+  hamburguesas: '#ff7a00',
+  perros:       '#1a1a1a',
+  arepas:       '#d0d0d0',
+  chuzos:       '#ffd000',
+  sandwichs:    '#444444',
+  chorizos:     '#ff3b3b',
+  bebidas:      '#4caf50'
+}
+
+// ── Gráfica calculada desde ventas reales agrupadas por categoría real ──
+const graficaDias = computed(() => {
+  const nombresDias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+  const cats = categoriasRaw.value.map(c => c.nombre.toLowerCase())
+
+  // Inicializar totales por día y categoría
+  const totales = Array.from({ length: 7 }, () => {
+    const obj = {}
+    cats.forEach(c => { obj[c] = 0 })
+    return obj
+  })
+
+  for (const venta of ventasReales.value) {
+    const fecha = new Date(venta.fecha || venta.fecha_creacion)
+    if (isNaN(fecha)) continue
+    const diaSemana = (fecha.getDay() + 6) % 7 // 0=Lun, 6=Dom
+
+    for (const item of (venta.items || [])) {
+      const cat = (item.categoria_nombre || '').toLowerCase()
+      const cant = Number(item.cantidad) || 1
+      if (totales[diaSemana][cat] !== undefined) {
+        totales[diaSemana][cat] += cant
+      }
+    }
+  }
+
+  // Si no hay datos reales, usar stock por categoría con patrón semanal
+  const hayDatos = totales.some(d => Object.values(d).some(v => v > 0))
+  if (!hayDatos) {
+    const factores = [0.10, 0.12, 0.13, 0.14, 0.16, 0.20, 0.15]
+    const stockPorCat = {}
+    cats.forEach(cat => {
+      stockPorCat[cat] = productos.value
+        .filter(p => (p.categoria_nombre || '').toLowerCase() === cat)
+        .reduce((a, p) => a + Number(p.cantidad || 0), 0)
+    })
+    return nombresDias.map((nombre, i) => {
+      const obj = { nombre }
+      cats.forEach(cat => { obj[cat] = Math.round(stockPorCat[cat] * factores[i]) })
+      return obj
+    })
+  }
+
+  return nombresDias.map((nombre, i) => ({ nombre, ...totales[i] }))
+})
+
+// Categorías activas (las que tienen algún dato en la gráfica)
+const categoriasGrafica = computed(() => {
+  const cats = categoriasRaw.value.map(c => c.nombre.toLowerCase())
+  return cats.filter(cat =>
+    graficaDias.value.some(d => (d[cat] || 0) > 0)
+  )
+})
+
+const maxGrafica = computed(() => {
+  let max = 1
+  graficaDias.value.forEach(d => {
+    categoriasGrafica.value.forEach(cat => {
+      if ((d[cat] || 0) > max) max = d[cat]
+    })
+  })
+  return max
+})
 
 const productosConPrediccion = computed(() => {
   return productos.value.map(p => {
@@ -341,6 +411,7 @@ const cargar = async () => {
   try {
     const resCat = await fetch('https://superbarbaro.onrender.com/categorias')
     const cats = await resCat.json()
+    categoriasRaw.value = cats
     const todos = []
     for (const cat of cats) {
       const res = await fetch(`https://superbarbaro.onrender.com/productos/${cat.id}`)
@@ -352,7 +423,23 @@ const cargar = async () => {
 
     try {
       const resV = await fetch('https://superbarbaro.onrender.com/ventas')
-      ventasReales.value = await resV.json()
+      const rawVentas = await resV.json()
+      // Parsear recibo_json si los items vienen ahí
+      ventasReales.value = rawVentas.map(v => {
+        let items = v.items || []
+        if (!items.length && v.recibo_json) {
+          try {
+            const r = typeof v.recibo_json === 'string' ? JSON.parse(v.recibo_json) : v.recibo_json
+            items = r?.items || r || []
+          } catch {}
+        }
+        // Enriquecer items con categoría del producto
+        items = items.map(item => {
+          const prod = unicos.find(p => p.nombre?.toLowerCase() === (item.nombre || '').toLowerCase())
+          return { ...item, categoria_nombre: prod?.categoria_nombre || item.categoria || '' }
+        })
+        return { ...v, items }
+      })
     } catch {
       ventasReales.value = []
     }
@@ -365,13 +452,13 @@ const cargar = async () => {
       { id: 5, nombre: 'Queso Cheddar', cantidad: 200, minimo: 30, categoria_nombre: 'Proteínas' },
       { id: 6, nombre: 'Lechuga Batavia', cantidad: 5, minimo: 8, categoria_nombre: 'Vegetales' },
     ]
-    // Fallback ventas de demo
     ventasReales.value = [
-      { id: 1, tipo: 'presencial', items: [{ nombre: 'Hamburguesa', cantidad: 2 }, { nombre: 'Jugo', cantidad: 1 }] },
-      { id: 2, tipo: 'domicilio',  items: [{ nombre: 'Perro caliente', cantidad: 1 }, { nombre: 'Papas fritas', cantidad: 2 }] },
-      { id: 3, tipo: 'presencial', items: [{ nombre: 'Combo familiar', cantidad: 1 }, { nombre: 'Hamburguesa', cantidad: 3 }, { nombre: 'Bebida', cantidad: 3 }] },
-      { id: 4, tipo: 'domicilio',  items: [{ nombre: 'Hamburguesa', cantidad: 2 }, { nombre: 'Papas fritas', cantidad: 1 }] },
-      { id: 5, tipo: 'presencial', items: [{ nombre: 'Perro caliente', cantidad: 2 }, { nombre: 'Jugo', cantidad: 2 }] },
+      { id: 1, fecha: new Date().toISOString(), tipo: 'presencial',
+        items: [{ nombre: 'Carne de Res 150g', cantidad: 2, categoria_nombre: 'Proteínas' }, { nombre: 'Pan Brioche', cantidad: 2, categoria_nombre: 'Panes' }, { nombre: 'Sprite 450ml', cantidad: 1, categoria_nombre: 'Bebidas' }] },
+      { id: 2, fecha: new Date(Date.now() - 86400000).toISOString(), tipo: 'domicilio',
+        items: [{ nombre: 'Pechuga de Pollo', cantidad: 1, categoria_nombre: 'Proteínas' }, { nombre: 'Pan Brioche', cantidad: 1, categoria_nombre: 'Panes' }] },
+      { id: 3, fecha: new Date(Date.now() - 86400000 * 2).toISOString(), tipo: 'presencial',
+        items: [{ nombre: 'Carne de Res 150g', cantidad: 3, categoria_nombre: 'Proteínas' }, { nombre: 'Sprite 450ml', cantidad: 2, categoria_nombre: 'Bebidas' }] },
     ]
   } finally {
     cargando.value = false
