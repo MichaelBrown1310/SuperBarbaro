@@ -317,6 +317,8 @@ const archivoAudioNombre = ref('')
 const archivoAudioUrl = ref('')
 const transcribiendoArchivo = ref(false)
 const recognition = ref(null)
+const transcripcionFinalMicrofono = ref('')
+const transcripcionParcialMicrofono = ref('')
 const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition
 const speechRecognitionDisponible = !!SpeechRecognitionApi
 const NUMEROS_TEXTO = {
@@ -446,37 +448,75 @@ const agregarLineaPedido = (itemMenu, cantidad = 1, remociones = []) => {
   siguienteLineaId.value += 1
 }
 
-const iniciarReconocimiento = () => {
+const crearReconocimiento = () => {
   if (!SpeechRecognitionApi) {
     mensajeAudio.value = 'El navegador no soporta reconocimiento de voz en tiempo real.'
-    return
+    return null
   }
 
   const instancia = new SpeechRecognitionApi()
   instancia.lang = 'es-CO'
   instancia.continuous = true
   instancia.interimResults = true
+  instancia.maxAlternatives = 1
+
+  instancia.onstart = () => {
+    grabandoAudio.value = true
+    mensajeAudio.value = 'Escuchando... habla ahora para llenar la orden.'
+  }
 
   instancia.onresult = (event) => {
     let resultadoFinal = ''
+    let resultadoParcial = ''
 
     for (let i = 0; i < event.results.length; i += 1) {
-      resultadoFinal += `${event.results[i][0].transcript} `
+      const texto = `${event.results[i][0].transcript} `.trim()
+
+      if (event.results[i].isFinal) {
+        resultadoFinal += `${texto} `
+      } else {
+        resultadoParcial += `${texto} `
+      }
     }
 
-    transcripcionAudio.value = resultadoFinal.trim()
+    transcripcionFinalMicrofono.value = resultadoFinal.trim()
+    transcripcionParcialMicrofono.value = resultadoParcial.trim()
+    transcripcionAudio.value = `${transcripcionFinalMicrofono.value} ${transcripcionParcialMicrofono.value}`.trim()
   }
 
-  instancia.onerror = () => {
+  instancia.onerror = (event) => {
     grabandoAudio.value = false
-    mensajeAudio.value = 'No se pudo capturar el audio del microfono.'
+    if (event.error === 'not-allowed') {
+      mensajeAudio.value = 'El navegador bloqueo el permiso del microfono. Debes habilitarlo para esta pagina.'
+      return
+    }
+
+    if (event.error === 'no-speech') {
+      mensajeAudio.value = 'No se detecto voz. Intenta hablar mas cerca del microfono y espera un momento antes de detener.'
+      return
+    }
+
+    if (event.error === 'audio-capture') {
+      mensajeAudio.value = 'No se encontro un microfono disponible en el equipo.'
+      return
+    }
+
+    mensajeAudio.value = `No se pudo capturar el audio del microfono (${event.error || 'error desconocido'}).`
   }
 
   instancia.onend = () => {
     grabandoAudio.value = false
+    recognition.value = null
+
+    if (!transcripcionAudio.value.trim()) {
+      mensajeAudio.value = 'La grabacion termino, pero el navegador no devolvio texto. Revisa permisos, habla mas despacio o prueba con Chrome.'
+      return
+    }
+
+    mensajeAudio.value = 'Grabacion detenida. Revisa el texto antes de rellenar el pedido.'
   }
 
-  recognition.value = instancia
+  return instancia
 }
 
 const toggleGrabacionAudio = () => {
@@ -485,20 +525,30 @@ const toggleGrabacionAudio = () => {
     return
   }
 
-  if (!recognition.value) {
-    iniciarReconocimiento()
-  }
-
   if (grabandoAudio.value) {
     recognition.value?.stop()
-    grabandoAudio.value = false
-    mensajeAudio.value = 'Grabacion detenida. Revisa el texto antes de rellenar el pedido.'
     return
   }
 
-  mensajeAudio.value = 'Escuchando... habla ahora para llenar la orden.'
-  grabandoAudio.value = true
-  recognition.value?.start()
+  transcripcionFinalMicrofono.value = ''
+  transcripcionParcialMicrofono.value = ''
+  transcripcionAudio.value = ''
+
+  try {
+    recognition.value?.abort()
+    recognition.value = crearReconocimiento()
+
+    if (!recognition.value) {
+      return
+    }
+
+    recognition.value.start()
+  } catch (error) {
+    grabandoAudio.value = false
+    recognition.value = null
+    mensajeAudio.value = `No se pudo iniciar el microfono. Prueba en Chrome o Edge y verifica el permiso del microfono. ${error?.name ? `(${error.name})` : ''}`.trim()
+    console.error('Error iniciando reconocimiento de voz', error)
+  }
 }
 
 const manejarArchivoAudio = (event) => {
@@ -951,10 +1001,6 @@ onMounted(async () => {
     window.alert('No tienes permisos para acceder a pedidos')
     window.location.replace('/tabs/ventas')
     return
-  }
-
-  if (speechRecognitionDisponible) {
-    iniciarReconocimiento()
   }
 
   await cargarCategorias()
